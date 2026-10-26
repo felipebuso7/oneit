@@ -6,7 +6,13 @@ Data: 26/10/2026. Nenhum deploy de OneIT, migration remota ou e-mail foi executa
 
 O proprietário optou por não contratar o Supabase Pro agora, manter os projetos atuais e usar apenas uma prévia sem uso real por enquanto. Portanto, o projeto `oneit-staging` permanece em Ohio, sem backup gerenciado; o projeto anterior do OneFlow permanece preservado. Não foi criado projeto OneIT na Vercel, aplicado esquema ao Supabase remoto ou publicada URL de produção.
 
-No commit `aba7621`, o caminho `/demo` e suas APIs passaram a responder 404 em build de produção, e a página inicial passa a direcionar para `/portal`. Esse bloqueio evita oferecer o fluxo baseado em `localStorage` como se fosse multiusuário. O preflight de produção também exige URL HTTPS e a chave de serviço necessária ao modo Supabase. Os testes locais dirigidos (8) e o typecheck passaram; o CI desse commit ainda deve ser conferido antes de registrar aprovação Linux. A prévia local de desenvolvimento continua acessível pelo fluxo `/demo` e não é evidência de prontidão para dados reais.
+No commit `aba7621`, o caminho `/demo` e suas APIs passaram a responder 404 em build de produção, e a página inicial passa a direcionar para `/portal`. Esse bloqueio evita oferecer o fluxo baseado em `localStorage` como se fosse multiusuário. O preflight de produção também exige URL HTTPS e a chave de serviço necessária ao modo Supabase. Os testes locais dirigidos (8), o typecheck e o [CI Linux desse commit](https://github.com/felipebuso7/oneit/actions/runs/40370751837) passaram. A prévia local de desenvolvimento continua acessível pelo fluxo `/demo` e não é evidência de prontidão para dados reais.
+
+## Tentativa de prévia Vercel
+
+O proprietário autorizou importar `felipebuso7/oneit` no workspace Vercel `Okaa` para prévia. O commit `f88860f` permite `/demo` somente quando `VERCEL_ENV=preview` e `ONEIT_PREVIEW_MODE=demo`; em deploy de produção, `/demo` continua bloqueado. A prévia exibe aviso permanente de que os dados ficam apenas no navegador e não devem ser reais. Sete testes dirigidos e o typecheck passaram localmente.
+
+No formulário de importação da Vercel, o projeto `oneit` apontava para a branch `main`, que contém somente o starter antigo de Next.js. O formulário não confirmou a seleção de `prep/cloud-staging` nem o escopo Preview de `ONEIT_PREVIEW_MODE`. A revisão automática rejeitou o clique de deploy por risco de publicar a branch incorreta ou configuração incompleta. Nenhum projeto Vercel OneIT foi criado por essa tentativa e nenhuma URL foi validada. Próximo gate: estabelecer, antes da publicação, a branch de origem da prévia e a variável restrita a Preview, mantendo proteção de acesso; só então executar e testar o deploy.
 
 ## Acesso e identidade dos ambientes
 
