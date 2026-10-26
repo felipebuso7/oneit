@@ -15,7 +15,7 @@
     "lint:core-ui": "eslint \"src/app/(portal)/layout.tsx\" \"src/app/(auth)/**/*.tsx\" \"src/components/**/*.tsx\"",
     "lint:finance": "eslint \"src/app/api/field-service/fiscal/**/*.ts\" \"src/app/api/field-service/measurement/**/*.ts\" \"src/app/api/internal/billing-email/**/*.ts\" \"src/app/demo/field-service/measurement/page.tsx\" \"src/app/demo/field-service/fiscal/page.tsx\" \"src/app/demo/field-service/fiscal/history/page.tsx\" \"src/app/demo/field-service/finance/page.tsx\"",
     "lint:stabilization": "eslint \"src/app/api/health/route.ts\" \"src/app/api/ready/route.ts\" \"src/lib/runtime/readiness.ts\" \"src/domain/reports/pdf.ts\" \"src/app/(portal)/portal/reports/actions.ts\" \"src/app/(portal)/portal/reports/page.tsx\" \"tests/health-route.test.ts\" \"tests/ready-route.test.ts\" \"tests/readiness.test.ts\" \"tests/report-pdf-images.test.ts\" \"tests/report-download-contract.test.ts\" \"tests/report-evidence-paths-migration.test.ts\"",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "next typegen && tsc --noEmit",
     "test": "vitest run",
     "verify": "npm run lint:stabilization && npm run lint:field-service && npm run lint:core-ui && npm run lint:finance && npm run typecheck && npm test && npm run build",
     "bootstrap:admin": "node scripts/bootstrap-initial-admin.mjs",

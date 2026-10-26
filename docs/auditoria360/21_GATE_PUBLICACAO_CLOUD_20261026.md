@@ -1,5 +1,7 @@
 # Verificação de acesso e gate de publicação em nuvem
 
+> Registro histórico anterior à conclusão dos logins e ao envio do PR. Estado atualizado em [22_ESTADO_CLOUD_20261026.md](22_ESTADO_CLOUD_20261026.md).
+
 Data: 26/10/2026. Escopo: checkout local `servicia-fsm`, GitHub, Supabase e Vercel. Nenhum deploy, migration ou e-mail foi executado.
 
 ## Acesso confirmado
