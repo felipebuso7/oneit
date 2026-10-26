@@ -48,3 +48,8 @@ jobs:
       - run: npm ci
       - name: Apply migrations to a fresh local Supabase database
         run: npx supabase start
+      - name: Inspect billing privileges on the fresh database
+        env:
+          # Supabase CLI's disposable local database; never a cloud credential.
+          ONEIT_MIGRATION_DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:54322/postgres
+        run: npm run audit:billing-db
