@@ -2,6 +2,12 @@
 
 Data: 26/10/2026. Nenhum deploy de OneIT, migration remota ou e-mail foi executado nesta rodada.
 
+## Decisão de hospedagem nesta rodada
+
+O proprietário optou por não contratar o Supabase Pro agora, manter os projetos atuais e usar apenas uma prévia sem uso real por enquanto. Portanto, o projeto `oneit-staging` permanece em Ohio, sem backup gerenciado; o projeto anterior do OneFlow permanece preservado. Não foi criado projeto OneIT na Vercel, aplicado esquema ao Supabase remoto ou publicada URL de produção.
+
+No commit `aba7621`, o caminho `/demo` e suas APIs passaram a responder 404 em build de produção, e a página inicial passa a direcionar para `/portal`. Esse bloqueio evita oferecer o fluxo baseado em `localStorage` como se fosse multiusuário. O preflight de produção também exige URL HTTPS e a chave de serviço necessária ao modo Supabase. Os testes locais dirigidos (8) e o typecheck passaram; o CI desse commit ainda deve ser conferido antes de registrar aprovação Linux. A prévia local de desenvolvimento continua acessível pelo fluxo `/demo` e não é evidência de prontidão para dados reais.
+
 ## Acesso e identidade dos ambientes
 
 | Serviço | Fato verificado | Consequência |
