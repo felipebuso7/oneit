@@ -16,7 +16,11 @@ if (!connectionString) {
         has_table_privilege('authenticated', 'public.billing_email_log', 'UPDATE') as client_can_update_email_log,
         has_table_privilege('authenticated', 'public.fiscal_batches', 'UPDATE') as client_can_update_fiscal_batch,
         has_function_privilege('authenticated', 'public.complete_billing_email(uuid,text)', 'EXECUTE') as client_can_complete_email,
-        has_function_privilege('authenticated', 'public.claim_billing_email(text)', 'EXECUTE') as client_can_claim_email
+        has_function_privilege('authenticated', 'public.claim_billing_email(text)', 'EXECUTE') as client_can_claim_email,
+        has_function_privilege('authenticated', 'public.fail_billing_email(uuid,text,integer)', 'EXECUTE') as client_can_fail_email,
+        has_function_privilege('service_role', 'public.complete_billing_email(uuid,text)', 'EXECUTE') as worker_can_complete_email,
+        has_function_privilege('service_role', 'public.claim_billing_email(text)', 'EXECUTE') as worker_can_claim_email,
+        has_function_privilege('service_role', 'public.fail_billing_email(uuid,text,integer)', 'EXECUTE') as worker_can_fail_email
     `);
     const { rows: policies } = await pool.query(`
       select tablename, policyname, cmd, roles, qual, with_check
@@ -33,7 +37,13 @@ if (!connectionString) {
     `);
 
     console.log(JSON.stringify({ role: roles[0], privileges: privileges[0], rls, policies }, null, 2));
-    console.log("Leitura apenas. Revise as políticas e os grants efetivos antes de preparar a migração.");
+    const rights = privileges[0];
+    if (
+      rights.client_can_update_email_log || rights.client_can_complete_email ||
+      rights.client_can_claim_email || rights.client_can_fail_email ||
+      !rights.worker_can_complete_email || !rights.worker_can_claim_email || !rights.worker_can_fail_email
+    ) throw new Error("BILLING_EMAIL_PRIVILEGE_BOUNDARY_FAILED");
+    console.log("Limite de privilégios do worker de e-mail aprovado. Revise separadamente a política de inserção e os grants do lote fiscal.");
   } catch (error) {
     console.error(`Auditoria do banco falhou: ${error instanceof Error ? error.message : String(error)}`);
     process.exitCode = 1;
