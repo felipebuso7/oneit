@@ -14,6 +14,12 @@ O proprietário autorizou importar `felipebuso7/oneit` no workspace Vercel `Okaa
 
 No formulário de importação da Vercel, o projeto `oneit` apontava para a branch `main`, que contém somente o starter antigo de Next.js. O formulário não confirmou a seleção de `prep/cloud-staging` nem o escopo Preview de `ONEIT_PREVIEW_MODE`. A revisão automática rejeitou o clique de deploy por risco de publicar a branch incorreta ou configuração incompleta. Nenhum projeto Vercel OneIT foi criado por essa tentativa e nenhuma URL foi validada. Próximo gate: estabelecer, antes da publicação, a branch de origem da prévia e a variável restrita a Preview, mantendo proteção de acesso; só então executar e testar o deploy.
 
+### Execução posterior
+
+O projeto `okaa1/oneit` foi criado pela CLI sem deploy, a autenticação Vercel foi verificada como ativa para Preview, e `ONEIT_PREVIEW_MODE=demo` foi configurada apenas em Preview. A conexão Git ainda não foi feita, pois a revisão automática alertou que ela poderia acionar um deployment inicial de `main` antes da definição da branch correta.
+
+O primeiro upload direto ultrapassou o limite de 5.000 arquivos. Um upload compactado chegou ao build, mas a CLI classificou o primeiro deployment como Production apesar do parâmetro Preview; o build falhou porque o `deploymentId` gerado excedia 32 caracteres. O gerador foi corrigido no commit `b4e47fe` e passou em verificação local. Nova tentativa com `--target=preview` foi classificada como Preview, porém bloqueada pela Vercel: o autor do commit era `Ellares <ellaresimoveis@gmail.com>`, que não corresponde ao proprietário Hobby `felipebuso7@hotmail.com`. A identidade local do Git foi ajustada para novos commits; o histórico existente não foi reescrito. Nenhuma URL funcional foi validada.
+
 ## Acesso e identidade dos ambientes
 
 | Serviço | Fato verificado | Consequência |
