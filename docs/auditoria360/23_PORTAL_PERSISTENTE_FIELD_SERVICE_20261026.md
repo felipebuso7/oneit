@@ -20,3 +20,10 @@
 - O teste funcional completo no navegador continua pendente: não há usuário de Auth cadastrado, nem organização operacional criada nesse projeto. Compilar e abrir login não provam o ciclo real.
 - A tela mostra agenda conhecida; não informa localização em tempo real, distância de rota ou tempo estimado sem fonte geográfica real.
 - O fluxo `/demo` permanece separado e deve ficar restrito à demonstração. O portal persistente ainda precisa de onboarding seguro, testes ponta a ponta, geração de RTO/BM com dados de teste, backup/restore e hospedagem apta para uso comercial antes da promoção.
+
+## Bloqueio de fluxo identificado após a prévia
+
+- `review_field_service_order` valida a OS e a fila de Field Service, mas não aprova o chamado correspondente. `review_ticket` aprova o chamado por outra operação. Um atendimento que produza ambos os registros pode exigir duas decisões gerenciais. A unificação precisa preservar as regras de segregação de funções, versionamento, devolução e o histórico; não foi tratada como uma mudança apenas visual.
+- A tela de revisão escondia falhas ao carregar a fila de Field Service, apresentando-a como vazia. Ela agora falha explicitamente. Também exibe corretamente atendimentos sem consumo de material e sem justificativa opcional.
+- A prévia Vercel com `ONEIT_PREVIEW_MODE=portal` redireciona o acesso direto ao portal para login e não disponibiliza `/demo`; isso valida o bloqueio da demo, não a conclusão do fluxo autenticado.
+- O CI de migrations passou; a verificação geral do PR ainda estava pendente na última consulta. A criação de usuários, os URLs permitidos do Supabase Auth e o ensaio completo com dados fictícios continuam pendentes.

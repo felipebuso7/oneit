@@ -12,8 +12,8 @@ export default async function ReviewPage({ searchParams }: PageProps) {
   if (!roles?.length) return <section className="p-8"><OneitPageHeader eyebrow="Validação" title="Revisão gerencial" description="Seu perfil não possui acesso à revisão." /></section>;
   const organizationIds = roles.map((role) => role.organization_id);
   const { data: fieldQueue, error: fieldQueueError } = await supabase.from("field_service_review_queue").select("id, organization_id, service_order_id, ticket_id, submission_id, status, created_at").in("organization_id", organizationIds).eq("status", "PENDING").order("created_at").limit(50);
-  // A migration é aditiva e pode ainda não estar aplicada no ambiente atual.
-  const fieldItems = fieldQueueError ? [] : (fieldQueue ?? []);
+  if (fieldQueueError) throw new Error("Não foi possível carregar a fila de validação de Field Service.");
+  const fieldItems = fieldQueue ?? [];
   const { data: approvedFieldQueue } = await supabase.from("field_service_review_queue").select("id, organization_id, service_order_id, ticket_id, status").in("organization_id", organizationIds).eq("status", "APPROVED").order("reviewed_at", { ascending: false }).limit(50);
   const approvedItems = approvedFieldQueue ?? [];
   const { data: returnedFieldQueue } = await supabase.from("field_service_review_queue").select("id, organization_id, service_order_id, ticket_id, status, review_reason, reviewed_at").in("organization_id", organizationIds).eq("status", "RETURNED").order("reviewed_at", { ascending: false }).limit(50);
@@ -71,7 +71,7 @@ export default async function ReviewPage({ searchParams }: PageProps) {
         <h3 className="mt-4 font-medium">Diagnóstico</h3><p className="whitespace-pre-wrap text-sm">{execution.diagnosis}</p>
         <h3 className="mt-4 font-medium">Serviço realizado</h3><p className="whitespace-pre-wrap text-sm">{execution.solution}</p>
         <h3 className="mt-4 font-medium">Checklist</h3><ul className="text-sm">{(checklist ?? []).filter((item) => item.ticket_id === ticket.id).map((item) => <li key={item.item_code}>{execution.checklist_answers[item.item_code] ? "Concluído" : "Pendente"}: {item.label}</li>)}</ul>
-        <h3 className="mt-4 font-medium">Materiais</h3>{completion.materials_used ? <ul className="text-sm">{(materials ?? []).filter((item) => completion.material_ids.includes(item.id)).map((item) => <li key={item.id}>{item.material_name} — {item.quantity} {item.unit}</li>)}</ul> : <p className="text-sm">Sem consumo: {completion.no_material_reason}</p>}
+        <h3 className="mt-4 font-medium">Materiais</h3>{completion.materials_used ? <ul className="text-sm">{(materials ?? []).filter((item) => completion.material_ids.includes(item.id)).map((item) => <li key={item.id}>{item.material_name} — {item.quantity} {item.unit}</li>)}</ul> : <p className="text-sm">Sem consumo de materiais{completion.no_material_reason ? `: ${completion.no_material_reason}` : "."}</p>}
         <h3 className="mt-4 font-medium">Evidências</h3><ul className="space-y-2 text-sm">{(evidences ?? []).filter((item) => completion.evidence_ids.includes(item.id)).map((item) => <li key={item.id}><a className="text-cyan-700 underline" href={`/portal/field/evidence/${item.id}`} target="_blank" rel="noreferrer">Abrir {item.evidence_type}</a></li>)}</ul>
         <form action={reviewTicket} className="mt-5 space-y-3 border-t pt-4"><input name="ticketId" type="hidden" value={ticket.id} /><input name="version" type="hidden" value={ticket.version} />
           <label className="block text-sm">Decisão<select name="decision" required defaultValue="" className="mt-1 block w-full rounded border p-2"><option disabled value="">Selecione</option><option value="APPROVE">Aprovar</option><option value="RETURN">Devolver para correção</option></select></label>
