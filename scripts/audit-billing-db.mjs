@@ -15,6 +15,10 @@ if (!connectionString) {
         has_table_privilege('authenticated', 'public.billing_email_log', 'INSERT') as client_can_insert_email_log,
         has_table_privilege('authenticated', 'public.billing_email_log', 'UPDATE') as client_can_update_email_log,
         has_table_privilege('authenticated', 'public.fiscal_batches', 'UPDATE') as client_can_update_fiscal_batch,
+        has_table_privilege('authenticated', 'public.fiscal_batches', 'INSERT') as client_can_insert_fiscal_batch,
+        has_table_privilege('service_role', 'public.fiscal_batches', 'UPDATE') as worker_can_update_fiscal_batch,
+        has_function_privilege('authenticated', 'public.create_fiscal_batch(uuid,date,uuid)', 'EXECUTE') as client_can_create_fiscal_batch,
+        has_function_privilege('authenticated', 'public.close_fiscal_batch(uuid,uuid)', 'EXECUTE') as client_can_close_fiscal_batch,
         has_function_privilege('authenticated', 'public.complete_billing_email(uuid,text)', 'EXECUTE') as client_can_complete_email,
         has_function_privilege('authenticated', 'public.claim_billing_email(text)', 'EXECUTE') as client_can_claim_email,
         has_function_privilege('authenticated', 'public.fail_billing_email(uuid,text,integer)', 'EXECUTE') as client_can_fail_email,
@@ -35,15 +39,38 @@ if (!connectionString) {
        where oid in ('public.billing_email_log'::regclass, 'public.fiscal_batches'::regclass)
        order by relname
     `);
+    const { rows: fiscalFunctions } = await pool.query(`
+      select proname, prosecdef
+        from pg_proc
+       where oid in (
+         'public.create_fiscal_batch(uuid,date,uuid)'::regprocedure,
+         'public.close_fiscal_batch(uuid,uuid)'::regprocedure
+       )
+    `);
+    const { rows: fiscalTriggers } = await pool.query(`
+      select tgname, tgenabled
+        from pg_trigger
+       where tgrelid = 'public.billing_email_log'::regclass
+         and tgname = 'fiscal_batch_email_acceptance'
+    `);
 
-    console.log(JSON.stringify({ role: roles[0], privileges: privileges[0], rls, policies }, null, 2));
+    console.log(JSON.stringify({ role: roles[0], privileges: privileges[0], rls, policies, fiscalFunctions, fiscalTriggers }, null, 2));
     const rights = privileges[0];
     if (
       rights.client_can_update_email_log || rights.client_can_complete_email ||
       rights.client_can_claim_email || rights.client_can_fail_email ||
       !rights.worker_can_complete_email || !rights.worker_can_claim_email || !rights.worker_can_fail_email
     ) throw new Error("BILLING_EMAIL_PRIVILEGE_BOUNDARY_FAILED");
-    console.log("Limite de privilégios do worker de e-mail aprovado. Revise separadamente a política de inserção e os grants do lote fiscal.");
+    if (
+      rights.client_can_update_fiscal_batch || rights.client_can_insert_fiscal_batch ||
+      !rights.worker_can_update_fiscal_batch ||
+      !rights.client_can_create_fiscal_batch || !rights.client_can_close_fiscal_batch
+    ) throw new Error("FISCAL_BATCH_PRIVILEGE_BOUNDARY_FAILED");
+    if (fiscalFunctions.length !== 2 || fiscalFunctions.some((item) => !item.prosecdef) ||
+      fiscalTriggers.length !== 1 || fiscalTriggers[0].tgenabled !== "O") {
+      throw new Error("FISCAL_BATCH_TRANSITION_BOUNDARY_FAILED");
+    }
+    console.log("Limites de privilégios do worker de e-mail e do lote fiscal aprovados. Testes operacionais com usuários ainda são necessários.");
   } catch (error) {
     console.error(`Auditoria do banco falhou: ${error instanceof Error ? error.message : String(error)}`);
     process.exitCode = 1;

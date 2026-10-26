@@ -1,13 +1,13 @@
 # Correção do vínculo entre envio fiscal, lote e BMs
 
-Data: 26/10/2026. **Proposta para homologação; nenhuma migração foi aplicada.**
+Data: 26/10/2026. **Proposta para homologação; nenhuma migração foi aplicada ao projeto Supabase remoto.**
 
 ## Estado confirmado no repositório
 
 - `fiscal_batches.measurement_sheet_ids` é um array de BMs. A fila cria um log fiscal por lote (`fiscal_batch_id`) e deixa `measurement_sheet_id` vazio.
 - `transition_measurement_sheet(..., 'CLOSED')` exige um log fiscal `SENT` ligado diretamente a cada BM. Esse requisito não é satisfeito pelo log do lote.
 - `close_fiscal_batch` aceita `status = 'SENT'`, porém não consulta `billing_email_log`. Não foi encontrada transição confiável do retorno do provedor para esse status.
-- A policy de inserção do log de e-mail verifica papel, mas não impede o envio de `status = 'SENT'` por inserção direta, caso o papel autenticado tenha grant de INSERT. A policy `FOR ALL` do lote permite atualização direta aos papéis financeiros, caso haja grant de UPDATE.
+- Na versão anterior à correção, a policy de inserção do log de e-mail verificava apenas o papel e permitia forjar `SENT`. A policy `FOR ALL` do lote permitia atualização direta aos papéis financeiros. A execução 40322140259 confirmou ambos os grants efetivos.
 
 ## Modelo recomendado
 
@@ -37,4 +37,8 @@ O e-mail fiscal deve representar **o lote**. O lote guarda a lista de BMs e a ve
 
 ## Ambiente disponível neste ciclo
 
-Não há `psql`, Docker/Podman, URL de banco ou `.env.local` configurados nesta máquina. A verificação de grants e as transações SQL **não foram executadas**. A migração deverá ser criada somente depois de testar a proposta em cópia restaurada do banco e conferir o histórico de migrations, que já contém um prefixo duplicado.
+O CI Linux aplicou as 163 migrações anteriores em Supabase local descartável. A [execução 40322140259](https://github.com/felipebuso7/oneit/actions/runs/40322140259) confirmou que `authenticated` tinha `INSERT` e `UPDATE` em `billing_email_log`, `UPDATE` em `fiscal_batches` e `EXECUTE` nas funções de claim e conclusão do worker. As policies efetivas eram `FOR INSERT` apenas por papel para o log e `FOR ALL` apenas por papel para o lote. Isso confirmou o risco de forjar `SENT` por inserção direta e alterar o lote por fora dos RPCs.
+
+A migration `20261026100000_billing_email_privileges.sql` restringe a inserção do log a `QUEUED` sem confirmação de provedor, remove escrita direta de resultado e reserva as RPCs do worker a `service_role`. A [execução 40364047591](https://github.com/felipebuso7/oneit/actions/runs/40364047591) aprovou a instalação limpa, a inspeção desses privilégios, os testes e os builds.
+
+A migration `20261026103000_fiscal_batch_privileges.sql`, ainda **sem validação em CI e sem aplicação remota**, remove escrita direta no lote, mantém criação e fechamento por RPC com checagem de papel e usuário autenticado, marca o lote `SENT` após o log fiscal ser aceito pelo worker e bloqueia alteração dos dados medidos depois do envio. O teste operacional com perfis reais, a associação imutável lote–BMs, a conferência de evidência do provedor no fechamento e o vínculo com `transition_measurement_sheet(..., 'CLOSED')` continuam pendentes. Portanto, o fluxo fiscal completo permanece bloqueado para produção.
