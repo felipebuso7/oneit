@@ -4,6 +4,12 @@ import { NextResponse, type NextRequest } from "next/server";
 import { getPublicEnvironment } from "@/lib/env";
 
 export async function proxy(request: NextRequest) {
+  const pathname = request.nextUrl.pathname;
+  if (process.env.NODE_ENV === "production" &&
+      (pathname === "/demo" || pathname.startsWith("/demo/") ||
+       pathname === "/api/demo" || pathname.startsWith("/api/demo/"))) {
+    return new NextResponse("Not found", { status: 404 });
+  }
   const response = NextResponse.next({ request });
 
   // Do not make the app unusable before local or remote Supabase is configured.
