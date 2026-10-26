@@ -1,7 +1,4 @@
 -- Fluxo final do BM: correção, encaminhamento ao faturamento e encerramento imutável.
-alter type public.measurement_status add value if not exists 'RETURNED_FOR_CORRECTION';
-alter type public.measurement_status add value if not exists 'SENT_TO_BILLING';
-
 alter table public.billing_periods drop constraint if exists billing_periods_check;
 alter table public.billing_periods add constraint billing_periods_contestation_consistency check
   ((status in ('SENT_FOR_CONTESTATION', 'CONTESTED', 'APPROVED', 'SENT_TO_TAX', 'RETURNED_FOR_CORRECTION', 'SENT_TO_BILLING', 'CLOSED')) = (contestation_deadline is not null));
