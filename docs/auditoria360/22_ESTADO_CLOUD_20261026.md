@@ -20,7 +20,7 @@ Data: 26/10/2026. Nenhum deploy de OneIT, migration remota ou e-mail foi executa
 | `npm run check:production-env` | Reprovado por falta de variáveis reais de Supabase e URL pública. Não colocar credenciais no Git ou em documentação. |
 | Build de produção | Duas tentativas locais no Windows falharam com `EPERM`, mas o CI Linux do commit `68af627` aprovou o build do Next e do contêiner. A revisão de dependências precisa repetir ambos. |
 | Dependências | `npm audit` identificou avisos críticos em Next/Vitest e outros alertas. Next, Zod, Vitest e dependências transitivas foram atualizados; o audit local da revisão nova informou zero vulnerabilidades. O CI passará a executar `npm audit --audit-level=high`. |
-| Banco limpo | O primeiro job de instalação limpa chegou à migration `20261001341000_change_organization_member_role.sql` e reprovou por `current_role` ser usado sem aspas como identificador SQL. A sintaxe foi corrigida preservando o nome do argumento de RPC; a execução de todas as migrations ainda precisa ser repetida e aprovada. |
+| Banco limpo | O primeiro job reprovou em `20261001341000_change_organization_member_role.sql` por `current_role` ser usado sem aspas como identificador SQL; a sintaxe foi corrigida preservando o argumento da RPC. O segundo job avançou até `20261001355000_completion_service_order_sync.sql` e reprovou porque a função declarava `%rowtype` de `public.ticket_executions`, tabela inexistente. Essa migration também usava colunas incompatíveis com `ticket_completions`, `service_order_events` e `tickets`. A correção mantém a RPC original de conclusão e sincroniza a OS por gatilho após a conclusão. Todas as migrations ainda precisam ser repetidas e aprovadas. |
 
 ## Bloqueios para hospedagem funcional
 

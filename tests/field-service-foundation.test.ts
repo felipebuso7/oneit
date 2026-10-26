@@ -77,9 +77,9 @@ describe("field service base", () => {
   });
 
   it("checks out and completes the field order on technical resolution", () => {
-    expect(completionSync).toContain("create or replace function public.complete_ticket");
+    expect(completionSync).toContain("after insert on public.ticket_completions");
     expect(completionSync).toContain("status = 'COMPLETED'");
-    expect(completionSync).toContain("checked_out_at = clock_timestamp()");
+    expect(completionSync).toContain("checked_out_at = checkout_time");
     expect(completionSync).toContain("update public.field_service_route_stops");
     expect(completionSync).toContain("'CHECK_OUT'");
     expect(completionSync).toContain("'COMPLETED'");
