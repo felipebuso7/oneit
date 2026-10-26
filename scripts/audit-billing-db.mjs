@@ -70,6 +70,53 @@ if (!connectionString) {
       fiscalTriggers.length !== 1 || fiscalTriggers[0].tgenabled !== "O") {
       throw new Error("FISCAL_BATCH_TRANSITION_BOUNDARY_FAILED");
     }
+    // Exercise the trigger only on a local disposable database. Never write
+    // fixtures to a cloud database, even though this transaction rolls back.
+    const databaseHost = new URL(connectionString).hostname;
+    if (["localhost", "127.0.0.1", "::1"].includes(databaseHost)) {
+      const client = await pool.connect();
+      try {
+      await client.query("begin");
+      const { rows: organizations } = await client.query(`
+        insert into public.organizations(legal_name, display_name)
+        values ('CI Fiscal Test', 'CI Fiscal Test') returning id
+      `);
+      const organizationId = organizations[0].id;
+      const { rows: batches } = await client.query(`
+        insert into public.fiscal_batches(organization_id, competence, batch_number, status)
+        values ($1, date_trunc('month', now())::date, 'CI-FISCAL-' || $1::text, 'READY') returning id
+      `, [organizationId]);
+      const batchId = batches[0].id;
+      const { rows: logs } = await client.query(`
+        insert into public.billing_email_log(organization_id, fiscal_batch_id, email_type, subject)
+        values ($1, $2, 'FISCAL', 'CI fiscal acceptance') returning id
+      `, [organizationId, batchId]);
+      await client.query(`
+        update public.billing_email_log
+           set status = 'SENT', sent_at = now(), provider_message_id = 'ci-provider-id'
+         where id = $1
+      `, [logs[0].id]);
+      const { rows: afterAcceptance } = await client.query(
+        "select status, sent_at from public.fiscal_batches where id = $1", [batchId]
+      );
+      if (afterAcceptance[0]?.status !== "SENT" || !afterAcceptance[0]?.sent_at) {
+        throw new Error("FISCAL_BATCH_PROVIDER_ACCEPTANCE_NOT_APPLIED");
+      }
+      await client.query("savepoint before_immutable_update");
+      let immutableRejected = false;
+      try {
+        await client.query("update public.fiscal_batches set total_amount = 1 where id = $1", [batchId]);
+      } catch (error) {
+        immutableRejected = error instanceof Error && error.message.includes("sent_fiscal_batch_immutable");
+      }
+      await client.query("rollback to savepoint before_immutable_update");
+      if (!immutableRejected) throw new Error("SENT_FISCAL_BATCH_MUTATION_ALLOWED");
+      } finally {
+        await client.query("rollback").finally(() => client.release());
+      }
+    } else {
+      console.log("Teste transacional ignorado: endereço de banco não local.");
+    }
     console.log("Limites de privilégios do worker de e-mail e do lote fiscal aprovados. Testes operacionais com usuários ainda são necessários.");
   } catch (error) {
     console.error(`Auditoria do banco falhou: ${error instanceof Error ? error.message : String(error)}`);
