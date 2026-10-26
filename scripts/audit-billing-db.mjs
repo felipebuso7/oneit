@@ -91,11 +91,13 @@ if (!connectionString) {
         insert into public.billing_email_log(organization_id, fiscal_batch_id, email_type, subject)
         values ($1, $2, 'FISCAL', 'CI fiscal acceptance') returning id
       `, [organizationId, batchId]);
+      await client.query("set local role service_role");
       await client.query(`
         update public.billing_email_log
            set status = 'SENT', sent_at = now(), provider_message_id = 'ci-provider-id'
          where id = $1
       `, [logs[0].id]);
+      await client.query("reset role");
       const { rows: afterAcceptance } = await client.query(
         "select status, sent_at from public.fiscal_batches where id = $1", [batchId]
       );
