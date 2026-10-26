@@ -35,3 +35,16 @@ jobs:
           --build-arg NEXT_PUBLIC_SUPABASE_URL=https://ci.invalid.supabase.co
           --build-arg NEXT_PUBLIC_SUPABASE_ANON_KEY=ci-placeholder
           --tag oneit-ci:${{ github.sha }} .
+
+  database_migrations:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - name: Apply migrations to a fresh local Supabase database
+        run: npx supabase start
