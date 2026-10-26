@@ -47,7 +47,11 @@ export async function requestPasswordRecovery(formData: FormData) {
   const requestHeaders = await headers();
   const host = requestHeaders.get("host");
   const protocol = requestHeaders.get("x-forwarded-proto") ?? "http";
-  const origin = process.env.ONEIT_APP_URL ?? (host ? `${protocol}://${host}` : "http://localhost:3000");
+  // Cada Preview recebe uma URL própria. O domínio fornecido pela Vercel evita
+  // enviar links de recuperação para um deployment anterior.
+  const origin = process.env.VERCEL_ENV === "preview" && process.env.VERCEL_URL
+    ? `https://${process.env.VERCEL_URL}`
+    : process.env.ONEIT_APP_URL ?? (host ? `${protocol}://${host}` : "http://localhost:3000");
   const redirectTo = new URL("/auth/confirm", origin);
   redirectTo.searchParams.set("next", "/reset-password");
 
