@@ -1,0 +1,63 @@
+"use client";
+
+import { FormEvent, useMemo, useState } from "react";
+import { LPU_UNITS } from "@/lib/field-service/lpu-units";
+import { formatLpuLabel } from "@/lib/field-service/lpu-label";
+import { OneitButton, OneitEmptyState, OneitStatusBadge } from "@/components/oneit";
+
+type Organization = { id: string; display_name: string };
+type Item = { id: string; organization_id: string; code: string; description: string; unit: string; unit_price: number; kind: "material" | "mao_de_obra" | "deslocamento"; active: boolean };
+
+export function LpuSettingsClient({ organizations, initialItems }: { organizations: Organization[]; initialItems: Item[] }) {
+  const [items, setItems] = useState(initialItems);
+  const [organizationId, setOrganizationId] = useState(organizations[0]?.id ?? "");
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [notice, setNotice] = useState<string | null>(null);
+  const visibleItems = useMemo(() => items.filter((item) => item.organization_id === organizationId), [items, organizationId]);
+
+  async function submit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const form = new FormData(event.currentTarget);
+    const payload = { organizationId, code: String(form.get("code") ?? "").trim().toUpperCase(), description: String(form.get("description") ?? "").trim(), kind: String(form.get("kind") ?? "material"), unit: String(form.get("unit") ?? "unidade"), unitPrice: Number(form.get("unitPrice") ?? 0) };
+    if (!organizationId || !payload.code || !payload.description || !Number.isFinite(payload.unitPrice) || payload.unitPrice < 0) { setNotice("Selecione a organização e informe código, descrição e valor válido."); return; }
+    const response = await fetch(editingId ? `/api/field-service/lpu/${editingId}` : "/api/field-service/lpu", { method: editingId ? "PATCH" : "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
+    const body = await response.json().catch(() => ({})) as { item?: Item; code?: string };
+    if (!response.ok || !body.item) { setNotice(body.code === "LPU_ITEM_ALREADY_EXISTS" ? "Este código já existe nesta organização." : "Não foi possível salvar o item LPU."); return; }
+    setItems((current) => editingId ? current.map((item) => item.id === editingId ? body.item! : item) : [...current, body.item!]);
+    setEditingId(null); event.currentTarget.reset(); setNotice(editingId ? "Item atualizado." : "Item cadastrado.");
+  }
+
+  function edit(item: Item) {
+    setEditingId(item.id); setOrganizationId(item.organization_id);
+    const form = document.querySelector<HTMLFormElement>("form[data-lpu-settings-form]");
+    if (!form) return;
+    for (const [name, value] of Object.entries({ code: item.code, description: item.description, kind: item.kind, unit: item.unit, unitPrice: String(item.unit_price) })) { const field = form.elements.namedItem(name) as HTMLInputElement | HTMLSelectElement | null; if (field) field.value = value; }
+  }
+
+  async function deactivate(item: Item) {
+    const response = await fetch(`/api/field-service/lpu/${item.id}?organizationId=${encodeURIComponent(item.organization_id)}`, { method: "DELETE" });
+    if (!response.ok) { setNotice("Não foi possível desativar o item."); return; }
+    setItems((current) => current.map((value) => value.id === item.id ? { ...value, active: false } : value)); setNotice("Item desativado.");
+  }
+
+  return <>
+    {notice ? <p role="status" className="mt-4 rounded-lg border border-sky-200 bg-sky-50 p-3 text-sm text-sky-900">{notice}</p> : null}
+    <div className="mt-6 grid gap-5 lg:grid-cols-[22rem_1fr]">
+      <form data-lpu-settings-form onSubmit={submit} className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+        <h2 className="font-semibold">{editingId ? "Editar item" : "Novo item"}</h2>
+        <div className="mt-4 grid gap-3">
+          <label className="grid gap-1 text-sm font-medium">Organização<select value={organizationId} onChange={(event) => setOrganizationId(event.target.value)} required className="rounded-lg border border-slate-300 p-2.5 font-normal"><option value="">Selecione</option>{organizations.map((organization) => <option key={organization.id} value={organization.id}>{organization.display_name}</option>)}</select></label>
+          <label className="grid gap-1 text-sm font-medium">Código<input name="code" required className="rounded-lg border border-slate-300 p-2.5 font-normal" placeholder="Ex.: CAB-RJ45" /></label>
+          <label className="grid gap-1 text-sm font-medium">Descrição<input name="description" required className="rounded-lg border border-slate-300 p-2.5 font-normal" placeholder="Serviço ou material" /></label>
+          <label className="grid gap-1 text-sm font-medium">Tipo<select name="kind" defaultValue="material" className="rounded-lg border border-slate-300 p-2.5 font-normal"><option value="material">Material</option><option value="mao_de_obra">Mão de obra</option><option value="deslocamento">Deslocamento</option></select></label>
+          <label className="grid gap-1 text-sm font-medium">Unidade<select name="unit" defaultValue="unidade" className="rounded-lg border border-slate-300 p-2.5 font-normal">{LPU_UNITS.map((unit) => <option key={unit}>{unit}</option>)}</select></label>
+          <label className="grid gap-1 text-sm font-medium">Valor unitário<input name="unitPrice" required type="number" min="0" step="0.01" className="rounded-lg border border-slate-300 p-2.5 font-normal" /></label>
+        </div>
+        <div className="mt-4 flex gap-2"><OneitButton type="submit">{editingId ? "Atualizar item" : "Salvar item"}</OneitButton>{editingId ? <button type="button" onClick={() => setEditingId(null)} className="rounded-lg border border-slate-300 px-4 py-2 text-sm font-semibold">Cancelar</button> : null}</div>
+      </form>
+      <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm"><div className="flex items-center justify-between gap-3"><div><h2 className="font-semibold">Itens da organização</h2><p className="mt-1 text-sm text-slate-500">Somente itens ativos podem ser usados em novas validações.</p></div><span className="text-sm text-slate-500">{visibleItems.filter((item) => item.active).length} ativo(s)</span></div>
+        {visibleItems.filter((item) => item.active).length ? <ul className="mt-4 divide-y divide-slate-100">{visibleItems.filter((item) => item.active).map((item) => <li key={item.id} className="flex items-center justify-between gap-4 py-3"><div><strong>{formatLpuLabel({ code: item.code, description: item.description, unit: item.unit, price: item.unit_price })}</strong><p className="mt-1 text-sm text-slate-500">{item.kind === "mao_de_obra" ? "Mão de obra" : item.kind === "deslocamento" ? "Deslocamento" : "Material"} · R$ {Number(item.unit_price).toFixed(2).replace(".", ",")}</p></div><div className="flex items-center gap-2"><OneitStatusBadge tone="success">Ativo</OneitStatusBadge><button type="button" onClick={() => edit(item)} className="rounded-lg border border-slate-300 px-3 py-1.5 text-xs font-semibold">Editar</button><button type="button" onClick={() => void deactivate(item)} className="rounded-lg border border-red-200 px-3 py-1.5 text-xs font-semibold text-red-700">Desativar</button></div></li>)}</ul> : <div className="mt-5"><OneitEmptyState title="Nenhum item ativo" description="Cadastre o primeiro material, serviço ou composição da LPU." /></div>}
+      </section>
+    </div>
+  </>;
+}

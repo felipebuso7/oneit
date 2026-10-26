@@ -1,0 +1,14 @@
+"use client";
+
+import { useState } from "react";
+import Link from "next/link";
+import { DemoSidebar } from "@/components/demo-sidebar";
+
+const header = "empresa_nome;empresa_cnpj;polo_nome;cidade;uf;endereco;regiao;distancia_capital_km;contato_local;telefone_local";
+const sample = `${header}\nSabesp;00.000.000/0001-00;Polo Centro;São Paulo;SP;Av. Paulista, 1000;Capital - São Paulo;3;Recepção;(11) 3333-1000`;
+
+export default function FieldServiceImportPage() {
+  const [notice, setNotice] = useState("Baixe o modelo, preencha os polos e importe o arquivo na próxima etapa de integração.");
+  function downloadModel() { const url = URL.createObjectURL(new Blob([sample], { type: "text/csv;charset=utf-8" })); const anchor = document.createElement("a"); anchor.href = url; anchor.download = "modelo-importacao-empresas-polos-oneit.csv"; anchor.click(); URL.revokeObjectURL(url); setNotice("Modelo CSV baixado."); }
+  return <main className="min-h-screen bg-slate-100 text-slate-900"><DemoSidebar active="field-service-settings" /><div data-oneit-sidebar-offset className="ml-64 min-h-screen"><header className="flex flex-wrap items-center justify-between gap-3 border-b bg-white px-8 py-4"><div><p className="text-xs font-semibold tracking-[.15em] text-orange-500">ONEIT · CONFIGURAÇÕES · IMPORTAÇÃO</p><h1 className="mt-1 text-xl font-semibold">Importar empresas e polos</h1></div><Link href="/demo/settings/field-service" className="rounded-lg border border-slate-300 px-4 py-2 text-sm font-semibold">Voltar aos cadastros</Link></header><section className="p-8"><p role="status" className="rounded-lg border border-cyan-200 bg-cyan-50 p-3 text-sm text-cyan-950">{notice}</p><div className="mt-5 grid gap-5 lg:grid-cols-[1fr_360px]"><section className="rounded-xl border bg-white p-5 shadow-sm"><h2 className="font-semibold">Modelo de importação CSV</h2><p className="mt-1 text-sm text-slate-500">Uma linha representa um polo vinculado a uma empresa. A região e a distância são mantidas no cadastro para relatórios e roteirização.</p><pre className="mt-5 overflow-x-auto rounded-lg bg-slate-900 p-4 text-xs text-slate-100">{sample}</pre><button type="button" onClick={downloadModel} className="mt-5 rounded-lg bg-orange-500 px-4 py-2.5 text-sm font-semibold text-white">Baixar modelo CSV</button></section><aside className="rounded-xl border bg-white p-5 shadow-sm"><h2 className="font-semibold">Campos obrigatórios</h2><ul className="mt-4 space-y-2 text-sm text-slate-600"><li>• Empresa e CNPJ</li><li>• Nome do polo</li><li>• Cidade e UF</li><li>• Endereço completo</li><li>• Região operacional</li><li>• Distância da capital em km</li></ul><p className="mt-5 rounded-lg bg-slate-50 p-3 text-xs text-slate-500">A importação efetiva será conectada ao cadastro persistente na próxima etapa.</p></aside></div></section></div></main>;
+}

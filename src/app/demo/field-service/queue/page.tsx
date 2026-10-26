@@ -1,0 +1,35 @@
+"use client";
+
+import { useEffect, useMemo, useState } from "react";
+import Link from "next/link";
+import { DemoSidebar } from "@/components/demo-sidebar";
+import { OneitMetricCard } from "@/components/oneit-design-system";
+
+type Visit = { id: string; ticket: string; title: string; technician?: string; state?: string; plannedAt?: string; window?: string; priority?: string; sla?: string; company?: string; region?: string; distanceCapitalKm?: number; address?: string };
+
+const states = ["Todos", "Fila de despacho", "Despachado", "Em deslocamento", "Check-in", "Em atendimento", "Aguardando validação do gestor", "Concluído"];
+const isOverdue = (visit: Visit) => Boolean(visit.plannedAt && visit.state !== "Concluído" && new Date(`${visit.plannedAt}T23:59:59`).getTime() < Date.now());
+const priorityRank: Record<string, number> = { P1: 0, P2: 1, P3: 2, P4: 3 };
+
+export default function FieldServiceQueuePage() {
+  const [visits, setVisits] = useState<Visit[]>([]);
+  const [query, setQuery] = useState("");
+  const [state, setState] = useState("Todos");
+  const [region, setRegion] = useState("Todas");
+  const [sortMode, setSortMode] = useState("priority");
+  useEffect(() => { const timer = window.setTimeout(() => { try { const saved = JSON.parse(window.localStorage.getItem("oneit.demo.field-visits.v1") ?? "[]") as unknown; if (Array.isArray(saved)) setVisits(saved as Visit[]); } catch { setVisits([]); } }, 0); return () => window.clearTimeout(timer); }, []);
+  useEffect(() => { const refresh = () => { try { const saved = JSON.parse(window.localStorage.getItem("oneit.demo.field-visits.v1") ?? "[]") as unknown; if (Array.isArray(saved)) setVisits(saved as Visit[]); } catch { /* Mantém a fila atual se o cache estiver indisponível. */ } }; const onStorage = (event: StorageEvent) => { if (event.key === "oneit.demo.field-visits.v1") refresh(); }; window.addEventListener("storage", onStorage); window.addEventListener("focus", refresh); return () => { window.removeEventListener("storage", onStorage); window.removeEventListener("focus", refresh); }; }, []);
+  const visible = useMemo(() => visits.filter((item) => (state === "Todos" || item.state === state) && (region === "Todas" || item.region === region) && [item.ticket, item.title, item.technician, item.company, item.region].join(" ").toLocaleLowerCase().includes(query.trim().toLocaleLowerCase())).sort((a, b) => Number(isOverdue(b)) - Number(isOverdue(a)) || (priorityRank[a.priority ?? "P3"] ?? 2) - (priorityRank[b.priority ?? "P3"] ?? 2) || (sortMode === "distance" ? (a.distanceCapitalKm ?? 99999) - (b.distanceCapitalKm ?? 99999) : sortMode === "date" ? (a.plannedAt || "9999").localeCompare(b.plannedAt || "9999") : (a.plannedAt || "9999").localeCompare(b.plannedAt || "9999"))), [query, region, sortMode, state, visits]);
+  return <main className="min-h-screen bg-slate-100 text-slate-900"><DemoSidebar active="field-queue" /><div data-oneit-sidebar-offset className="ml-64 min-h-screen"><header className="flex flex-wrap items-center justify-between gap-3 border-b bg-white px-6 py-4"><div><p className="text-xs font-semibold tracking-[.15em] text-orange-500">ONEIT · FIELD SERVICE</p><h1 className="mt-1 text-xl font-semibold">Fila de atendimento</h1><p className="mt-1 text-sm text-slate-500">Acompanhe somente o estado das OS. Abra o detalhe quando precisar atuar.</p></div><Link href="/demo/field-service" className="rounded-lg border border-slate-300 px-4 py-2 text-sm font-semibold">Visão do gestor</Link></header><section className="p-6"><div className="grid gap-3 sm:grid-cols-5"><Metric label="Total na fila" value={visits.length} /><Metric label="Em atendimento" value={visits.filter((item) => item.state === "Em atendimento").length} /><Metric label="Aguardando validação" value={visits.filter((item) => item.state === "Aguardando validação do gestor").length} /><Metric label="Em atraso" value={visits.filter((item) => isOverdue(item)).length} /><Metric label="Concluídas" value={visits.filter((item) => item.state === "Concluído").length} /></div><section className="mt-5 overflow-hidden rounded-xl border bg-white shadow-sm"><div className="flex flex-wrap gap-3 border-b p-4"><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Buscar OS, serviço, técnico ou empresa" className="min-w-[240px] flex-1 rounded-lg border border-slate-300 px-3 py-2.5 text-sm" /><select value={state} onChange={(event) => setState(event.target.value)} className="rounded-lg border border-slate-300 px-3 py-2.5 text-sm">{states.map((item) => <option key={item}>{item}</option>)}</select><select value={sortMode} onChange={(event) => setSortMode(event.target.value)} className="rounded-lg border border-slate-300 px-3 py-2.5 text-sm"><option value="priority">Ordenar: prioridade</option><option value="date">Ordenar: data</option><option value="distance">Ordenar: distância</option></select><select value={region} onChange={(event) => setRegion(event.target.value)} className="rounded-lg border border-slate-300 px-3 py-2.5 text-sm"><option>Todas</option>{Array.from(new Set(visits.map((item) => item.region).filter(Boolean))).sort().map((item) => <option key={item}>{item}</option>)}</select></div><div className="divide-y">{visible.map((item) => <Link key={item.id} href={item.state === "Aguardando validação do gestor" ? `/demo/tickets?ticket=${encodeURIComponent(item.ticket)}&tab=Resolução` : `/demo/field-service?ticket=${encodeURIComponent(item.ticket)}`} className="block p-4 transition hover:bg-slate-50"><div className="flex flex-wrap items-center justify-between gap-3"><div><p className="font-semibold text-[#123f99]">{item.ticket} · {item.title}</p><p className="mt-1 text-sm text-slate-500">{item.company || "Empresa não informada"} · Técnico: {item.technician || "Aguardando atribuição"} · Previsto: {item.plannedAt || "Sem data"} {item.window ? "· " + item.window : ""}</p><p className="mt-1 text-xs text-slate-500">{item.region || "Região não informada"} · {item.distanceCapitalKm ?? "—"} km do marco zero · SLA {item.sla || "a definir"} · {item.priority || "P3"}</p></div><div className="flex items-center gap-2"><span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold">{item.state || "Sem estado"}</span>{item.state === "Fila de despacho" && <span className="rounded-lg bg-orange-500 px-3 py-1.5 text-xs font-semibold text-white">Atribuir visita →</span>}{item.state === "Aguardando validação do gestor" && <span className="rounded-lg bg-violet-700 px-3 py-1.5 text-xs font-semibold text-white">Validar RTO →</span>}{isOverdue(item) && <span className="rounded-full bg-red-50 px-3 py-1 text-xs font-semibold text-red-700">Atrasada</span>}</div></div></Link>)}{!visible.length && <p className="p-10 text-center text-sm text-slate-500">Nenhuma OS encontrada para os filtros selecionados.</p>}</div></section></section></div></main>;
+}
+
+function Metric({ label, value }: { label: string; value: number }) { return <OneitMetricCard label={label} value={value} />; }
+
+
+
+
+
+
+
+
+

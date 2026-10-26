@@ -1,0 +1,4 @@
+import { describe, expect, it } from "vitest";
+import { managementReviewCompletionSchema, managementReviewDecisionSchema, managementReviewSchema } from "./management-review";
+const id = "019cda50-f764-7a5e-9101-513020ce22e8";
+describe("management review", () => it("requires agenda, decisions and a conclusion", () => { expect(managementReviewSchema.safeParse({ organizationId: id, scheduledAt: "2026-11-10T14:00:00.000Z", agenda: "Analisar objetivos, riscos, auditorias e oportunidades de melhoria." }).success).toBe(true); expect(managementReviewDecisionSchema.safeParse({ reviewId: id, title: "Aprovar plano de capacidade", decision: "Aprovar investimento para reduzir o backlog operacional." }).success).toBe(true); expect(managementReviewCompletionSchema.safeParse({ reviewId: id, conclusion: "A análise foi concluída e as decisões foram registradas." }).success).toBe(true); }));

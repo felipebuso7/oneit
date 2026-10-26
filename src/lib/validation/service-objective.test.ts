@@ -1,0 +1,4 @@
+import { describe, expect, it } from "vitest";
+import { serviceObjectiveEvaluationSchema, serviceObjectiveSchema } from "./service-objective";
+const id = "019cda50-f764-7a5e-9101-513020ce22e8";
+describe("service objective", () => it("requires a measurable target and valid period", () => { const value = { organizationId: id, title: "Cumprimento de SLA de resolução", metricDefinition: "Percentual de OS fechadas dentro da meta de resolução.", unit: "%", target: "95", direction: "AT_LEAST", periodStart: "2026-10-01", periodEnd: "2026-12-31" }; expect(serviceObjectiveSchema.safeParse(value).success).toBe(true); expect(serviceObjectiveSchema.safeParse({ ...value, periodEnd: "2026-09-30" }).success).toBe(false); expect(serviceObjectiveEvaluationSchema.safeParse({ objectiveId: id, actual: "96.2", evidence: "Relatório operacional apurado e aprovado pela gestão." }).success).toBe(true); }));

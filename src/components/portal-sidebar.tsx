@@ -1,0 +1,19 @@
+"use client";
+
+import Image from "next/image";
+import Link from "next/link";
+import { useEffect, useMemo, useState } from "react";
+import { usePathname } from "next/navigation";
+import { logout } from "@/app/(auth)/login/actions";
+import { OneitNavIcon, navIconName } from "@/components/oneit-nav-icon";
+
+type Group = { title: string; links: readonly (readonly [string, string])[] };
+type Props = { navigation: readonly Group[] };
+
+export function PortalSidebar({ navigation }: Props) {
+  const pathname = usePathname(); const [collapsed, setCollapsed] = useState(false);
+  useEffect(() => { const timer = window.setTimeout(() => { const value = localStorage.getItem("oneit.portal.sidebar.collapsed") === "true"; setCollapsed(value); document.documentElement.dataset.oneitPortalSidebar = value ? "collapsed" : "expanded"; }, 0); return () => window.clearTimeout(timer); }, []);
+  const groups = useMemo(() => navigation.filter((group) => group.links.length), [navigation]);
+  const toggle = () => { const next = !collapsed; setCollapsed(next); localStorage.setItem("oneit.portal.sidebar.collapsed", String(next)); document.documentElement.dataset.oneitPortalSidebar = next ? "collapsed" : "expanded"; };
+  return <aside aria-label="Navegação principal" className={`oneit-portal-sidebar fixed inset-y-0 left-0 z-30 flex flex-col text-white transition-[width,padding] duration-200 ${collapsed ? "w-[72px] px-2" : "w-64 px-4"}`}><div className={`flex h-20 items-center border-b border-white/15 ${collapsed ? "flex-col justify-center gap-1" : "justify-between"}`}><Link href="/portal" aria-label="OneIT · início" className="flex min-w-0 items-center justify-center">{collapsed ? <span className="grid h-9 w-9 place-items-center rounded-lg bg-white/15 text-lg font-bold">O</span> : <Image src="/brand/oneit-white.png" alt="OneIT" width={154} height={48} priority className="h-12 w-[154px] object-contain object-center" />}</Link><button type="button" onClick={toggle} aria-label={collapsed ? "Expandir menu" : "Recolher menu"} title={collapsed ? "Expandir menu" : "Recolher menu"} className="grid h-9 w-9 shrink-0 place-items-center rounded-md border border-white/20 text-lg transition hover:bg-white/10">{collapsed ? "›" : "‹"}</button></div><nav className="mt-5 space-y-1 overflow-y-auto pb-3">{groups.map((group) => <section key={group.title} className="oneit-portal-nav-group">{!collapsed && <p className="mb-2 px-3 text-[10px] font-bold uppercase tracking-[.2em] text-white/60">{group.title}</p>}{group.links.map(([label, href]) => { const active = pathname === href || (href !== "/portal" && pathname.startsWith(`${href}/`)); return <Link key={href} href={href} data-oneit-label={label} title={collapsed ? label : undefined} aria-current={active ? "page" : undefined} className={`flex items-center rounded-lg py-2 text-sm transition ${collapsed ? "justify-center px-2" : "gap-3 px-3"} ${active ? "font-semibold text-white" : "text-slate-100"}`}><span aria-hidden className="grid h-5 w-5 shrink-0 place-items-center"><OneitNavIcon name={navIconName(label)} className="h-[18px] w-[18px]" /></span>{!collapsed && <span className="truncate">{label}</span>}</Link>; })}</section>)}</nav><div className={`mt-auto border-t border-white/15 pt-4 ${collapsed ? "px-1" : "px-3"}`}>{!collapsed && <><p className="text-xs font-semibold text-white">OneIT Service Management</p><p className="pb-4 text-xs text-white/60">Ambiente protegido</p></>}<form action={logout}><button type="submit" title="Sair" className={`flex w-full items-center rounded-lg py-2 text-sm text-slate-100 transition hover:bg-white/10 ${collapsed ? "justify-center px-2" : "gap-3 px-3"}`}><span aria-hidden className="grid h-5 w-5 place-items-center text-center text-base leading-none">↪</span>{!collapsed && <span>Sair</span>}</button></form></div></aside>;
+}

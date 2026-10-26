@@ -1,0 +1,1 @@
+import{z}from"zod";export const actionPlanSchema=z.object({problemId:z.uuid(),description:z.string().trim().min(10).max(10000),priority:z.coerce.number().int().min(1).max(5),dueAt:z.string().datetime().optional()});

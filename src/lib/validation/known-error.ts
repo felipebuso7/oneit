@@ -1,0 +1,1 @@
+import{z}from"zod";export const knownErrorSchema=z.object({problemId:z.uuid(),title:z.string().trim().min(5).max(240),symptom:z.string().trim().min(10).max(10000),workaround:z.string().trim().min(10).max(10000)});

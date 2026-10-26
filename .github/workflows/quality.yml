@@ -1,0 +1,36 @@
+name: Quality
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - run: npm run check:release-tree
+      - run: npm run audit:migrations:strict
+      - run: npm run lint:stabilization
+      - run: npm run lint:field-service
+      - run: npm run lint:core-ui
+      - run: npm run lint:finance
+      - run: npm run typecheck
+      - run: npm test
+      - run: npm run build
+      - name: Validate production container build
+        run: >-
+          docker build
+          --build-arg NEXT_PUBLIC_SUPABASE_URL=https://ci.invalid.supabase.co
+          --build-arg NEXT_PUBLIC_SUPABASE_ANON_KEY=ci-placeholder
+          --tag oneit-ci:${{ github.sha }} .

@@ -1,0 +1,1 @@
+import {z} from "zod"; export const rcaSchema=z.object({problemId:z.uuid(),method:z.enum(["FIVE_WHYS","ISHIKAWA","CHRONOLOGY","FREEFORM"]),directCause:z.string().trim().min(10).max(10000),contributingCause:z.string().trim().max(10000).optional(),rootCause:z.string().trim().min(10).max(10000)});

@@ -1,0 +1,6 @@
+create or replace function public.set_organization_feature_flag(target_organization_id uuid,target_flag_key text,target_enabled boolean)
+returns uuid language plpgsql security definer set search_path=public as $$ declare flag_id uuid;
+begin if not public.has_organization_role(target_organization_id,array['SUPER_ADMIN','ORG_ADMIN']::public.platform_role[]) then raise exception 'FEATURE_FLAG_NOT_AUTHORIZED'; end if; if target_flag_key !~ '^[a-z][a-z0-9_]{2,79}$' then raise exception 'FEATURE_FLAG_INVALID_KEY'; end if;
+insert into public.organization_feature_flags(organization_id,flag_key,enabled,updated_by) values(target_organization_id,target_flag_key,target_enabled,auth.uid()) on conflict(organization_id,flag_key) do update set enabled=excluded.enabled,updated_by=auth.uid() returning id into flag_id;
+insert into public.audit_logs(organization_id,actor_id,action,entity_type,entity_id,after_value,source) values(target_organization_id,auth.uid(),'FEATURE_FLAG_SET','organization_feature_flag',flag_id,jsonb_build_object('key',target_flag_key,'enabled',target_enabled),'WEB'); return flag_id; end; $$;
+revoke all on function public.set_organization_feature_flag(uuid,text,boolean) from public; grant execute on function public.set_organization_feature_flag(uuid,text,boolean) to authenticated;

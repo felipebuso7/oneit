@@ -1,0 +1,40 @@
+"use server";
+import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
+import { requireUser } from "@/lib/auth/current-user";
+import { serviceLevelPolicySchema } from "@/lib/validation/service-level";
+import { serviceLevelPauseSchema } from "@/lib/validation/service-level-pause";
+export async function saveServiceLevelPolicy(formData: FormData) {
+  const parsed = serviceLevelPolicySchema.safeParse({ contractId: formData.get("contractId"), serviceOfferingId: formData.get("serviceOfferingId") || undefined, calendarId: formData.get("calendarId") || undefined, priority: formData.get("priority"), responseMinutes: formData.get("responseMinutes"), resolutionMinutes: formData.get("resolutionMinutes"), olaMinutes: formData.get("olaMinutes") });
+  if (!parsed.success) redirect("/portal/sla?message=Política+inválida.");
+  const { supabase } = await requireUser(); const value = parsed.data;
+  const { data: contract, error: contractError } = await supabase.from("contracts").select("organization_id").eq("id", value.contractId).single();
+  if (contractError || !contract) redirect("/portal/sla?message=Contrato+indisponível.");
+  if (value.serviceOfferingId) {
+    const { data: offering } = await supabase.from("service_offerings").select("id").eq("id", value.serviceOfferingId).single();
+    if (!offering) redirect("/portal/sla?message=Oferta+de+serviço+indisponível+para+esta+organização.");
+  }
+  let existingQuery = supabase.from("service_level_policies").select("id").eq("contract_id", value.contractId).eq("priority", value.priority);
+  existingQuery = value.serviceOfferingId ? existingQuery.eq("service_offering_id", value.serviceOfferingId) : existingQuery.is("service_offering_id", null);
+  const { data: existing } = await existingQuery.maybeSingle();
+  const policy = { organization_id: contract.organization_id, contract_id: value.contractId, service_offering_id: value.serviceOfferingId ?? null, calendar_id: value.calendarId ?? null, priority: value.priority, response_minutes: value.responseMinutes, resolution_minutes: value.resolutionMinutes, ola_minutes: value.olaMinutes, active: true };
+  const { error } = existing ? await supabase.from("service_level_policies").update(policy).eq("id", existing.id) : await supabase.from("service_level_policies").insert(policy);
+  if (error) redirect("/portal/sla?message=Não+foi+possível+salvar+a+política.");
+  revalidatePath("/portal/sla"); redirect("/portal/sla?message=Política+salva.+Somente+novas+OS+recebem+este+snapshot.");
+}
+export async function pauseServiceLevel(formData: FormData) {
+  const parsed = serviceLevelPauseSchema.safeParse({ ticketId: formData.get("ticketId"), version: formData.get("version"), reason: formData.get("reason") });
+  if (!parsed.success) redirect("/portal/dashboard?message=Motivo+de+pausa+inválido.");
+  const { supabase } = await requireUser(); const value = parsed.data;
+  const { error } = await supabase.rpc("pause_ticket_service_level", { target_ticket_id: value.ticketId, expected_version: value.version, target_reason: value.reason });
+  if (error) redirect("/portal/dashboard?message=Não+foi+possível+pausar.+A+OS+pode+ter+sido+alterada+ou+não+ter+meta+ativa.");
+  revalidatePath("/portal/dashboard"); redirect("/portal/dashboard?message=Prazo+pausado+com+auditoria.");
+}
+export async function resumeServiceLevel(formData: FormData) {
+  const parsed = serviceLevelPauseSchema.safeParse({ ticketId: formData.get("ticketId"), version: formData.get("version"), reason: formData.get("reason") });
+  if (!parsed.success) redirect("/portal/dashboard?message=Motivo+de+retomada+inválido.");
+  const { supabase } = await requireUser(); const value = parsed.data;
+  const { error } = await supabase.rpc("resume_ticket_service_level", { target_ticket_id: value.ticketId, expected_version: value.version, target_reason: value.reason });
+  if (error) redirect("/portal/dashboard?message=Não+foi+possível+retomar.+Recarregue+a+OS.");
+  revalidatePath("/portal/dashboard"); redirect("/portal/dashboard?message=Prazo+retomado+e+vencimentos+ajustados.");
+}

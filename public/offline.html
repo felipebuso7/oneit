@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#062c59">
+  <title>Agenda local — OneIT</title>
+  <script defer src="/offline-app.js"></script>
+  <style>
+    body { margin: 0; padding: 24px; background: #f1f5f9; color: #0f172a; font: 18px/1.6 system-ui, sans-serif; }
+    main { max-width: 640px; margin: 4vh auto; padding: 24px; background: white; border-radius: 16px; }
+    h1 { line-height: 1.2; } a { display: inline-block; padding: 12px 20px; background: #0e7490; color: white; border-radius: 8px; text-decoration: none; }
+    button { min-height: 44px; margin: 8px 8px 8px 0; padding: 10px 16px; border: 1px solid #0e7490; border-radius: 8px; background: white; color: #0f172a; font: inherit; cursor: pointer; }
+    button:disabled { opacity: .5; } label { display: block; margin: 12px 0; } input:not([type=checkbox]), textarea, select { box-sizing: border-box; display: block; width: 100%; padding: 12px; font: inherit; border: 1px solid #64748b; border-radius: 6px; }
+    input[type=checkbox] { margin-right: 10px; } article { border-top: 1px solid #cbd5e1; padding: 16px 0; } #notice { background: #e0f2fe; padding: 12px; border-radius: 8px; }
+  </style>
+</head>
+<body><main>
+  <p>OneIT · Campo</p><h1>Agenda local</h1>
+  <p>Abra a cópia preparada online com sua senha local. Check-ins entram na fila; diagnóstico, solução e checklist podem ser guardados como rascunhos criptografados. Materiais, fotos, registro da execução e conclusão ainda exigem conexão.</p>
+  <p>Rascunhos não são enviados automaticamente. Salve explicitamente antes de ocultar ou fechar a tela; não há autosave.</p>
+  <p>A senha local não autentica no servidor. Cópias podem ficar desatualizadas. Esta tela bloqueia ao ficar oculta ou após 5 minutos sem interação.</p>
+  <p id="notice" role="status" aria-live="polite">Desbloqueie uma agenda válida para consultar os dados locais.</p>
+  <section id="local-agenda" aria-label="Agenda protegida"></section>
+  <noscript>JavaScript é necessário para desbloquear a agenda. Nenhum dado privado é exibido sem desbloqueio.</noscript>
+  <a href="/portal/field">Abrir Campo online</a>
+</main></body>
+</html>

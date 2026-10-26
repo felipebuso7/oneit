@@ -1,0 +1,2 @@
+import { z } from "zod";
+export const supplierReviewSchema=z.object({supplierId:z.uuid(),organizationId:z.uuid(),periodStart:z.coerce.date(),periodEnd:z.coerce.date(),frequency:z.enum(["MONTHLY","QUARTERLY","SEMIANNUAL","ANNUAL"]),overallScore:z.coerce.number().min(0).max(100),comments:z.string().trim().max(5000).optional()}).refine(v=>v.periodEnd>=v.periodStart,{path:["periodEnd"],message:"Período inválido"});

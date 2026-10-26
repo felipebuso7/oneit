@@ -39,3 +39,18 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Local PDF visual QA artifacts (fictitious data)
+/tmp/pdfs/
+/public/offline-app.js
+/public/build-info.json
+
+# Local QA outputs and copied reference projects are not application source.
+/output/
+/tmp/
+/*-qa.png
+/sgsti-*.png
+
+# Local browser profiles and named build-validation outputs
+/.edge-*/
+/.next-*/

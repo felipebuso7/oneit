@@ -1,0 +1,84 @@
+/* eslint-disable @next/next/no-img-element -- assinatura usa data URL privada e não deve passar pelo optimizer remoto. */
+import { requireUser } from "@/lib/auth/current-user";
+import { createStorageAdmin } from "@/lib/supabase/storage-admin";
+import { addFieldServiceOrderLpuLine, generateFieldServiceRto, reviewFieldServiceOrder, reviewTicket } from "./actions";
+import { OneitEmptyState, OneitPageHeader } from "@/components/oneit";
+
+type PageProps = { searchParams: Promise<{ message?: string }> };
+export default async function ReviewPage({ searchParams }: PageProps) {
+  const [{ supabase, user }, { message }] = await Promise.all([requireUser(), searchParams]);
+  const { data: roles, error: roleError } = await supabase.from("user_roles").select("organization_id").eq("user_id", user.id).in("role", ["MANAGER", "ORG_ADMIN", "SUPER_ADMIN"]);
+  if (roleError) throw new Error("Não foi possível validar a permissão de revisão.");
+  if (!roles?.length) return <section className="p-8"><OneitPageHeader eyebrow="Validação" title="Revisão gerencial" description="Seu perfil não possui acesso à revisão." /></section>;
+  const organizationIds = roles.map((role) => role.organization_id);
+  const { data: fieldQueue, error: fieldQueueError } = await supabase.from("field_service_review_queue").select("id, organization_id, service_order_id, ticket_id, submission_id, status, created_at").in("organization_id", organizationIds).eq("status", "PENDING").order("created_at").limit(50);
+  // A migration é aditiva e pode ainda não estar aplicada no ambiente atual.
+  const fieldItems = fieldQueueError ? [] : (fieldQueue ?? []);
+  const { data: approvedFieldQueue } = await supabase.from("field_service_review_queue").select("id, organization_id, service_order_id, ticket_id, status").in("organization_id", organizationIds).eq("status", "APPROVED").order("reviewed_at", { ascending: false }).limit(50);
+  const approvedItems = approvedFieldQueue ?? [];
+  const { data: returnedFieldQueue } = await supabase.from("field_service_review_queue").select("id, organization_id, service_order_id, ticket_id, status, review_reason, reviewed_at").in("organization_id", organizationIds).eq("status", "RETURNED").order("reviewed_at", { ascending: false }).limit(50);
+  const returnedItems = returnedFieldQueue ?? [];
+  const existingRtosResult = approvedItems.length ? await supabase.from("field_service_rto_reports").select("id, service_order_id, storage_path, report_version").in("service_order_id", approvedItems.map((item) => item.service_order_id)) : null;
+  const existingRtos = existingRtosResult?.data ?? [];
+  const fieldOrderIds = fieldItems.map((item) => item.service_order_id);
+  const fieldOrdersResult = fieldOrderIds.length ? await supabase.from("service_orders").select("id, order_number, ticket_id, status, scheduled_at, checked_in_at, checked_out_at").in("id", fieldOrderIds) : null;
+  const fieldOrders = fieldOrdersResult?.data ?? [];
+  const fieldTicketIds = fieldItems.map((item) => item.ticket_id);
+  const fieldTicketsResult = fieldTicketIds.length ? await supabase.from("tickets").select("id, ticket_number, title").in("id", fieldTicketIds) : null;
+  const fieldTickets = fieldTicketsResult?.data ?? [];
+  const fieldSubmissionIds = fieldItems.map((item) => item.submission_id).filter(Boolean);
+  const fieldSubmissionsResult = fieldSubmissionIds.length ? await supabase.from("service_order_partner_submissions").select("id, execution_report, customer_signature_name, customer_signature_data_url, submitted_at, checked_in_at, checked_out_at, evidence").in("id", fieldSubmissionIds as string[]) : null;
+  const fieldSubmissions = fieldSubmissionsResult?.data ?? [];
+  const fieldOrderLpuResult = fieldOrderIds.length ? await supabase.from("field_service_order_lpu_lines").select("id, service_order_id, lpu_code, description, unit, quantity, unit_price").in("service_order_id", fieldOrderIds).order("created_at") : null;
+  const fieldOrderLpu = fieldOrderLpuResult?.data ?? [];
+  const { data: fieldLpuItems } = await supabase.from("field_service_lpu_items").select("id, organization_id, code, description, unit, unit_price").in("organization_id", organizationIds).eq("active", true).lte("valid_from", new Date().toISOString().slice(0, 10)).or(`valid_until.is.null,valid_until.gte.${new Date().toISOString().slice(0, 10)}`).order("code");
+  const signedEvidenceUrls = new Map<string, string>();
+  if (fieldSubmissions.length) {
+    try {
+      const storage = createStorageAdmin("ticket-evidences");
+      const paths = fieldSubmissions.flatMap((submission) => Array.isArray(submission.evidence) ? submission.evidence.map((file: { storagePath?: string }) => file.storagePath).filter((path): path is string => Boolean(path)) : []);
+      await Promise.all(paths.map(async (path) => { const { data } = await storage.createSignedUrl(path, 900); if (data?.signedUrl) signedEvidenceUrls.set(path, data.signedUrl); }));
+    } catch {
+      // Storage pode não estar configurado em desenvolvimento/homologação.
+    }
+  }
+  const { data: tickets, error } = await supabase.from("tickets").select("id, ticket_number, title, version").in("organization_id", roles.map((role) => role.organization_id)).eq("administrative_status", "AWAITING_REVIEW").order("updated_at").limit(50);
+  if (error) throw new Error("Não foi possível carregar a fila de revisão.");
+  const ids = (tickets ?? []).map((ticket) => ticket.id);
+  const [{ data: completions, error: completionError }, { data: evidences, error: evidenceError }, { data: materials, error: materialError }] = await Promise.all([
+    ids.length ? supabase.from("ticket_completions").select("id, ticket_id, execution_record_id, materials_used, no_material_reason, evidence_ids, material_ids, created_at").in("ticket_id", ids).order("created_at", { ascending: false }).limit(1000) : Promise.resolve({ data: [], error: null }),
+    ids.length ? supabase.from("ticket_evidences").select("id, ticket_id, evidence_type").in("ticket_id", ids) : Promise.resolve({ data: [], error: null }),
+    ids.length ? supabase.from("ticket_materials").select("id, ticket_id, material_name, quantity, unit").in("ticket_id", ids) : Promise.resolve({ data: [], error: null }),
+  ]);
+  if (completionError || evidenceError || materialError) throw new Error("Não foi possível carregar as conclusões.");
+  const executionIds = (completions ?? []).map((completion) => completion.execution_record_id);
+  const { data: executions, error: executionError } = executionIds.length ? await supabase.from("ticket_execution_records").select("id, diagnosis, solution, checklist_answers").in("id", executionIds) : { data: [], error: null };
+  const { data: checklist, error: checklistError } = ids.length ? await supabase.from("ticket_checklist_items").select("ticket_id, item_code, label").in("ticket_id", ids).order("position") : { data: [], error: null };
+  if (executionError || checklistError) throw new Error("Não foi possível carregar o diagnóstico e checklist.");
+
+  return <section className="mx-auto max-w-6xl p-6 sm:p-8"><OneitPageHeader eyebrow="Validação" title="Revisão gerencial" description="Confira execução, evidências, assinatura e composição antes de aprovar ou devolver uma OS." />
+    {message ? <p role="status" className="mt-4 rounded bg-sky-100 p-3 text-sm">{message}</p> : null}
+    {!tickets?.length && !fieldItems.length && !returnedItems.length && !approvedItems.length ? <div className="mt-6"><OneitEmptyState title="Nenhuma OS aguardando revisão" description="Quando um atendimento for encerrado pelo técnico, ele aparecerá aqui para validação." /></div> : null}
+    {fieldItems.length ? <section className="mt-6"><h2 className="text-xl font-semibold">OS de Field Service aguardando validação</h2><div className="mt-4 space-y-4">{fieldItems.map((item) => { const order = fieldOrders.find((value) => value.id === item.service_order_id); const ticket = fieldTickets.find((value) => value.id === item.ticket_id); const submission = fieldSubmissions.find((value) => value.id === item.submission_id); const lines = fieldOrderLpu.filter((line) => line.service_order_id === item.service_order_id); const total = lines.reduce((sum, line) => sum + Number(line.quantity) * Number(line.unit_price), 0); const evidence = Array.isArray(submission?.evidence) ? submission.evidence as Array<{ name?: string; storagePath?: string; mime?: string }> : []; return <article key={item.id} className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm"><p className="text-xs font-semibold tracking-wide text-cyan-700">{order?.order_number ?? "OS"} · {ticket?.ticket_number ?? "Chamado"}</p><h3 className="mt-1 text-lg font-semibold">{ticket?.title ?? "Atendimento de campo"}</h3><dl className="mt-3 grid gap-2 text-sm sm:grid-cols-3"><div><dt className="text-slate-500">Agendamento</dt><dd>{order?.scheduled_at ? new Date(order.scheduled_at).toLocaleString("pt-BR") : "Não informado"}</dd></div><div><dt className="text-slate-500">Check-in</dt><dd>{submission?.checked_in_at ? new Date(submission.checked_in_at).toLocaleString("pt-BR") : "Não informado"}</dd></div><div><dt className="text-slate-500">Checkout</dt><dd>{submission?.checked_out_at ? new Date(submission.checked_out_at).toLocaleString("pt-BR") : "Não informado"}</dd></div></dl><div className="mt-4 grid gap-4 text-sm md:grid-cols-2"><div><h4 className="font-semibold">Relato e assinatura</h4><p className="mt-1 whitespace-pre-wrap text-slate-700">{submission?.execution_report ?? "Sem relato."}</p><p className="mt-2 text-slate-600">Responsável: {submission?.customer_signature_name ?? "Não informado"}</p>{submission?.customer_signature_data_url ? <img src={submission.customer_signature_data_url} alt="Assinatura do responsável" className="mt-2 max-h-20 rounded border p-1" /> : null}</div><div><h4 className="font-semibold">Fotos e LPU</h4><p className="mt-1 text-slate-600">{evidence.length ? `${evidence.length} foto(s) registrada(s)` : "Nenhuma foto registrada"}</p><ul className="mt-1 space-y-1">{evidence.map((file, index) => <li key={`${file.storagePath ?? file.name ?? "foto"}-${index}`}>{signedEvidenceUrls.get(file.storagePath ?? "") ? <a className="text-cyan-800 underline" href={signedEvidenceUrls.get(file.storagePath ?? "")} target="_blank" rel="noreferrer">Abrir {file.name ?? "foto"}</a> : <span>{file.name ?? "foto"} (visualização indisponível)</span>}</li>)}</ul>{lines.length ? <p className="mt-3 font-semibold">LPU: {lines.length} item(ns) · R$ {total.toFixed(2).replace(".", ",")}</p> : <p className="mt-3 text-amber-800">Nenhum item LPU vinculado.</p>}<form action={addFieldServiceOrderLpuLine} className="mt-3 flex flex-wrap gap-2"><input type="hidden" name="serviceOrderId" value={item.service_order_id} /><select name="lpuItemId" required className="rounded border p-2 text-sm"><option value="">Adicionar item LPU</option>{(fieldLpuItems ?? []).filter((lpu) => lpu.organization_id === item.organization_id).map((lpu) => <option key={lpu.id} value={lpu.id}>{lpu.code} · {lpu.description} · R$ {Number(lpu.unit_price).toFixed(2)}</option>)}</select><input name="quantity" type="number" min="0.001" step="0.001" defaultValue="1" required className="w-24 rounded border p-2 text-sm" /><button className="rounded bg-slate-900 px-3 py-2 text-sm font-semibold text-white">Lançar</button></form></div></div><form action={reviewFieldServiceOrder} className="mt-4 grid gap-2 border-t pt-4 sm:grid-cols-[11rem_1fr_auto]"><input type="hidden" name="queueId" value={item.id} /><select name="decision" required defaultValue="" className="rounded border p-2 text-sm"><option value="" disabled>Decisão</option><option value="APPROVE">Aprovar OS</option><option value="RETURN">Devolver</option></select><input name="reason" required minLength={10} maxLength={2000} placeholder="Justificativa (mínimo 10 caracteres)" className="rounded border p-2 text-sm" /><button className="rounded bg-cyan-900 px-3 py-2 text-sm font-semibold text-white">Registrar</button></form></article>; })}</div></section> : null}
+    {approvedItems.length ? <section className="mt-6"><h2 className="text-xl font-semibold">OS aprovadas · RTO</h2><div className="mt-3 space-y-3">{approvedItems.map((item) => { const report = (existingRtos ?? []).find((value) => value.service_order_id === item.service_order_id); return <article key={item.id} className="flex flex-wrap items-center justify-between gap-3 rounded-xl border bg-white p-4"><div><p className="font-semibold">OS {item.service_order_id}</p><p className="text-sm text-slate-500">Validação registrada · {report ? `RTO versão ${report.report_version}` : "RTO ainda não gerado"}</p></div>{report?.storage_path ? <a href={`/api/field-service/rto?reportId=${report.id}&redirect=1`} target="_blank" rel="noreferrer" className="rounded bg-cyan-900 px-3 py-2 text-sm font-semibold text-white">Baixar RTO</a> : <form action={generateFieldServiceRto}><input type="hidden" name="queueId" value={item.id} /><button className="rounded bg-slate-900 px-3 py-2 text-sm font-semibold text-white">Gerar RTO</button></form>}</article>; })}</div></section> : null}
+    {returnedItems.length ? <section className="mt-6"><h2 className="text-xl font-semibold">OS devolvidas para correção</h2><div className="mt-3 space-y-3">{returnedItems.map((item) => <article key={item.id} className="rounded-xl border border-amber-200 bg-amber-50 p-4"><div className="flex flex-wrap items-center justify-between gap-2"><p className="font-semibold">OS {item.service_order_id}</p><span className="rounded-full bg-amber-200 px-2 py-1 text-xs font-semibold text-amber-900">Correção pendente</span></div><p className="mt-2 text-sm text-amber-900"><span className="font-medium">Justificativa:</span> {item.review_reason}</p><p className="mt-1 text-xs text-amber-800">Devolvida em {item.reviewed_at ? new Date(item.reviewed_at).toLocaleString("pt-BR") : "data não informada"}. A OS deve ser reenviada pelo técnico após a correção.</p></article>)}</div></section> : null}
+    <div className="mt-6 space-y-6">{(tickets ?? []).map((ticket) => {
+      const completion = (completions ?? []).find((item) => item.ticket_id === ticket.id);
+      const execution = (executions ?? []).find((item) => item.id === completion?.execution_record_id);
+      if (!completion || !execution) return <article key={ticket.id} className="rounded border bg-white p-5">{ticket.ticket_number}: dados incompletos para revisão.</article>;
+      return <article key={ticket.id} className="rounded-xl border bg-white p-5">
+        <h2 className="text-xl font-semibold">{ticket.ticket_number} — {ticket.title}</h2>
+        <h3 className="mt-4 font-medium">Diagnóstico</h3><p className="whitespace-pre-wrap text-sm">{execution.diagnosis}</p>
+        <h3 className="mt-4 font-medium">Serviço realizado</h3><p className="whitespace-pre-wrap text-sm">{execution.solution}</p>
+        <h3 className="mt-4 font-medium">Checklist</h3><ul className="text-sm">{(checklist ?? []).filter((item) => item.ticket_id === ticket.id).map((item) => <li key={item.item_code}>{execution.checklist_answers[item.item_code] ? "Concluído" : "Pendente"}: {item.label}</li>)}</ul>
+        <h3 className="mt-4 font-medium">Materiais</h3>{completion.materials_used ? <ul className="text-sm">{(materials ?? []).filter((item) => completion.material_ids.includes(item.id)).map((item) => <li key={item.id}>{item.material_name} — {item.quantity} {item.unit}</li>)}</ul> : <p className="text-sm">Sem consumo: {completion.no_material_reason}</p>}
+        <h3 className="mt-4 font-medium">Evidências</h3><ul className="space-y-2 text-sm">{(evidences ?? []).filter((item) => completion.evidence_ids.includes(item.id)).map((item) => <li key={item.id}><a className="text-cyan-700 underline" href={`/portal/field/evidence/${item.id}`} target="_blank" rel="noreferrer">Abrir {item.evidence_type}</a></li>)}</ul>
+        <form action={reviewTicket} className="mt-5 space-y-3 border-t pt-4"><input name="ticketId" type="hidden" value={ticket.id} /><input name="version" type="hidden" value={ticket.version} />
+          <label className="block text-sm">Decisão<select name="decision" required defaultValue="" className="mt-1 block w-full rounded border p-2"><option disabled value="">Selecione</option><option value="APPROVE">Aprovar</option><option value="RETURN">Devolver para correção</option></select></label>
+          <label className="block text-sm">Justificativa<textarea name="reason" required minLength={10} maxLength={2000} className="mt-1 block w-full rounded border p-2" /></label>
+          <button type="submit" className="rounded bg-slate-900 px-4 py-2 font-semibold text-white">Registrar revisão</button>
+        </form>
+      </article>;
+    })}</div>
+  </section>;
+}

@@ -1,0 +1,3 @@
+import { z } from "zod";
+export const supplierSchema=z.object({organizationId:z.uuid(),legalName:z.string().trim().min(2).max(240),tradeName:z.string().trim().max(240).optional(),category:z.string().trim().min(2).max(100),criticality:z.enum(["LOW","MEDIUM","HIGH","CRITICAL"]),strategic:z.boolean()});
+export const supplierContactSchema=z.object({supplierId:z.uuid(),organizationId:z.uuid(),name:z.string().trim().min(2).max(200),contactType:z.enum(["COMMERCIAL","SUPPORT","FINANCIAL","ACCOUNT_MANAGER","ESCALATION","EMERGENCY"]),email:z.string().trim().email().optional(),phone:z.string().trim().min(8).max(30).optional(),priority:z.coerce.number().int().min(1).max(9)});

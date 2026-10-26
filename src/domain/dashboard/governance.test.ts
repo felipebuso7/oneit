@@ -1,0 +1,3 @@
+import { describe, expect, it } from "vitest";
+import { governanceMetrics } from "./governance";
+describe("governance metrics", () => it("separates open governance work from concluded records", () => { expect(governanceMetrics({ nonconformities: [{ status: "OPEN" }, { status: "CLOSED" }], risks: [{ status: "TREATMENT" }, { status: "CLOSED" }], audits: [{ status: "IN_PROGRESS" }, { status: "COMPLETED" }], objectives: [{ status: "ACTIVE" }, { status: "ACHIEVED" }, { status: "NOT_ACHIEVED" }], reviews: [{ status: "SCHEDULED" }, { status: "COMPLETED" }] })).toEqual({ openNonconformities: 1, risksInTreatment: 1, activeRisks: 1, activeAudits: 1, objectivesActive: 1, objectivesAchieved: 1, objectivesNotAchieved: 1, reviewsOpen: 1 }); }));

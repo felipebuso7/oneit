@@ -1,0 +1,1 @@
+import{z}from"zod";export const pirSchema=z.object({changeId:z.uuid(),outcome:z.enum(["SUCCESS","PARTIAL","FAILED"]),expectedResult:z.string().trim().min(10).max(10000),actualResult:z.string().trim().min(10).max(10000),rollbackPerformed:z.coerce.boolean(),lessonsLearned:z.string().trim().max(10000).optional()});

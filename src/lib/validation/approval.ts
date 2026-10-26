@@ -1,0 +1,1 @@
+import{z}from"zod";export const approvalRequestSchema=z.object({changeId:z.uuid(),approverId:z.uuid(),stage:z.string().trim().min(2).max(100)});export const approvalDecisionSchema=z.object({approvalId:z.uuid(),decision:z.enum(["APPROVED","REJECTED"]),comment:z.string().trim().max(2000).optional()});

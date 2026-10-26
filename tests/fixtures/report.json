@@ -1,0 +1,19 @@
+{
+  "ticketId": "019cda50-f764-7a5e-9101-513020ce22e8",
+  "organizationId": "019cda50-f764-7a5e-9101-513020ce22e9",
+  "completionId": "019cda50-f764-7a5e-9101-513020ce22ea",
+  "ticketVersion": 8, "reportVersion": 1,
+  "number": "FSM-2026-000001", "title": "Correção de cabeamento - unidade de demonstração",
+  "description": "Ponto de rede sem conectividade. Dados fictícios usados exclusivamente para validar o layout do relatório.",
+  "milldesk": "DEMO-001", "servicenow": "DEMO-SN-001",
+  "organization": "Servicia - demonstração", "customer": "Cliente fictício", "location": "Unidade exemplo - São Paulo",
+  "technician": "Técnico de demonstração", "reviewer": "Gestor de demonstração",
+  "approvedAt": "2026-10-01T15:00:00Z", "completedAt": "2026-10-01T14:30:00Z", "generatedAt": "2026-10-01T15:10:00Z",
+  "diagnosis": "Conector RJ45 com mau contato. Realizado teste físico para identificar a falha.",
+  "solution": "Substituído o conector, identificado o ponto e validado o resultado com teste de continuidade.",
+  "noMaterialReason": "",
+  "checklist": [{"label": "Identificar o ponto e a unidade atendida", "completed": true}, {"label": "Testar o ponto após a intervenção", "completed": true}],
+  "materials": [{"name": "Conector RJ45", "quantity": 2, "unit": "un"}],
+  "evidences": [{"id": "019cda50-f764-7a5e-9101-513020ce22eb", "type": "TEST_RESULT", "size": 100000}],
+  "checkins": [{"type": "TRAVEL_STARTED", "at": "2026-10-01T12:00:00Z"}, {"type": "ARRIVAL", "at": "2026-10-01T13:00:00Z"}, {"type": "WORK_STARTED", "at": "2026-10-01T13:10:00Z"}]
+}

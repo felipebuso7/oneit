@@ -1,0 +1,1 @@
+import{z}from"zod";export const actionPlanStatusSchema=z.object({actionId:z.uuid(),status:z.enum(["PLANNED","IN_PROGRESS","COMPLETED","EFFECTIVENESS_VERIFIED"]),result:z.string().trim().max(10000).optional(),effectivenessResult:z.string().trim().max(10000).optional()});

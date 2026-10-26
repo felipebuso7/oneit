@@ -1,0 +1,12 @@
+alter table public.action_plans add column completed_by uuid references public.user_profiles(id) on delete set null;
+create or replace function public.update_action_plan_status(target_action_id uuid,target_status text,target_result text default null,target_effectiveness_result text default null)
+returns void language plpgsql security definer set search_path=public as $$
+declare plan public.action_plans%rowtype;
+begin select * into plan from public.action_plans where id=target_action_id for update;
+ if plan.id is null or not public.has_ticket_management_role(plan.organization_id) then raise exception 'ACTION_PLAN_NOT_AUTHORIZED'; end if;
+ if target_status not in ('PLANNED','IN_PROGRESS','COMPLETED','EFFECTIVENESS_VERIFIED') then raise exception 'ACTION_PLAN_INVALID_STATUS'; end if;
+ if target_status='COMPLETED' and length(trim(target_result)) not between 10 and 10000 then raise exception 'ACTION_PLAN_RESULT_REQUIRED'; end if;
+ if target_status='EFFECTIVENESS_VERIFIED' and (plan.status not in ('COMPLETED','EFFECTIVENESS_VERIFIED') or length(trim(target_effectiveness_result)) not between 10 and 10000) then raise exception 'ACTION_PLAN_EFFECTIVENESS_REQUIRED'; end if;
+ update public.action_plans set status=target_status,result=case when target_status='COMPLETED' then trim(target_result) else result end,effectiveness_result=case when target_status='EFFECTIVENESS_VERIFIED' then trim(target_effectiveness_result) else effectiveness_result end,completed_at=case when target_status='COMPLETED' then clock_timestamp() else completed_at end,completed_by=case when target_status='COMPLETED' then auth.uid() else completed_by end,effectiveness_verified_at=case when target_status='EFFECTIVENESS_VERIFIED' then clock_timestamp() else effectiveness_verified_at end,effectiveness_verified_by=case when target_status='EFFECTIVENESS_VERIFIED' then auth.uid() else effectiveness_verified_by end where id=plan.id;
+ insert into public.audit_logs(organization_id,actor_id,action,entity_type,entity_id,after_value,source) values(plan.organization_id,auth.uid(),case when target_status='EFFECTIVENESS_VERIFIED' then 'ACTION_PLAN_EFFECTIVENESS_VERIFIED' else 'ACTION_PLAN_STATUS_CHANGED' end,'action_plan',plan.id,jsonb_build_object('status',target_status),'WEB'); end; $$;
+revoke all on function public.update_action_plan_status(uuid,text,text,text) from public; grant execute on function public.update_action_plan_status(uuid,text,text,text) to authenticated;

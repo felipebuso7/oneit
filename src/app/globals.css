@@ -1,8 +1,56 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #f5f7f8;
+  --foreground: #1f2933;
+  --font-geist-sans: Arial, Helvetica, sans-serif;
+  --font-geist-mono: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+  --oneit-sidebar-width: 16rem;
+  --oneit-petrol-950: #062b35;
+  --oneit-petrol-900: #073b47;
+  --oneit-petrol-800: #0b4d5b;
+  --oneit-petrol-700: #146272;
+  --oneit-orange: #f36c21;
+  --oneit-orange-dark: #c84e12;
+  --oneit-ink: #1f2933;
+  --oneit-muted: #637381;
+  --oneit-line: #dce3e6;
+  --oneit-surface: #ffffff;
+  --oneit-brand-950: #062c59;
+  --oneit-brand-700: #0b4b78;
+  --oneit-brand-100: #eaf1fa;
+  --oneit-surface-muted: #f5f7fa;
+  --oneit-focus-ring: rgb(11 75 120 / 0.42);
+  --oneit-space-1: 4px;
+  --oneit-space-2: 8px;
+  --oneit-space-3: 12px;
+  --oneit-space-4: 16px;
+  --oneit-space-5: 20px;
+  --oneit-space-6: 24px;
+  --oneit-space-8: 32px;
+  --oneit-radius-sm: 6px;
+  --oneit-radius-md: 8px;
+  --oneit-radius-lg: 12px;
+  --oneit-text-xs: 11px;
+  --oneit-text-sm: 13px;
+  --oneit-text-md: 14px;
+  --oneit-text-lg: 20px;
+  --oneit-text-xl: 28px;
+  --oneit-shadow-sm: 0 1px 2px rgb(15 23 42 / 0.06);
+  --oneit-shadow-md: 0 4px 14px rgb(15 23 42 / 0.08);
+}
+
+html[data-oneit-sidebar="collapsed"] {
+  --oneit-sidebar-width: 4.5rem;
+}
+
+html[data-oneit-portal-sidebar="collapsed"] { --oneit-portal-sidebar-width: 4.5rem; }
+html[data-oneit-portal-sidebar="expanded"] { --oneit-portal-sidebar-width: 16rem; }
+[data-oneit-portal-sidebar-offset] { margin-left: var(--oneit-portal-sidebar-width, 16rem) !important; transition: margin-left 200ms ease; }
+
+[data-oneit-sidebar-offset] {
+  margin-left: var(--oneit-sidebar-width) !important;
+  transition: margin-left 200ms ease;
 }
 
 @theme inline {
@@ -22,5 +70,471 @@
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-geist-sans);
+  font-size: 14px;
+}
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 3px solid var(--oneit-focus-ring);
+  outline-offset: 2px;
+}
+
+button,
+a,
+input,
+select,
+textarea {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Listas operacionais: leitura densa, sem cartões decorativos. */
+.oneit-operational-band {
+  background: var(--oneit-petrol-900) !important;
+  border-color: var(--oneit-petrol-800) !important;
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.12), 0 1px 2px rgb(15 23 42 / 0.08);
+}
+
+.oneit-operational-band .text-blue-100 { color: rgb(255 255 255 / 0.76) !important; }
+
+.oneit-grid-action {
+  border-radius: 6px;
+  box-shadow: 0 1px 1px rgb(15 23 42 / 0.05);
+}
+
+/* Design System v1: componentes-base para as próximas migrações de tela. */
+.oneit-page-header {
+  display: flex;
+  min-height: 64px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  border-bottom: 1px solid var(--oneit-line);
+  background: var(--oneit-surface);
+  padding: 12px 20px;
+}
+
+.oneit-page-header__eyebrow {
+  color: var(--oneit-petrol-700);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+}
+
+.oneit-page-header__title {
+  margin-top: 3px;
+  color: var(--oneit-petrol-950);
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.oneit-card {
+  border: 1px solid var(--oneit-line);
+  border-radius: 12px;
+  background: var(--oneit-surface);
+  box-shadow: 0 2px 10px rgb(31 41 51 / 0.045);
+}
+
+.oneit-section-title {
+  color: var(--oneit-petrol-900);
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: -.01em;
+}
+
+.oneit-btn {
+  display: inline-flex;
+  min-height: 36px;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border-radius: 8px;
+  padding: 8px 14px;
+  font-size: 13px;
+  font-weight: 700;
+  transition: background-color 140ms ease, box-shadow 140ms ease, transform 140ms ease;
+}
+
+.oneit-btn:active { transform: translateY(1px); }
+.oneit-btn--primary { background: var(--oneit-petrol-900); color: white; }
+.oneit-btn--primary:hover { background: var(--oneit-petrol-950); box-shadow: 0 3px 8px rgb(6 43 53 / 0.18); }
+.oneit-btn--action { background: var(--oneit-orange); color: white; }
+.oneit-btn--action:hover { background: var(--oneit-orange-dark); box-shadow: 0 3px 8px rgb(243 108 33 / 0.2); }
+.oneit-btn--secondary { border: 1px solid var(--oneit-line); background: white; color: var(--oneit-petrol-900); }
+.oneit-btn--secondary:hover { background: #f4f8f8; }
+
+[data-oneit-data-table] tbody tr { transition: background-color 120ms ease; }
+[data-oneit-data-table] tbody tr:hover { background: #f8fbfb; }
+[data-oneit-data-table] tbody tr:focus-within { background: #eef8fa; }
+[data-oneit-data-table] td { vertical-align: middle; }
+
+/* Gestor de Field Service: os indicadores devem ser lidos como um conjunto,
+   enquanto as áreas de decisão permanecem visualmente separadas. */
+[data-oneit-sidebar-offset] .oneit-operational-grid:not(table) {
+  display: grid;
+  gap: 1px;
+  overflow: hidden;
+  border: 1px solid var(--oneit-line);
+  border-radius: 10px;
+  background: var(--oneit-line);
+}
+[data-oneit-sidebar-offset] .oneit-operational-grid:not(table) > * {
+  min-width: 0;
+  background: var(--oneit-surface);
+  padding: 14px;
+}
+[data-oneit-sidebar-offset] .oneit-operational-grid:not(table) > *:hover { background: #f8fbfb; }
+[data-oneit-sidebar-offset] .oneit-operational-grid:not(table) strong { color: var(--oneit-petrol-950); font-size: 20px; }
+
+@media (min-width: 768px) {
+  [data-oneit-sidebar-offset] .oneit-operational-grid:not(table) { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}
+
+@media (max-width: 767px) {
+  [data-oneit-sidebar-offset] .oneit-operational-grid:not(table) { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+/* Layout responsivo: em telas estreitas a navegação vira uma faixa superior
+   rolável e o conteúdo deixa de ficar escondido atrás da sidebar. */
+@media (max-width: 767px) {
+  :root { --oneit-sidebar-width: 0px; }
+  [data-oneit-sidebar-offset] { margin-left: 0 !important; }
+  .oneit-demo-sidebar,
+  .oneit-portal-sidebar,
+  .oneit-requester-sidebar {
+    position: relative !important;
+    width: 100% !important;
+    min-height: auto !important;
+    max-height: none !important;
+  }
+  .oneit-demo-sidebar nav,
+  .oneit-portal-sidebar nav,
+  .oneit-requester-sidebar nav {
+    display: flex;
+    max-width: 100%;
+    gap: 4px;
+    overflow-x: auto;
+    padding: 6px 10px;
+    white-space: nowrap;
+  }
+  .oneit-demo-sidebar nav > section,
+  .oneit-portal-sidebar nav > section,
+  .oneit-requester-sidebar nav > section { flex: 0 0 auto; }
+  .oneit-demo-sidebar nav a,
+  .oneit-demo-sidebar nav button,
+  .oneit-portal-sidebar nav a,
+  .oneit-portal-sidebar nav button,
+  .oneit-requester-sidebar nav a { min-height: 40px; }
+  [data-oneit-sidebar-offset] > header { padding-inline: 12px !important; }
+  .oneit-page-header { align-items: flex-start; flex-direction: column; }
+  .oneit-page-header > :last-child { width: 100%; }
+  [data-oneit-sidebar-offset] main,
+  [data-oneit-sidebar-offset] section { max-width: 100%; }
+  [data-oneit-sidebar-offset] table { min-width: 720px; }
+  [data-oneit-sidebar-offset] .overflow-x-auto { max-width: 100%; overflow-x: auto; }
+  .oneit-demo-sidebar { padding-inline: 12px !important; }
+  .oneit-demo-sidebar[data-mobile-menu-open="false"] nav { display: none !important; }
+  .oneit-demo-sidebar[data-mobile-menu-open="true"] nav {
+    position: absolute;
+    top: 64px;
+    left: 0;
+    right: 0;
+    z-index: 40;
+    display: block !important;
+    max-height: calc(100vh - 80px);
+    overflow-y: auto;
+    overflow-x: hidden;
+    margin-top: 0;
+    padding: 12px;
+    border-bottom: 1px solid #dce3e6;
+    background: #fff;
+    box-shadow: 0 12px 22px rgb(15 23 42 / 0.14);
+    white-space: normal;
+  }
+  .oneit-demo-sidebar nav > section { display: block; }
+  .oneit-demo-sidebar > div:last-child { display: none; }
+}
+
+/* Compatibilidade visual para telas já construídas com utilitários arbitrários. */
+.bg-\[\#063b8e\],
+.bg-\[\#093d8f\],
+.bg-\[\#103c98\],
+.bg-\[\#123f99\] { background-color: var(--oneit-petrol-900) !important; }
+
+.border-\[\#093d8f\],
+.border-\[\#103c98\],
+.border-\[\#123f99\] { border-color: var(--oneit-petrol-700) !important; }
+
+.text-\[\#093d8f\],
+.text-\[\#123f99\] { color: var(--oneit-petrol-800) !important; }
+
+.rounded-xl.border.bg-white,
+.rounded-2xl.border.bg-white {
+  border-color: var(--oneit-line);
+  box-shadow: 0 2px 10px rgb(31 41 51 / 0.045);
+}
+
+/* Fundação visual: superfícies limpas, leitura densa e uma única cor de ação. */
+[data-oneit-sidebar-offset] > header {
+  min-height: 64px;
+  border-color: var(--oneit-line) !important;
+  background: var(--oneit-surface) !important;
+}
+
+[data-oneit-sidebar-offset] input,
+[data-oneit-sidebar-offset] select,
+[data-oneit-sidebar-offset] textarea {
+  border-color: #cfd9dd;
+  color: var(--oneit-ink);
+}
+
+[data-oneit-sidebar-offset] input:focus,
+[data-oneit-sidebar-offset] select:focus,
+[data-oneit-sidebar-offset] textarea:focus {
+  border-color: var(--oneit-petrol-700);
+  box-shadow: 0 0 0 3px rgb(20 98 114 / 0.12);
+  outline: none;
+}
+
+.oneit-demo-sidebar {
+  background: #fff !important;
+  border-right: 1px solid #dce3e6;
+  box-shadow: 1px 0 4px rgb(15 23 42 / 0.04) !important;
+}
+
+.oneit-portal-sidebar { background: var(--oneit-petrol-950); box-shadow: 4px 0 18px rgb(6 43 53 / 0.12); }
+.oneit-portal-sidebar a[aria-current="page"] { background: var(--oneit-petrol-800); box-shadow: inset 3px 0 0 #8bd3df, 0 2px 8px rgb(0 0 0 / 0.12); }
+.oneit-portal-sidebar a:not([aria-current="page"]):hover { background: rgb(255 255 255 / 0.09); }
+html[data-oneit-portal-sidebar="collapsed"] .oneit-portal-sidebar nav { display:flex; flex-direction:column; align-items:center; gap:4px; }
+html[data-oneit-portal-sidebar="collapsed"] .oneit-portal-nav-group { width:100%; }
+html[data-oneit-portal-sidebar="collapsed"] .oneit-portal-sidebar nav a { position:relative; width:100%; min-height:42px; border-radius:8px; }
+html[data-oneit-portal-sidebar="collapsed"] .oneit-portal-sidebar nav a::after { content:attr(data-oneit-label); position:absolute; left:calc(100% + 12px); top:50%; z-index:60; width:max-content; max-width:210px; transform:translateY(-50%); border-radius:6px; background:var(--oneit-petrol-950); padding:6px 9px; color:#fff; font-size:12px; font-weight:600; opacity:0; pointer-events:none; transition:opacity 120ms ease; }
+html[data-oneit-portal-sidebar="collapsed"] .oneit-portal-sidebar nav a:hover::after, html[data-oneit-portal-sidebar="collapsed"] .oneit-portal-sidebar nav a:focus-visible::after { opacity:1; }
+
+.oneit-requester-sidebar { background: var(--oneit-petrol-950); box-shadow: 4px 0 18px rgb(6 43 53 / 0.12); }
+.oneit-requester-sidebar a[aria-current="page"] { background: rgb(255 255 255 / 0.16); box-shadow: inset 3px 0 0 var(--oneit-orange); }
+.oneit-requester-sidebar a:not([aria-current="page"]):hover { background: rgb(255 255 255 / 0.09); }
+
+.oneit-demo-sidebar a[aria-current="page"] {
+  background: var(--oneit-brand-100) !important;
+  color: var(--oneit-brand-950) !important;
+  box-shadow: inset 3px 0 0 var(--oneit-brand-700) !important;
+}
+
+.oneit-demo-sidebar a:not([aria-current="page"]):hover {
+  background: #f1f5f9 !important;
+}
+
+html[data-oneit-sidebar="collapsed"] .oneit-demo-sidebar nav {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+html[data-oneit-sidebar="collapsed"] .oneit-demo-sidebar nav > section {
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+html[data-oneit-sidebar="collapsed"] .oneit-demo-sidebar nav :is(a, button) {
+  position: relative;
+  width: 48px;
+  min-height: 48px;
+  margin: 0 auto;
+  border-radius: 14px;
+  justify-content: center;
+}
+
+html[data-oneit-sidebar="collapsed"] .oneit-demo-sidebar nav :is(a, button)[data-oneit-label]::after {
+  content: attr(data-oneit-label);
+  position: absolute;
+  left: calc(100% + 12px);
+  top: 50%;
+  z-index: 60;
+  width: max-content;
+  max-width: 210px;
+  transform: translateY(-50%);
+  border-radius: 6px;
+  background: var(--oneit-petrol-950);
+  padding: 6px 9px;
+  color: white;
+  font-size: 12px;
+  font-weight: 600;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 120ms ease;
+}
+
+html[data-oneit-sidebar="collapsed"] .oneit-demo-sidebar nav :is(a, button)[data-oneit-label]:hover::after,
+html[data-oneit-sidebar="collapsed"] .oneit-demo-sidebar nav :is(a, button)[data-oneit-label]:focus-visible::after { opacity: 1; }
+
+[data-oneit-sidebar-offset] table thead {
+  background: #f7f9fa !important;
+  color: #56636b !important;
+}
+
+[data-oneit-sidebar-offset] table tbody tr {
+  border-color: #e2e8eb !important;
+}
+
+[data-oneit-sidebar-offset] table tbody tr:hover {
+  background: #f4f8f8 !important;
+}
+
+/* Field Service: evita que painéis longos sejam cortados pelo menu fixo ou pelo viewport. */
+[data-oneit-sidebar-offset] {
+  min-width: 0;
+  overflow-x: hidden;
+  padding-bottom: 24px;
+}
+
+@media (max-width: 768px) {
+  [data-oneit-sidebar-offset] {
+    margin-left: 0 !important;
+    padding-bottom: 32px;
+  }
+}
+
+/* Cabeçalhos de listas e painéis usam uma superfície neutra; cor fica
+   reservada aos estados e ações que exigem atenção. */
+[data-oneit-sidebar-offset] :is(article, section)[class*="rounded"] > header.border-b,
+[data-oneit-sidebar-offset] :is(article, section)[class*="rounded"] > div.border-b:first-child {
+  position: relative;
+  border-bottom-color: #ccd8dc !important;
+  background: #f8fafc;
+  box-shadow: none;
+}
+
+[data-oneit-sidebar-offset] :is(article, section)[class*="rounded"] > header.border-b :is(h2, h3),
+[data-oneit-sidebar-offset] :is(article, section)[class*="rounded"] > div.border-b:first-child :is(h2, h3) {
+  color: var(--oneit-petrol-900);
+  letter-spacing: -0.01em;
+}
+
+/* Linhas que levam para um detalhe mantêm fundo branco e só recebem realce
+   no hover; assim continuam claramente separadas do cabeçalho do painel. */
+[data-oneit-sidebar-offset] .divide-y > a,
+[data-oneit-sidebar-offset] .divide-y > button {
+  background: var(--oneit-surface);
+  transition: background-color 140ms ease, box-shadow 140ms ease;
+}
+
+[data-oneit-sidebar-offset] .divide-y > a:hover,
+[data-oneit-sidebar-offset] .divide-y > button:hover {
+  background: #f8fbfb !important;
+  box-shadow: inset 3px 0 0 rgb(20 98 114 / 0.45);
+}
+
+/* Explorador documental ISO: assegura os três painéis no desktop, inclusive
+   quando a classe de grade arbitrária não for extraída pelo compilador CSS. */
+@media (min-width: 1280px) {
+  [data-oneit-sidebar-offset] section[class*="min-h-[650px]"][class*="xl:grid-cols-"] {
+    grid-template-columns: 310px 390px minmax(0, 1fr);
+  }
+}
+
+[data-oneit-sidebar-offset] .bg-orange-500 {
+  background-color: var(--oneit-orange) !important;
+  border-color: var(--oneit-orange) !important;
+}
+
+[data-oneit-sidebar-offset] .hover\:bg-orange-600:hover { background-color: var(--oneit-orange-dark) !important; }
+
+.oneit-operational-grid th {
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.oneit-operational-grid tbody tr {
+  height: 46px;
+}
+
+/* Catálogo: faixa de classes com superfícies próprias, sem usar ativos proprietários. */
+[aria-label="Selecionar serviço do catálogo"] {
+  width: calc(100vw - 3rem) !important;
+  max-width: none !important;
+  max-height: calc(100vh - 3rem) !important;
+  border-radius: 6px !important;
+}
+
+[aria-label="Selecionar serviço do catálogo"] > div:first-child {
+  padding-top: 0.8rem !important;
+  padding-bottom: 0.8rem !important;
+}
+
+[aria-label="Selecionar serviço do catálogo"] > div:nth-child(2) {
+  background: #fff !important;
+  padding-top: 0.55rem !important;
+  padding-bottom: 0.55rem !important;
+}
+
+[aria-label="Selecionar serviço do catálogo"] button {
+  border-radius: 4px;
+}
+
+.oneit-catalog-tile {
+  border: 1px solid #c9cfda;
+  border-radius: 5px;
+  background: linear-gradient(145deg, #ffffff, #dce2eb);
+  box-shadow: 0 2px 3px rgb(15 23 42 / 0.18), inset 0 1px 0 rgb(255 255 255 / 0.9);
+  filter: saturate(0.9);
+  transition: transform 160ms ease, box-shadow 160ms ease, filter 160ms ease;
+}
+
+.oneit-catalog-class:hover .oneit-catalog-tile,
+.oneit-catalog-class:focus-visible .oneit-catalog-tile {
+  transform: translateY(-3px) scale(1.06);
+  box-shadow: 0 5px 8px rgb(15 23 42 / 0.2), inset 0 1px 0 white;
+  filter: saturate(1.15);
+}
+
+.oneit-catalog-tile-active {
+  border-color: var(--oneit-orange);
+  background: linear-gradient(145deg, #fff7ed, #fed7aa);
+  box-shadow: 0 3px 7px rgb(243 108 33 / 0.25), inset 0 1px 0 white;
+}
+
+/* Detalhe de chamados: abas compactas e agrupadas visualmente. */
+[role="dialog"][aria-label^="Atendimento do chamado"] > div:nth-child(2) {
+  flex-wrap: wrap;
+  gap: .35rem;
+  padding: .7rem 1.25rem;
+  background: #f7f9fc;
+}
+
+[role="dialog"][aria-label^="Atendimento do chamado"] > div:nth-child(2) > button {
+  border: 1px solid transparent !important;
+  border-radius: .5rem;
+  padding: .42rem .68rem !important;
+  font-size: .78rem !important;
+}
+
+[role="dialog"][aria-label^="Atendimento do chamado"] > div:nth-child(2) > button:hover {
+  background: #eaf2ff;
+  color: var(--oneit-petrol-800) !important;
+}
+
+[role="dialog"][aria-label^="Atendimento do chamado"] > div:nth-child(2) > button[class*="border-orange-500"] {
+  border-color: #2c67bd !important;
+  background: #eaf2ff;
+  color: var(--oneit-petrol-800) !important;
+}
+
+[role="dialog"][aria-label^="Atendimento do chamado"] > div:nth-child(2) > button:nth-child(7) {
+  margin-left: .4rem;
+  border-left-color: #cbd5e1 !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .oneit-catalog-tile {
+    transition: none;
+  }
 }

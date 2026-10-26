@@ -1,0 +1,2 @@
+import {describe,expect,it} from "vitest"; import {createProblemSchema} from "./problem";
+describe("problem",()=>it("requires a linked ticket and bounded content",()=>{const x={ticketId:"019cda50-f764-7a5e-9101-513020ce22e8",title:"Falha recorrente de conectividade",description:"Ocorrências recorrentes exigem investigação de causa raiz.",priority:"2"};expect(createProblemSchema.safeParse(x).success).toBe(true);expect(createProblemSchema.safeParse({...x,priority:"7"}).success).toBe(false)}));

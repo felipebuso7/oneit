@@ -1,0 +1,3 @@
+import { z } from "zod";
+export const serviceObjectiveSchema = z.object({ organizationId: z.uuid(), title: z.string().trim().min(5).max(240), metricDefinition: z.string().trim().min(10).max(10000), unit: z.string().trim().min(1).max(50), baseline: z.coerce.number().finite().optional(), target: z.coerce.number().finite(), direction: z.enum(["AT_LEAST", "AT_MOST"]), periodStart: z.string().date(), periodEnd: z.string().date() }).refine((value) => value.periodEnd > value.periodStart, { path: ["periodEnd"], message: "O fim deve ser posterior ao início." });
+export const serviceObjectiveEvaluationSchema = z.object({ objectiveId: z.uuid(), actual: z.coerce.number().finite(), evidence: z.string().trim().min(10).max(10000) });

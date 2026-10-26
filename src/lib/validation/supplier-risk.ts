@@ -1,0 +1,2 @@
+import { z } from "zod";
+export const supplierRiskSchema=z.object({supplierId:z.uuid(),organizationId:z.uuid(),title:z.string().trim().min(5).max(240),description:z.string().trim().min(10).max(5000),impact:z.enum(["LOW","MEDIUM","HIGH","CRITICAL"]),likelihood:z.enum(["LOW","MEDIUM","HIGH"]),dependency:z.enum(["LOW","MEDIUM","HIGH","CRITICAL"]),alternativeSupplier:z.string().trim().max(240).optional(),contingencyPlan:z.string().trim().max(5000).optional()});

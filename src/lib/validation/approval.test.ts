@@ -1,0 +1,1 @@
+import{describe,it,expect}from"vitest";import{approvalDecisionSchema}from"./approval";describe("approval",()=>it("allows only final decisions",()=>{const x={approvalId:"019cda50-f764-7a5e-9101-513020ce22e8",decision:"APPROVED"};expect(approvalDecisionSchema.safeParse(x).success).toBe(true);expect(approvalDecisionSchema.safeParse({...x,decision:"PENDING"}).success).toBe(false)}));
