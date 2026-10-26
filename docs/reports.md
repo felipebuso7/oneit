@@ -8,4 +8,4 @@ A4 com paginação, cabeçalho e rodapé. Fonte Helvetica suporta acentos portug
 
 O bucket ticket-reports exige service_role apenas no servidor para upload. Leitura usa RLS e links assinados de 60 segundos. Falhas de registro tentam compensar o upload; queda do processo pode deixar objeto órfão e requer reconciliação futura.
 
-Migrations: 20261001140000_reports.sql e 20261024120000_report_evidence_paths.sql. Antes da publicação, homologar as migrations, RPCs, bucket privado, leitura das evidências, geração do PDF, download por link autorizado e limpeza de upload órfão no Supabase dev. Geração local usa somente dados fictícios. Aprovação e PDF não acionam envio de e-mail, integração ou encerramento automático.
+Migrations: 20261001140000_reports.sql e 20261024120500_report_evidence_paths.sql. Antes da publicação, homologar as migrations, RPCs, bucket privado, leitura das evidências, geração do PDF, download por link autorizado e limpeza de upload órfão no Supabase dev. Geração local usa somente dados fictícios. Aprovação e PDF não acionam envio de e-mail, integração ou encerramento automático.
