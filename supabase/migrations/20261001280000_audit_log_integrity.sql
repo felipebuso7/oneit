@@ -4,7 +4,7 @@ alter table public.audit_logs
   add column if not exists event_hash text;
 
 update public.audit_logs
-set event_hash = encode(digest(concat_ws('|', id::text, organization_id::text, actor_id::text, action, entity_type, entity_id::text, coalesce(before_value::text, ''), coalesce(after_value::text, ''), source, correlation_id::text, created_at::text), 'sha256'), 'hex')
+set event_hash = encode(sha256(convert_to(concat_ws('|', id::text, organization_id::text, actor_id::text, action, entity_type, entity_id::text, coalesce(before_value::text, ''), coalesce(after_value::text, ''), source, correlation_id::text, created_at::text), 'UTF8')), 'hex')
 where event_hash is null;
 
 alter table public.audit_logs alter column event_hash set not null;
@@ -15,7 +15,7 @@ language plpgsql
 set search_path = public
 as $$
 begin
-  new.event_hash := encode(digest(concat_ws('|', new.id::text, new.organization_id::text, new.actor_id::text, new.action, new.entity_type, new.entity_id::text, coalesce(new.before_value::text, ''), coalesce(new.after_value::text, ''), new.source, new.correlation_id::text, new.created_at::text), 'sha256'), 'hex');
+  new.event_hash := encode(sha256(convert_to(concat_ws('|', new.id::text, new.organization_id::text, new.actor_id::text, new.action, new.entity_type, new.entity_id::text, coalesce(new.before_value::text, ''), coalesce(new.after_value::text, ''), new.source, new.correlation_id::text, new.created_at::text), 'UTF8')), 'hex');
   return new;
 end;
 $$;

@@ -4,11 +4,11 @@ language plpgsql security definer set search_path=public as $$
 declare access_record public.service_order_partner_accesses%rowtype;
 begin
   select * into access_record from public.service_order_partner_accesses
-  where token_hash=encode(digest(target_token,'sha256'),'hex') for update;
+  where token_hash=encode(sha256(convert_to(target_token, 'UTF8')),'hex') for update;
   if access_record.id is null then raise exception 'PARTNER_ACCESS_INVALID'; end if;
   if access_record.revoked_at is not null or access_record.expires_at <= clock_timestamp() then raise exception 'PARTNER_ACCESS_EXPIRED'; end if;
   if access_record.validation_count >= 5 then raise exception 'PARTNER_ACCESS_LOCKED'; end if;
-  if access_record.access_code_hash <> encode(digest(target_code,'sha256'),'hex') then
+  if access_record.access_code_hash <> encode(sha256(convert_to(target_code, 'UTF8')),'hex') then
     update public.service_order_partner_accesses set validation_count=validation_count+1 where id=access_record.id;
     raise exception 'PARTNER_ACCESS_INVALID';
   end if;

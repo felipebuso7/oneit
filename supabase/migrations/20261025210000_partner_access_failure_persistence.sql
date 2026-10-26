@@ -5,7 +5,7 @@ returns void language plpgsql security definer set search_path = public as $$
 begin
   update public.service_order_partner_accesses
      set validation_count = least(validation_count + 1, 5)
-   where token_hash = encode(digest(target_token, 'sha256'), 'hex')
+   where token_hash = encode(sha256(convert_to(target_token, 'UTF8')), 'hex')
      and revoked_at is null
      and expires_at > clock_timestamp()
      and validation_count < 5;

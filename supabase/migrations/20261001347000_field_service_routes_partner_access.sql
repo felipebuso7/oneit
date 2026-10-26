@@ -93,7 +93,7 @@ begin
   raw_token := encode(gen_random_bytes(24),'hex');
   raw_code := lpad((floor(random()*1000000))::text,6,'0');
   insert into public.service_order_partner_accesses(organization_id,service_order_id,supplier_id,token_hash,access_code_hash,expires_at,created_by)
-  values(order_record.organization_id,order_record.id,target_supplier_id,encode(digest(raw_token,'sha256'),'hex'),encode(digest(raw_code,'sha256'),'hex'),clock_timestamp() + make_interval(mins => target_valid_for_minutes),auth.uid())
+  values(order_record.organization_id,order_record.id,target_supplier_id,encode(sha256(convert_to(raw_token, 'UTF8')),'hex'),encode(sha256(convert_to(raw_code, 'UTF8')),'hex'),clock_timestamp() + make_interval(mins => target_valid_for_minutes),auth.uid())
   returning id into access_id;
   insert into public.audit_logs(organization_id,actor_id,action,entity_type,entity_id,after_value,source)
   values(order_record.organization_id,auth.uid(),'SERVICE_ORDER_PARTNER_ACCESS_CREATED','service_order_partner_access',access_id,jsonb_build_object('service_order_id',order_record.id,'expires_in_minutes',target_valid_for_minutes),'WEB');

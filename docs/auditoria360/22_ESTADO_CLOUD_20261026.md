@@ -1,6 +1,16 @@
 # Estado da preparação em nuvem
 
-Data: 26/10/2026. Nenhum deploy de OneIT, migration remota ou e-mail foi executado nesta rodada.
+## Atualização operacional — 26/10/2026
+
+- A prévia Next.js do projeto `okaa1/oneit` ficou **Ready** em `https://oneit-61pt04dql-okaa1.vercel.app`. A rota `/demo/field-service/queue-v2` foi aberta no navegador e exibiu a fila e o aviso de dados apenas locais. A prévia possui proteção de acesso da Vercel; ela não é a operação compartilhada pronta para uso real.
+- O projeto Supabase `oneit-staging` (`bkhcnqkhiablstdqdyic`) recebeu as 165 migrations. O `supabase db push --dry-run` posterior respondeu `upToDate: true`. A migration de hash de auditoria falhava por `digest` fora do `search_path`; as migrations ainda pendentes passaram a usar `sha256(convert_to(..., 'UTF8'))`, função nativa do PostgreSQL. O banco ainda requer testes de login, RLS e fluxo operacional com dados fictícios.
+- As variáveis `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `ONEIT_DEPLOYMENT_MODE` e `ONEIT_APP_URL` foram configuradas somente no ambiente Preview da Vercel, sem registrar valores de chaves no Git. Um novo deployment é necessário para incorporá-las.
+- O código continua na branch `prep/cloud-staging` e no PR rascunho #1. A conexão automática Git–Vercel não foi habilitada: a revisão automática bloqueou a ação porque poderia publicar o `main` antigo. O projeto pode receber uploads manuais de Preview; isso ainda não satisfaz CD via Git.
+- **Gate de produção permanece fechado:** `/demo` usa armazenamento local, o fluxo autenticado `/portal` não foi homologado ponta a ponta, o Supabase Free em Ohio não tem backup gerenciado e a Vercel Hobby não foi selecionada para operação comercial. Não inserir dados reais nessa prévia.
+
+### Registro histórico anterior à atualização operacional
+
+Data: 26/10/2026. No momento deste registro inicial, nenhum deploy de OneIT, migration remota ou e-mail havia sido executado.
 
 ## Decisão de hospedagem nesta rodada
 
