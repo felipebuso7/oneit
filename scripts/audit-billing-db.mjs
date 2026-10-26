@@ -84,7 +84,7 @@ if (!connectionString) {
       const organizationId = organizations[0].id;
       const { rows: batches } = await client.query(`
         insert into public.fiscal_batches(organization_id, competence, batch_number, status)
-        values ($1, date_trunc('month', now())::date, 'CI-FISCAL-' || $1::text, 'READY') returning id
+        values ($1::uuid, date_trunc('month', now())::date, 'CI-FISCAL-' || $1::text, 'READY') returning id
       `, [organizationId]);
       const batchId = batches[0].id;
       const { rows: logs } = await client.query(`
