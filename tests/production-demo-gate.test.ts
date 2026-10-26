@@ -21,4 +21,22 @@ describe("isolamento da demonstração", () => {
     const response = await proxy(new NextRequest("http://localhost:3000/demo"));
     expect(response.status).toBe(200);
   });
+
+  it("libera a demonstração somente na prévia explicitamente configurada", async () => {
+    vi.stubEnv("NODE_ENV", "production");
+    vi.stubEnv("VERCEL_ENV", "preview");
+    vi.stubEnv("ONEIT_PREVIEW_MODE", "demo");
+    vi.stubEnv("NEXT_PUBLIC_SUPABASE_URL", "");
+    vi.stubEnv("NEXT_PUBLIC_SUPABASE_ANON_KEY", "");
+    const response = await proxy(new NextRequest("https://oneit-preview.example/demo/field-service/queue-v2"));
+    expect(response.status).toBe(200);
+  });
+
+  it("não libera a demonstração no ambiente production da Vercel", async () => {
+    vi.stubEnv("NODE_ENV", "production");
+    vi.stubEnv("VERCEL_ENV", "production");
+    vi.stubEnv("ONEIT_PREVIEW_MODE", "demo");
+    const response = await proxy(new NextRequest("https://oneit.example/demo"));
+    expect(response.status).toBe(404);
+  });
 });

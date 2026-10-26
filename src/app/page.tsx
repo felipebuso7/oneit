@@ -3,7 +3,10 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 
 export default function Home() {
-  if (process.env.NODE_ENV === "production") redirect("/portal");
+  if (process.env.NODE_ENV === "production") {
+    if (process.env.VERCEL_ENV === "preview" && process.env.ONEIT_PREVIEW_MODE === "demo") redirect("/demo");
+    redirect("/portal");
+  }
   return (
     <main className="min-h-screen bg-slate-950 px-6 py-16 text-slate-100 sm:px-12">
       <section className="mx-auto max-w-4xl">

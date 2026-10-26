@@ -5,7 +5,8 @@ import { getPublicEnvironment } from "@/lib/env";
 
 export async function proxy(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
-  if (process.env.NODE_ENV === "production" &&
+  const isolatedDemoPreview = process.env.VERCEL_ENV === "preview" && process.env.ONEIT_PREVIEW_MODE === "demo";
+  if (process.env.NODE_ENV === "production" && !isolatedDemoPreview &&
       (pathname === "/demo" || pathname.startsWith("/demo/") ||
        pathname === "/api/demo" || pathname.startsWith("/api/demo/"))) {
     return new NextResponse("Not found", { status: 404 });
