@@ -27,3 +27,11 @@
 - A tela de revisão escondia falhas ao carregar a fila de Field Service, apresentando-a como vazia. Ela agora falha explicitamente. Também exibe corretamente atendimentos sem consumo de material e sem justificativa opcional.
 - A prévia Vercel com `ONEIT_PREVIEW_MODE=portal` redireciona o acesso direto ao portal para login e não disponibiliza `/demo`; isso valida o bloqueio da demo, não a conclusão do fluxo autenticado.
 - O CI de migrations passou; a verificação geral do PR ainda estava pendente na última consulta. A criação de usuários, os URLs permitidos do Supabase Auth e o ensaio completo com dados fictícios continuam pendentes.
+
+## Continuação em 27/10
+
+- A URL exata `https://oneit-deig2fptn-okaa1.vercel.app/auth/confirm` foi autorizada e aparece na lista de Redirect URLs do projeto `oneit-staging`. O Site URL padrão ainda é `http://localhost:3000`; a aplicação informa o destino explicitamente na recuperação de senha.
+- O CI do commit `0630aaa` passou nas etapas `verify` e `database_migrations`.
+- A ação de gerar RTO na tela do gestor agora usa o mesmo serviço de renderização e armazenamento de PDF da API. Antes, ela criava somente o snapshot no banco e não produzia arquivo para download. Typecheck, lint e três testes dirigidos de RTO passaram. Esta correção está no Git, mas ainda não foi publicada na URL de prévia já autorizada.
+- O RTO de Field Service ainda requer `service_order_partner_submissions`; um atendimento concluído pelo técnico interno pode não ter essa submissão. Também há duas revisões independentes, uma da OS e outra do chamado. O relatório fotográfico do RTO de Field Service informa a quantidade, mas o serviço de armazenamento ainda não carrega as imagens para incorporá-las ao PDF. São bloqueios funcionais para a homologação completa.
+- O formulário do primeiro usuário Auth foi preparado para `felipebuso7@hotmail.com`. A senha e a confirmação da criação devem ser feitas pelo titular; nenhum usuário havia sido criado na última verificação.
