@@ -57,3 +57,29 @@ export async function generateFieldServiceRto(formData: FormData) {
   revalidatePath("/portal/review"); revalidatePath("/portal/field-service-reports");
   redirect(`/portal/review?message=RTO+e+PDF+gerados%3A+${data}`);
 }
+
+export async function closeFieldServiceTicket(formData: FormData) {
+  const ticketId = String(formData.get("ticketId") ?? "");
+  const reportId = String(formData.get("reportId") ?? "");
+  const version = Number(formData.get("version"));
+  const reason = String(formData.get("reason") ?? "").trim();
+  const exceptionReason = String(formData.get("exceptionReason") ?? "").trim();
+  const exceptionAcknowledged = formData.get("exceptionAcknowledged") === "on";
+  if (!/^[0-9a-f-]{36}$/i.test(ticketId) || !/^[0-9a-f-]{36}$/i.test(reportId)
+    || !Number.isInteger(version) || version < 1 || reason.length < 10 || reason.length > 2000
+    || exceptionReason.length < 10 || exceptionReason.length > 2000 || !exceptionAcknowledged) {
+    redirect("/portal/review?message=Informe+o+parecer+e+reconheça+a+pendência+de+sincronização+externa.");
+  }
+  const { supabase } = await requireUser();
+  const { error } = await supabase.rpc("close_field_service_ticket", {
+    target_ticket_id: ticketId,
+    expected_version: version,
+    target_report_id: reportId,
+    target_closure_reason: reason,
+    target_exception_reason: exceptionReason,
+    exception_acknowledged: exceptionAcknowledged,
+  });
+  if (error) redirect("/portal/review?message=Encerramento+não+aceito.+Confira+o+PDF,+a+versão+do+chamado+e+a+permissão.");
+  revalidatePath("/portal/review"); revalidatePath("/portal/tickets"); revalidatePath("/portal/field");
+  redirect("/portal/review?message=RTO+validado+e+chamado+encerrado.");
+}
