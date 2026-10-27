@@ -9,7 +9,7 @@ type Order = { id: string; organization_id: string; ticket_id: string; order_num
 type Technician = { id: string; organization_id: string; full_name: string; status: string; base_city: string | null; active: boolean };
 type Location = { id: string; organization_id: string; customer_id: string; name: string; street: string | null; street_number: string | null; city: string; state_code: string | null; active: boolean };
 type Review = { id: string; organization_id: string; service_order_id: string; status: string };
-type Props = { tickets: Ticket[]; orders: Order[]; technicians: Technician[]; locations: Location[]; pendingReviews: Review[] };
+type Props = { tickets: Ticket[]; orders: Order[]; technicians: Technician[]; locations: Location[]; pendingReviews: Review[]; unlinkedTechnicians: number };
 
 const dispatchable = new Set(["NEW", "TRIAGE", "AWAITING_SCHEDULING", "SCHEDULED", "ASSIGNED"]);
 const activeStatuses = new Set(["DISPATCHED", "TRAVELING", "CHECKED_IN", "IN_SERVICE"]);
@@ -21,7 +21,7 @@ const dispatchErrors: Record<string, string> = {
   DISPATCH_REFERENCE_INVALID: "Confira técnico, polo e horários selecionados.",
 };
 
-export function DispatchWorkspace({ tickets, orders, technicians, locations, pendingReviews }: Props) {
+export function DispatchWorkspace({ tickets, orders, technicians, locations, pendingReviews, unlinkedTechnicians }: Props) {
   const router = useRouter();
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [search, setSearch] = useState("");
@@ -83,6 +83,7 @@ export function DispatchWorkspace({ tickets, orders, technicians, locations, pen
   }
 
   return <div className="mt-6 space-y-5">
+    {unlinkedTechnicians > 0 ? <div role="status" className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-950"><span><strong>{unlinkedTechnicians} técnico(s) aguardando vínculo operacional.</strong> Eles não podem receber OS até serem associados ao cadastro usado pelo despacho.</span><Link href="/portal/technicians" className="font-semibold underline">Ajustar cadastros</Link></div> : null}
     <div className="grid gap-3 sm:grid-cols-3" aria-label="Indicadores de Field Service">
       <Metric label="Aguardando despacho" count={waiting.length} />
       <Metric label="Em campo" count={active.length} />

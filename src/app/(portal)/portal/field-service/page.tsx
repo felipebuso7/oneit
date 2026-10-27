@@ -1,6 +1,6 @@
 import { requireUser } from "@/lib/auth/current-user";
 import { OneitEmptyState, OneitPageHeader } from "@/components/oneit";
-import { resolveDispatchTechnicians } from "@/lib/field-service/technician-eligibility";
+import { countUnlinkedActiveTechnicians, resolveDispatchTechnicians } from "@/lib/field-service/technician-eligibility";
 import { DispatchWorkspace } from "./dispatch-workspace";
 
 export default async function FieldServicePage() {
@@ -35,11 +35,12 @@ export default async function FieldServicePage() {
   }
 
   const dispatchTechnicians = resolveDispatchTechnicians(fieldTechnicianResult.data ?? [], technicianResult.data ?? []);
+  const unlinkedTechnicians = countUnlinkedActiveTechnicians(fieldTechnicianResult.data ?? []);
 
   return <section className="mx-auto max-w-7xl p-5 sm:p-8">
     <OneitPageHeader eyebrow="Operação" title="Central Field Service" description="Selecione um chamado, confira o técnico e confirme o despacho em uma só tela." />
     <DispatchWorkspace tickets={ticketResult.data ?? []} orders={orderResult.data ?? []}
       technicians={dispatchTechnicians} locations={locationResult.data ?? []}
-      pendingReviews={reviewResult.data ?? []} />
+      pendingReviews={reviewResult.data ?? []} unlinkedTechnicians={unlinkedTechnicians} />
   </section>;
 }
