@@ -13,7 +13,7 @@ export async function storeFieldServiceRtoPdf(supabase: SupabaseClient, reportId
 
   const { data: report, error } = await supabase
     .from("field_service_rto_reports")
-    .select("id, organization_id, service_order_id, snapshot, report_version")
+    .select("id, organization_id, service_order_id, ticket_id, snapshot, report_version")
     .eq("id", reportId)
     .single();
   const snapshot = report ? fieldServiceRtoSnapshotSchema.safeParse(report.snapshot) : null;
@@ -25,7 +25,9 @@ export async function storeFieldServiceRtoPdf(supabase: SupabaseClient, reportId
     if (!evidence || typeof evidence !== "object") continue;
     const item = evidence as { storagePath?: unknown; mime?: unknown };
     if (typeof item.storagePath !== "string" || typeof item.mime !== "string") continue;
-    if (!new RegExp(`^partner/${report.service_order_id}/[0-9a-f-]+\\.(jpg|png|webp)$`, "i").test(item.storagePath)) continue;
+    const partnerPath = new RegExp(`^partner/${report.service_order_id}/[0-9a-f-]+\\.(jpg|png|webp)$`, "i");
+    const internalPath = new RegExp(`^${report.organization_id}/${report.ticket_id}/[0-9a-f-]+\\.(jpg|png|webp)$`, "i");
+    if (!partnerPath.test(item.storagePath) && !internalPath.test(item.storagePath)) continue;
     const { data: file } = await evidenceStorage.download(item.storagePath);
     if (!file || file.size > 4 * 1024 * 1024) continue;
     try {
