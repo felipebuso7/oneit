@@ -49,5 +49,6 @@ export async function storeFieldServiceRtoPdf(supabase: SupabaseClient, reportId
   if (registrationError) throw new Error("RTO_REGISTER_FAILED");
 
   const { data: signed } = await storage.createSignedUrl(path, 300);
-  return { reportId: report.id, downloadUrl: signed?.signedUrl ?? null };
+  if (!signed?.signedUrl) throw new Error("RTO_DOWNLOAD_UNAVAILABLE");
+  return { reportId: report.id, downloadUrl: signed.signedUrl };
 }

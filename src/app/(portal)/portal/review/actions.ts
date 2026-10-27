@@ -59,7 +59,10 @@ export async function generateFieldServiceRto(formData: FormData) {
   if (error) redirect(`/portal/review?message=${encodeURIComponent(error.message.includes("RTO_REVIEW_REQUIRED") ? "A OS precisa ser aprovada antes de gerar o RTO." : error.message.includes("RTO_DATA_INCOMPLETE") ? "Faltam dados do atendimento técnico para gerar o RTO." : "Não foi possível gerar o RTO.")}`);
   try {
     await storeFieldServiceRtoPdf(supabase, data);
-  } catch {
+  } catch (cause) {
+    if (cause instanceof Error && cause.message === "RTO_DOWNLOAD_UNAVAILABLE") {
+      redirect("/portal/review?message=O+RTO+foi+gerado,+mas+o+download+não+ficou+disponível.+Verifique+o+armazenamento+antes+de+encerrar.");
+    }
     redirect("/portal/review?message=RTO+registrado,+mas+o+PDF+não+foi+salvo.+Tente+gerar+novamente.");
   }
   revalidatePath("/portal/review"); revalidatePath("/portal/field-service-reports"); revalidatePath("/portal/field-service");
