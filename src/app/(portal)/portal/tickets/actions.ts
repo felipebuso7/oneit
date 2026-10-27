@@ -6,6 +6,13 @@ import { assertTransition, type OperationalStatus } from "@/domain/tickets/state
 import { requireUser } from "@/lib/auth/current-user";
 import { createTicketSchema, transitionTicketSchema } from "@/lib/validation/ticket";
 
+function ticketCreationMessage(message: string | undefined): string {
+  if (message?.includes("TICKET_REQUESTER_INVALID")) return "Solicitante inválido ou inativo para esta organização.";
+  if (message?.includes("TICKET_DEPARTMENT_INVALID")) return "Departamento inválido ou inativo para esta organização.";
+  if (message?.includes("foreign key") || message?.includes("ticket_service_offering")) return "Cliente, localidade, contrato ou serviço não pertence à organização selecionada.";
+  return "Não foi possível abrir o chamado. Revise os dados e tente novamente.";
+}
+
 export async function createTicket(formData: FormData) {
   const parsed = createTicketSchema.safeParse({
     organizationId: formData.get("organizationId"), customerId: formData.get("customerId"),
@@ -21,7 +28,7 @@ export async function createTicket(formData: FormData) {
     title: parsed.data.title, description: parsed.data.description, impact: parsed.data.impact,
     urgency: parsed.data.urgency, ticket_type: parsed.data.ticketType,
   });
-  if (error) redirect("/portal/tickets?message=Não+foi+possível+abrir+o+chamado.");
+  if (error) redirect(`/portal/tickets?message=${encodeURIComponent(ticketCreationMessage(error.message))}`);
   revalidatePath("/portal/tickets"); redirect("/portal/tickets?message=Chamado+aberto.");
 }
 
