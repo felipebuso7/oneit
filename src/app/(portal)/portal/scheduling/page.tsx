@@ -1,5 +1,6 @@
 import { requireUser } from "@/lib/auth/current-user";
 import { listAvailableOrganizations } from "@/lib/organizations/queries";
+import { resolveDispatchTechnicians } from "@/lib/field-service/technician-eligibility";
 import { assignTicket, scheduleTicket } from "./actions";
 import { OneitButton, OneitEmptyState, OneitPageHeader, OneitSection, OneitStatusBadge } from "@/components/oneit";
 
@@ -8,11 +9,13 @@ type PageProps = { searchParams: Promise<{ message?: string }> };
 export default async function SchedulingPage({ searchParams }: PageProps) {
   const [{ supabase }, organizations, { message }] = await Promise.all([requireUser(), listAvailableOrganizations(), searchParams]);
   const organizationIds = organizations.map((organization) => organization.id);
-  const [{ data: tickets }, { data: technicians }, { data: schedules }] = await Promise.all([
+  const [{ data: tickets }, { data: operationalTechnicians }, { data: fieldTechnicianMappings }, { data: schedules }] = await Promise.all([
     organizationIds.length ? supabase.from("tickets").select("id, ticket_number, title, operational_status").in("organization_id", organizationIds).in("operational_status", ["AWAITING_SCHEDULING", "SCHEDULED"]).order("created_at").limit(500) : Promise.resolve({ data: [] }),
-    organizationIds.length ? supabase.from("technicians").select("id, full_name, organization_id, status").in("organization_id", organizationIds).eq("active", true).order("full_name") : Promise.resolve({ data: [] }),
+    organizationIds.length ? supabase.from("technicians").select("id, full_name, organization_id, status, base_city, active").in("organization_id", organizationIds).eq("active", true).order("full_name") : Promise.resolve({ data: [] }),
+    organizationIds.length ? supabase.from("field_service_technicians").select("organization_id, operational_technician_id, active").in("organization_id", organizationIds).eq("active", true) : Promise.resolve({ data: [] }),
     organizationIds.length ? supabase.from("ticket_schedules").select("ticket_id, technician_id, planned_start, planned_end").eq("status", "SCHEDULED") : Promise.resolve({ data: [] }),
   ]);
+  const technicians = resolveDispatchTechnicians(fieldTechnicianMappings ?? [], operationalTechnicians ?? []);
   const technicianById = new Map((technicians ?? []).map((technician) => [technician.id, technician]));
   const scheduleByTicket = new Map((schedules ?? []).map((schedule) => [schedule.ticket_id, schedule]));
   const awaiting = (tickets ?? []).filter((ticket) => ticket.operational_status === "AWAITING_SCHEDULING");
