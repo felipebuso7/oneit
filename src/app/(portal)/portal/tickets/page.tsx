@@ -1,4 +1,4 @@
-import { TicketIntakeForm } from "@/components/tickets/ticket-intake-form";
+import { TicketCreateFlow } from "@/components/tickets/ticket-create-flow";
 import { TicketsTable } from "@/components/tickets/tickets-table";
 import { requireUser } from "@/lib/auth/current-user";
 import { listAvailableCustomers } from "@/lib/customers/queries";
@@ -24,8 +24,7 @@ export default async function TicketsPage({ searchParams }: PageProps) {
   const { data: serviceLevels } = ticketIds.length ? await supabase.from("ticket_service_levels").select("ticket_id,resolution_due_at").in("ticket_id", ticketIds) : { data: [] };
   const levelByTicketId = new Map((serviceLevels ?? []).map((level) => [level.ticket_id, level.resolution_due_at]));
 
-  return <section className="mx-auto max-w-6xl p-5 sm:p-8"><OneitPageHeader eyebrow="Operação" title="Chamados" description="Abertura com classificação de serviço, política de prioridade e validação de vínculos organizacionais." />{message ? <p role="status" className="mt-4 rounded-lg border border-sky-200 bg-sky-50 p-3 text-sm text-sky-900">{message}</p> : null}
-    <TicketIntakeForm organizations={organizations} customers={customers} contracts={contracts ?? []} locations={locations ?? []} categories={categories ?? []} subcategories={subcategories ?? []} offerings={offerings ?? []} collaborators={collaborators ?? []} departments={departments ?? []} />
+  return <section className="mx-auto max-w-6xl p-5 sm:p-8"><div className="flex flex-wrap items-end justify-between gap-4"><OneitPageHeader eyebrow="Operação" title="Chamados" description="Acompanhe a fila e abra solicitações pelo catálogo de serviços." /><TicketCreateFlow organizations={organizations} customers={customers} contracts={contracts ?? []} locations={locations ?? []} categories={categories ?? []} subcategories={subcategories ?? []} offerings={offerings ?? []} collaborators={collaborators ?? []} departments={departments ?? []} /></div>{message ? <p role="status" className="mt-4 rounded-lg border border-sky-200 bg-sky-50 p-3 text-sm text-sky-900">{message}</p> : null}
     <TicketsTable tickets={(tickets ?? []).map((ticket) => ({ ...ticket, resolution_due_at: levelByTicketId.get(ticket.id) ?? null }))} />
   </section>;
 }
