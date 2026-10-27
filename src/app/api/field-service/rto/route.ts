@@ -2,9 +2,8 @@ import { createClient } from "@/lib/supabase/server";
 import { hasSameOrigin } from "@/lib/http/same-origin";
 import { readLimitedBody } from "@/lib/http/limited-body";
 import { z } from "zod";
-import { createHash } from "node:crypto";
 import { createStorageAdmin } from "@/lib/supabase/storage-admin";
-import { fieldServiceRtoSnapshotSchema, renderFieldServiceRtoPdf } from "@/domain/reports/pdf";
+import { storeFieldServiceRtoPdf } from "@/lib/reports/store-field-service-rto";
 
 const schema = z.object({ queueId: z.string().uuid() });
 const reply = (status: number, code: string) => Response.json({ code }, { status, headers: { "Cache-Control": "no-store" } });
@@ -44,22 +43,12 @@ export async function POST(request: Request) {
     if (error.message.includes("RTO_DATA_INCOMPLETE")) return reply(422, "RTO_DATA_INCOMPLETE");
     return reply(503, "RTO_UNAVAILABLE");
   }
-  if (!process.env.SUPABASE_SERVICE_ROLE_KEY) return reply(503, "RTO_STORAGE_UNAVAILABLE");
-  const { data: report, error: reportError } = await supabase.from("field_service_rto_reports").select("id, organization_id, service_order_id, snapshot, report_version").eq("id", data).single();
-  const snapshot = report ? fieldServiceRtoSnapshotSchema.safeParse(report.snapshot) : null;
-  if (reportError || !report || !snapshot?.success) return reply(503, "RTO_SNAPSHOT_UNAVAILABLE");
   try {
-    const pdf = await renderFieldServiceRtoPdf(snapshot.data);
-    const hash = createHash("sha256").update(pdf).digest("hex");
-    const path = `${report.organization_id}/field-service/${report.service_order_id}/rto-v${report.report_version}.pdf`;
-    const storage = createStorageAdmin("ticket-reports");
-    const { error: uploadError } = await storage.upload(path, pdf, { contentType: "application/pdf", upsert: true });
-    if (uploadError) return reply(503, "RTO_UPLOAD_FAILED");
-    const { error: updateError } = await supabase.rpc("register_field_service_rto_file", { target_report_id: report.id, target_storage_path: path, target_sha256: hash });
-    if (updateError) return reply(503, "RTO_REGISTER_FAILED");
-    const { data: signed } = await storage.createSignedUrl(path, 300);
-    return Response.json({ reportId: data, downloadUrl: signed?.signedUrl ?? null }, { headers: { "Cache-Control": "no-store" } });
-  } catch {
-    return reply(503, "RTO_STORAGE_UNAVAILABLE");
+    const result = await storeFieldServiceRtoPdf(supabase, data);
+    return Response.json(result, { headers: { "Cache-Control": "no-store" } });
+  } catch (cause) {
+    const code = cause instanceof Error && /^RTO_(STORAGE_UNAVAILABLE|SNAPSHOT_UNAVAILABLE|UPLOAD_FAILED|REGISTER_FAILED)$/.test(cause.message)
+      ? cause.message : "RTO_STORAGE_UNAVAILABLE";
+    return reply(503, code);
   }
 }

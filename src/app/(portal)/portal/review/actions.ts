@@ -3,6 +3,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { requireUser } from "@/lib/auth/current-user";
 import { reviewSchema } from "@/lib/validation/completion";
+import { storeFieldServiceRtoPdf } from "@/lib/reports/store-field-service-rto";
 
 export async function reviewTicket(formData: FormData) {
   const parsed = reviewSchema.safeParse({ ticketId: formData.get("ticketId"), version: formData.get("version"), decision: formData.get("decision"), reason: formData.get("reason") });
@@ -48,6 +49,11 @@ export async function generateFieldServiceRto(formData: FormData) {
   const { supabase } = await requireUser();
   const { data, error } = await supabase.rpc("generate_field_service_rto", { target_queue_id: queueId });
   if (error) redirect("/portal/review?message=RTO+não+gerado.+A+OS+precisa+estar+aprovada+e+com+dados+completos.");
+  try {
+    await storeFieldServiceRtoPdf(supabase, data);
+  } catch {
+    redirect("/portal/review?message=RTO+registrado,+mas+o+PDF+não+foi+salvo.+Tente+gerar+novamente.");
+  }
   revalidatePath("/portal/review"); revalidatePath("/portal/field-service-reports");
-  redirect(`/portal/review?message=RTO+gerado%3A+${data}`);
+  redirect(`/portal/review?message=RTO+e+PDF+gerados%3A+${data}`);
 }
