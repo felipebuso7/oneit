@@ -41,7 +41,8 @@ export async function renderFieldServiceRtoPdf(snapshot: FieldServiceRtoSnapshot
   text(`TOTAL DA OS: ${money(total)}`, 10, true); y -= 8;
   text(`ASSINATURA DO RESPONSÁVEL: ${snapshot.customer_signature_name ?? "Não informada"}`, 10, true);
   if (snapshot.customer_signature_data_url?.startsWith("data:image/png;base64,")) { try { const bytes = Uint8Array.from(atob(snapshot.customer_signature_data_url.split(",")[1]), (c) => c.charCodeAt(0)); const image = await document.embedPng(bytes); const scale = Math.min(150 / image.width, 55 / image.height); page.drawImage(image, { x: margin, y: y - image.height * scale, width: image.width * scale, height: image.height * scale }); y -= image.height * scale + 12; } catch { text("Imagem da assinatura não pôde ser incorporada."); } }
-  text("RELATÓRIO FOTOGRÁFICO", 11, true); text(`${snapshot.evidence.length} evidência(s) registrada(s).`);
+  text("RELATÓRIO FOTOGRÁFICO", 11, true);
+  text(`${snapshot.evidence.length} evidência(s) registrada(s); ${Math.min(evidenceImages.length, 8)} incorporada(s) ao PDF.`);
   for (const evidence of evidenceImages.slice(0, 8)) { try { const image = evidence.mimeType === "image/png" ? await document.embedPng(evidence.bytes) : await document.embedJpg(evidence.bytes); if (y < 180) { page = document.addPage([width, height]); y = height - 88; header(); } const scale = Math.min((width - 2 * margin) / image.width, 180 / image.height); page.drawImage(image, { x: margin, y: y - image.height * scale, width: image.width * scale, height: image.height * scale }); y -= image.height * scale + 14; } catch { text("Evidência inválida ignorada."); } }
   document.getPages().forEach((item, index, pages) => item.drawText(`RTO Field Service · ${index + 1}/${pages.length}`, { x: margin, y: 28, size: 8, font, color: rgb(0.4, 0.4, 0.4) }));
   document.setTitle(`RTO ${snapshot.order_number}`); return document.save();
