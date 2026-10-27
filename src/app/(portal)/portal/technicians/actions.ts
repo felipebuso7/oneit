@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 
 import { requireUser } from "@/lib/auth/current-user";
 import { technicianSchema } from "@/lib/validation/organization";
+import { z } from "zod";
 
 export async function createTechnician(formData: FormData) {
   const parsed = technicianSchema.safeParse({
@@ -23,4 +24,34 @@ export async function createTechnician(formData: FormData) {
   });
   if (error) redirect("/portal/technicians?message=Não+foi+possível+criar+o+técnico.");
   revalidatePath("/portal/technicians"); redirect("/portal/technicians?message=Técnico+cadastrado.");
+}
+
+export async function linkFieldServiceTechnician(formData: FormData) {
+  const parsed = z.object({
+    fieldServiceTechnicianId: z.uuid(),
+    operationalTechnicianId: z.uuid(),
+  }).safeParse({
+    fieldServiceTechnicianId: formData.get("fieldServiceTechnicianId"),
+    operationalTechnicianId: formData.get("operationalTechnicianId"),
+  });
+  if (!parsed.success) redirect("/portal/technicians?message=Vínculo+de+técnico+inválido.");
+
+  const { supabase } = await requireUser();
+  const { data: master, error: masterError } = await supabase.from("field_service_technicians")
+    .select("id,organization_id").eq("id", parsed.data.fieldServiceTechnicianId).maybeSingle();
+  if (masterError || !master) redirect("/portal/technicians?message=Cadastro+de+Field+Service+não+encontrado.");
+
+  const { data: operational, error: operationalError } = await supabase.from("technicians")
+    .select("id").eq("id", parsed.data.operationalTechnicianId).eq("organization_id", master.organization_id).maybeSingle();
+  if (operationalError || !operational) redirect("/portal/technicians?message=O+técnico+operacional+deve+pertencer+à+mesma+organização.");
+
+  const { error } = await supabase.from("field_service_technicians")
+    .update({ operational_technician_id: operational.id })
+    .eq("id", master.id).eq("organization_id", master.organization_id);
+  if (error) redirect(error.code === "23505" ? "/portal/technicians?message=Esse+técnico+operacional+já+está+vinculado+a+outro+cadastro." : "/portal/technicians?message=Não+foi+possível+salvar+o+vínculo.");
+
+  revalidatePath("/portal/technicians");
+  revalidatePath("/portal/field-service");
+  revalidatePath("/portal/scheduling");
+  redirect("/portal/technicians?message=Técnico+vinculado+ao+Field+Service.");
 }
