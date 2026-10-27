@@ -72,6 +72,7 @@ export default function FieldValidationV2Page() {
   const [notice, setNotice] = useState("");
   const [query, setQuery] = useState("");
   const [selectedId, setSelectedId] = useState("");
+  const [validationNote, setValidationNote] = useState("");
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
@@ -133,6 +134,33 @@ export default function FieldValidationV2Page() {
       window.dispatchEvent(new Event("oneit-demo-field-visits-updated"));
       setNotice(`${item.code} aplicada à OS ${selected.ticket}: R$ ${item.price.toFixed(2)} por ${item.unit}.`);
     } catch { setNotice("Não foi possível salvar a LPU no navegador. Tente novamente."); }
+  }
+
+  function validateSelected() {
+    if (!selected || selected.state !== reviewState) return;
+    if (reviewFlags(selected).length) { setNotice("Confira as pendências da OS antes de validar: " + reviewFlags(selected).join(", ") + "."); return; }
+    if (validationNote.trim().length < 10) { setNotice("Descreva a conferência do gestor em pelo menos 10 caracteres."); return; }
+    try {
+      const latest = readVisits();
+      const current = latest.find((visit) => visit.id === selected.id);
+      if (!current || current.state !== reviewState) { setVisits(latest); setNotice("Esta OS já mudou de situação. Atualize a fila."); return; }
+      const raw = JSON.parse(localStorage.getItem("oneit.demo.tickets.v1") ?? "{}") as { tickets?: Array<Record<string, unknown>>; timeline?: Record<string, Array<{ at: string; text: string; kind: "cliente" | "interna" }>> };
+      if (!Array.isArray(raw.tickets)) { setNotice("O chamado não foi encontrado. Não foi possível concluir a validação."); return; }
+      const ticket = raw.tickets.find((item) => item.id === selected.ticket);
+      if (!ticket || ticket.status !== "Pendente validação") { setNotice("O chamado não está pendente de validação. Confira a fila de chamados."); return; }
+      const now = new Date().toISOString();
+      const nextVisits = latest.map((visit) => visit.id === current.id ? { ...visit, state: "Concluído", completedAt: now, managerValidatedAt: now, managerValidationNote: validationNote.trim() } : visit);
+      const nextTickets = raw.tickets.map((item) => item.id === selected.ticket ? { ...item, status: "Fechado", fieldStatus: "Concluído", resolution: validationNote.trim(), resolutionValidated: true, pendingReason: undefined } : item);
+      const timeline = raw.timeline ?? {};
+      timeline[selected.ticket] = [{ at: new Date(now).toLocaleString("pt-BR"), text: "OS validada pelo gestor. " + validationNote.trim(), kind: "interna" }, ...(timeline[selected.ticket] ?? [])];
+      localStorage.setItem("oneit.demo.tickets.v1", JSON.stringify({ ...raw, tickets: nextTickets, timeline }));
+      localStorage.setItem(storageKey, JSON.stringify(nextVisits));
+      appendFieldEvent({ ticket: selected.ticket, from: reviewState, to: "Concluído", actor: "Gestor de Field Service", details: validationNote.trim() });
+      setVisits(nextVisits);
+      setValidationNote("");
+      setNotice("OS " + selected.ticket + " validada e chamado encerrado na demonstração.");
+      window.dispatchEvent(new Event("oneit-demo-field-visits-updated"));
+    } catch { setNotice("Não foi possível salvar a validação no navegador. Nenhum fechamento foi confirmado."); }
   }
 
   return <main className="min-h-screen bg-[#f5f7fa] text-slate-900">
@@ -223,7 +251,9 @@ export default function FieldValidationV2Page() {
 
               {flags.length > 0 && <div className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900"><strong>Antes de concluir:</strong> {flags.join(" · ")}.</div>}
               <div className="flex flex-wrap gap-2 border-t border-slate-100 pt-4">
-                <Link href={"/demo/tickets?ticket=" + encodeURIComponent(selected.ticket) + "&tab=Resolução"} className="inline-flex min-h-10 items-center rounded-lg bg-[#062c59] px-4 text-sm font-semibold text-white hover:bg-[#0b4b78]">Abrir decisão no chamado</Link>
+                <label className="w-full text-sm font-medium">Parecer do gestor<textarea value={validationNote} onChange={(event) => setValidationNote(event.target.value)} minLength={10} maxLength={2000} placeholder="Descreva a conferência do serviço, evidências e composição LPU." className="mt-1 min-h-24 w-full rounded-lg border border-slate-300 p-3 text-sm font-normal" /></label>
+                <button type="button" onClick={validateSelected} disabled={flags.length > 0} className="inline-flex min-h-10 items-center rounded-lg bg-[#062c59] px-4 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-50">Validar RTO e encerrar chamado</button>
+                <Link href={"/demo/tickets?ticket=" + encodeURIComponent(selected.ticket) + "&tab=Resolução"} className="inline-flex min-h-10 items-center rounded-lg border border-slate-300 px-4 text-sm font-semibold text-[#062c59]">Abrir chamado</Link>
               </div>
             </div>
           </section>}

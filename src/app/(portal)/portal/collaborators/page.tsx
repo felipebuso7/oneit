@@ -72,6 +72,7 @@ export default async function CollaboratorsPage({ searchParams }: PageProps) {
             </select>
             <input name="employeeNumber" required maxLength={80} placeholder="Matrícula" className="w-full rounded bg-slate-800 p-2 text-sm text-white" />
             <input name="fullName" required maxLength={180} placeholder="Nome completo" className="w-full rounded bg-slate-800 p-2 text-sm text-white" />
+            <input name="primaryEmail" type="email" maxLength={320} placeholder="E-mail principal (opcional)" className="w-full rounded bg-slate-800 p-2 text-sm text-white" />
             <button className="rounded bg-cyan-500 px-3 py-2 text-sm font-semibold text-slate-950">Cadastrar</button>
           </form>
 
@@ -81,7 +82,7 @@ export default async function CollaboratorsPage({ searchParams }: PageProps) {
               <option value="">Organização</option>
               {(organizations ?? []).map((organization) => <option key={organization.id} value={organization.id}>{organization.display_name}</option>)}
             </select>
-            <select name="unitType" required className="w-full rounded bg-slate-800 p-2 text-sm text-white">
+            <select name="type" required className="w-full rounded bg-slate-800 p-2 text-sm text-white">
               <option value="COMPANY">Empresa</option><option value="DEPARTMENT">Departamento</option><option value="COST_CENTER">Centro de custo</option><option value="WORK_SITE">Local de trabalho</option>
             </select>
             <input name="code" required maxLength={80} placeholder="Código" className="w-full rounded bg-slate-800 p-2 text-sm text-white" />
@@ -105,9 +106,9 @@ export default async function CollaboratorsPage({ searchParams }: PageProps) {
       {canManage ? (
         <form action={assignCollaboratorOrganization} className="grid gap-3 rounded-xl border border-slate-700 bg-slate-900/60 p-4 md:grid-cols-5">
           <select name="collaboratorId" required className="rounded bg-slate-800 p-2 text-sm text-white"><option value="">Colaborador</option>{(collaborators ?? []).map((collaborator) => <option key={collaborator.id} value={collaborator.id}>{collaborator.full_name}</option>)}</select>
-          <select name="departmentId" className="rounded bg-slate-800 p-2 text-sm text-white"><option value="">Departamento</option>{(units ?? []).filter((unit) => unit.unit_type === "DEPARTMENT").map((unit) => <option key={unit.id} value={unit.id}>{unit.name}</option>)}</select>
-          <select name="costCenterId" className="rounded bg-slate-800 p-2 text-sm text-white"><option value="">Centro de custo</option>{(units ?? []).filter((unit) => unit.unit_type === "COST_CENTER").map((unit) => <option key={unit.id} value={unit.id}>{unit.name}</option>)}</select>
-          <input name="effectiveFrom" type="date" required className="rounded bg-slate-800 p-2 text-sm text-white" />
+          <select name="departmentUnitId" className="rounded bg-slate-800 p-2 text-sm text-white"><option value="">Departamento</option>{(units ?? []).filter((unit) => unit.unit_type === "DEPARTMENT").map((unit) => <option key={unit.id} value={unit.id}>{unit.name}</option>)}</select>
+          <select name="costCenterUnitId" className="rounded bg-slate-800 p-2 text-sm text-white"><option value="">Centro de custo</option>{(units ?? []).filter((unit) => unit.unit_type === "COST_CENTER").map((unit) => <option key={unit.id} value={unit.id}>{unit.name}</option>)}</select>
+          <input name="startsOn" type="date" required className="rounded bg-slate-800 p-2 text-sm text-white" />
           <button className="rounded bg-cyan-500 px-3 py-2 text-sm font-semibold text-slate-950">Registrar vínculo</button>
         </form>
       ) : null}
