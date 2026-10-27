@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { hasRequiredPublicEnvironment, hasRequiredSelfHostedEnvironment } from "@/lib/runtime/readiness";
+import { hasRequiredPublicEnvironment, hasRequiredSelfHostedEnvironment, hasRequiredSupabaseEnvironment } from "@/lib/runtime/readiness";
 
 describe("readiness do runtime", () => {
   it("exige as variáveis públicas do Supabase", () => {
@@ -13,5 +13,11 @@ describe("readiness do runtime", () => {
     expect(hasRequiredSelfHostedEnvironment(complete)).toBe(true);
     expect(hasRequiredSelfHostedEnvironment({ ...complete, ONEIT_S3_BUCKET: undefined })).toBe(false);
     expect(hasRequiredSelfHostedEnvironment({ ...complete, ONEIT_DATABASE_URL: "not-a-database-url" })).toBe(false);
+  });
+
+  it("exige a chave de serviço no modo Supabase", () => {
+    const complete = { NEXT_PUBLIC_SUPABASE_URL: "https://example.supabase.co", NEXT_PUBLIC_SUPABASE_ANON_KEY: "anon", SUPABASE_SERVICE_ROLE_KEY: "service-role" };
+    expect(hasRequiredSupabaseEnvironment(complete)).toBe(true);
+    expect(hasRequiredSupabaseEnvironment({ ...complete, SUPABASE_SERVICE_ROLE_KEY: undefined })).toBe(false);
   });
 });

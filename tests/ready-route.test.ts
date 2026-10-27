@@ -51,4 +51,15 @@ describe("endpoint de prontidão", () => {
     expect(JSON.stringify(body)).not.toContain("DATABASE_URL");
     expect(JSON.stringify(body)).not.toContain("S3_BUCKET");
   });
+
+  it("exige o Storage Admin no modo Supabase", async () => {
+    process.env.ONEIT_DEPLOYMENT_MODE = "supabase";
+    process.env.NEXT_PUBLIC_SUPABASE_URL = "https://example.supabase.co";
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = "anon";
+    delete process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+    const response = await GET();
+    expect(response.status).toBe(503);
+    expect(await response.json()).toMatchObject({ status: "not_ready", deploymentMode: "supabase" });
+  });
 });

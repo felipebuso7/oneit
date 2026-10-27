@@ -16,6 +16,14 @@ export function hasRequiredPublicEnvironment(environment: { NEXT_PUBLIC_SUPABASE
   return isHttpUrl(environment.NEXT_PUBLIC_SUPABASE_URL) && Boolean(environment.NEXT_PUBLIC_SUPABASE_ANON_KEY?.trim());
 }
 
+export function hasRequiredSupabaseEnvironment(environment: {
+  NEXT_PUBLIC_SUPABASE_URL?: string;
+  NEXT_PUBLIC_SUPABASE_ANON_KEY?: string;
+  SUPABASE_SERVICE_ROLE_KEY?: string;
+}) {
+  return hasRequiredPublicEnvironment(environment) && Boolean(environment.SUPABASE_SERVICE_ROLE_KEY?.trim());
+}
+
 export function hasRequiredSelfHostedEnvironment(environment: {
   ONEIT_DATABASE_URL?: string;
   ONEIT_AUTH_ISSUER?: string;
