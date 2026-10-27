@@ -13,6 +13,16 @@ function reviewMessage(message: string | undefined): string {
   return "Não foi possível registrar a validação da OS.";
 }
 
+function closureMessage(message: string | undefined): string {
+  if (message?.includes("FIELD_CLOSURE_VERSION_CONFLICT")) return "O chamado foi atualizado por outra pessoa. Recarregue a fila antes de encerrar.";
+  if (message?.includes("FIELD_CLOSURE_ALREADY_CLOSED")) return "Este chamado já foi encerrado.";
+  if (message?.includes("FIELD_CLOSURE_ORDER_NOT_VALIDATED")) return "A OS ainda não está aprovada para encerramento.";
+  if (message?.includes("FIELD_CLOSURE_REVIEW_REQUIRED")) return "Valide a OS antes de encerrar o chamado.";
+  if (message?.includes("FIELD_CLOSURE_PDF_REQUIRED")) return "Gere e salve o PDF do RTO antes de encerrar o chamado.";
+  if (message?.includes("FIELD_CLOSURE_SELF_APPROVAL_FORBIDDEN")) return "O técnico responsável não pode aprovar o próprio atendimento.";
+  return "Encerramento não aceito. Confira o PDF, a versão do chamado e a permissão.";
+}
+
 export async function reviewTicket(formData: FormData) {
   const parsed = reviewSchema.safeParse({ ticketId: formData.get("ticketId"), version: formData.get("version"), decision: formData.get("decision"), reason: formData.get("reason") });
   if (!parsed.success) redirect("/portal/review?message=Informe+a+decisão+e+uma+justificativa+de+ao+menos+10+caracteres.");
@@ -90,7 +100,7 @@ export async function closeFieldServiceTicket(formData: FormData) {
     target_exception_reason: exceptionReason,
     exception_acknowledged: exceptionAcknowledged,
   });
-  if (error) redirect("/portal/review?message=Encerramento+não+aceito.+Confira+o+PDF,+a+versão+do+chamado+e+a+permissão.");
+  if (error) redirect(`/portal/review?message=${encodeURIComponent(closureMessage(error.message))}`);
   revalidatePath("/portal/review"); revalidatePath("/portal/tickets"); revalidatePath("/portal/field"); revalidatePath("/portal/field-service");
   redirect("/portal/review?message=RTO+validado+e+chamado+encerrado.");
 }
