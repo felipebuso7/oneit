@@ -5,6 +5,14 @@ import { requireUser } from "@/lib/auth/current-user";
 import { reviewSchema } from "@/lib/validation/completion";
 import { storeFieldServiceRtoPdf } from "@/lib/reports/store-field-service-rto";
 
+function reviewMessage(message: string | undefined): string {
+  if (message?.includes("FIELD_REVIEW_INVALID_STATE")) return "Esta OS já foi revisada. Atualize a fila antes de tentar novamente.";
+  if (message?.includes("FIELD_REVIEW_ORDER_NOT_COMPLETED")) return "A OS não está mais no estado aguardando validação.";
+  if (message?.includes("FIELD_REVIEW_NOT_AUTHORIZED")) return "Seu perfil não pode validar esta OS.";
+  if (message?.includes("FIELD_REVIEW_CONCURRENT_UPDATE")) return "A OS foi atualizada por outro usuário. Recarregue a fila.";
+  return "Não foi possível registrar a validação da OS.";
+}
+
 export async function reviewTicket(formData: FormData) {
   const parsed = reviewSchema.safeParse({ ticketId: formData.get("ticketId"), version: formData.get("version"), decision: formData.get("decision"), reason: formData.get("reason") });
   if (!parsed.success) redirect("/portal/review?message=Informe+a+decisão+e+uma+justificativa+de+ao+menos+10+caracteres.");
@@ -24,8 +32,8 @@ export async function reviewFieldServiceOrder(formData: FormData) {
   }
   const { supabase } = await requireUser();
   const { error } = await supabase.rpc("review_field_service_order", { target_queue_id: queueId, target_decision: decision, target_reason: reason });
-  if (error) redirect("/portal/review?message=Não+foi+possível+registrar+a+validação+da+OS.");
-  revalidatePath("/portal/review"); revalidatePath("/portal/service-orders");
+  if (error) redirect(`/portal/review?message=${encodeURIComponent(reviewMessage(error.message))}`);
+  revalidatePath("/portal/review"); revalidatePath("/portal/service-orders"); revalidatePath("/portal/field-service"); revalidatePath("/portal/tickets");
   redirect("/portal/review?message=Validação+da+OS+registrada.");
 }
 
@@ -38,8 +46,8 @@ export async function addFieldServiceOrderLpuLine(formData: FormData) {
   }
   const { supabase } = await requireUser();
   const { error } = await supabase.rpc("add_field_service_order_lpu_line", { target_service_order_id: serviceOrderId, target_lpu_item_id: lpuItemId, target_quantity: quantity });
-  if (error) redirect("/portal/review?message=Não+foi+possível+lançar+o+item+LPU.");
-  revalidatePath("/portal/review");
+  if (error) redirect(`/portal/review?message=${encodeURIComponent(error.message.includes("LPU") ? "Item LPU inválido ou incompatível com a organização." : "Não foi possível lançar o item LPU.")}`);
+  revalidatePath("/portal/review"); revalidatePath("/portal/field-service");
   redirect("/portal/review?message=Item+LPU+lançado+na+OS.");
 }
 
@@ -48,13 +56,13 @@ export async function generateFieldServiceRto(formData: FormData) {
   if (!/^[0-9a-f-]{36}$/i.test(queueId)) redirect("/portal/review?message=Fila+de+RTO+inválida.");
   const { supabase } = await requireUser();
   const { data, error } = await supabase.rpc("generate_field_service_rto", { target_queue_id: queueId });
-  if (error) redirect("/portal/review?message=RTO+não+gerado.+A+OS+precisa+estar+aprovada+e+com+dados+completos.");
+  if (error) redirect(`/portal/review?message=${encodeURIComponent(error.message.includes("RTO_REVIEW_REQUIRED") ? "A OS precisa ser aprovada antes de gerar o RTO." : error.message.includes("RTO_DATA_INCOMPLETE") ? "Faltam dados do atendimento técnico para gerar o RTO." : "Não foi possível gerar o RTO.")}`);
   try {
     await storeFieldServiceRtoPdf(supabase, data);
   } catch {
     redirect("/portal/review?message=RTO+registrado,+mas+o+PDF+não+foi+salvo.+Tente+gerar+novamente.");
   }
-  revalidatePath("/portal/review"); revalidatePath("/portal/field-service-reports");
+  revalidatePath("/portal/review"); revalidatePath("/portal/field-service-reports"); revalidatePath("/portal/field-service");
   redirect(`/portal/review?message=RTO+e+PDF+gerados%3A+${data}`);
 }
 
@@ -80,6 +88,6 @@ export async function closeFieldServiceTicket(formData: FormData) {
     exception_acknowledged: exceptionAcknowledged,
   });
   if (error) redirect("/portal/review?message=Encerramento+não+aceito.+Confira+o+PDF,+a+versão+do+chamado+e+a+permissão.");
-  revalidatePath("/portal/review"); revalidatePath("/portal/tickets"); revalidatePath("/portal/field");
+  revalidatePath("/portal/review"); revalidatePath("/portal/tickets"); revalidatePath("/portal/field"); revalidatePath("/portal/field-service");
   redirect("/portal/review?message=RTO+validado+e+chamado+encerrado.");
 }
