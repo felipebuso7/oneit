@@ -14,11 +14,13 @@ export default async function ReviewPage({ searchParams }: PageProps) {
   const { data: fieldQueue, error: fieldQueueError } = await supabase.from("field_service_review_queue").select("id, organization_id, service_order_id, ticket_id, submission_id, status, created_at").in("organization_id", organizationIds).eq("status", "PENDING").order("created_at").limit(50);
   if (fieldQueueError) throw new Error("Não foi possível carregar a fila de validação de Field Service.");
   const fieldItems = fieldQueue ?? [];
-  const { data: approvedFieldQueue } = await supabase.from("field_service_review_queue").select("id, organization_id, service_order_id, ticket_id, status").in("organization_id", organizationIds).eq("status", "APPROVED").order("reviewed_at", { ascending: false }).limit(50);
+  const { data: approvedFieldQueue, error: approvedQueueError } = await supabase.from("field_service_review_queue").select("id, organization_id, service_order_id, ticket_id, status").in("organization_id", organizationIds).eq("status", "APPROVED").order("reviewed_at", { ascending: false }).limit(50);
   const approvedItems = approvedFieldQueue ?? [];
-  const { data: returnedFieldQueue } = await supabase.from("field_service_review_queue").select("id, organization_id, service_order_id, ticket_id, status, review_reason, reviewed_at").in("organization_id", organizationIds).eq("status", "RETURNED").order("reviewed_at", { ascending: false }).limit(50);
+  const { data: returnedFieldQueue, error: returnedQueueError } = await supabase.from("field_service_review_queue").select("id, organization_id, service_order_id, ticket_id, status, review_reason, reviewed_at").in("organization_id", organizationIds).eq("status", "RETURNED").order("reviewed_at", { ascending: false }).limit(50);
+  if (approvedQueueError || returnedQueueError) throw new Error("Não foi possível carregar o histórico da fila de validação.");
   const returnedItems = returnedFieldQueue ?? [];
   const existingRtosResult = approvedItems.length ? await supabase.from("field_service_rto_reports").select("id, service_order_id, storage_path, report_version").in("service_order_id", approvedItems.map((item) => item.service_order_id)) : null;
+  if (existingRtosResult?.error) throw new Error("Não foi possível carregar os RTOs registrados.");
   const existingRtos = existingRtosResult?.data ?? [];
   const approvedTicketsResult = approvedItems.length ? await supabase.from("tickets").select("id, ticket_number, version, administrative_status").in("id", approvedItems.map((item) => item.ticket_id)) : null;
   if (approvedTicketsResult?.error) throw new Error("Não foi possível carregar os chamados aprovados.");
@@ -34,7 +36,9 @@ export default async function ReviewPage({ searchParams }: PageProps) {
   const fieldSubmissions = fieldSubmissionsResult?.data ?? [];
   const fieldOrderLpuResult = fieldOrderIds.length ? await supabase.from("field_service_order_lpu_lines").select("id, service_order_id, lpu_code, description, unit, quantity, unit_price").in("service_order_id", fieldOrderIds).order("created_at") : null;
   const fieldOrderLpu = fieldOrderLpuResult?.data ?? [];
-  const { data: fieldLpuItems } = await supabase.from("field_service_lpu_items").select("id, organization_id, code, description, unit, unit_price").in("organization_id", organizationIds).eq("active", true).lte("valid_from", new Date().toISOString().slice(0, 10)).or(`valid_until.is.null,valid_until.gte.${new Date().toISOString().slice(0, 10)}`).order("code");
+  if (fieldOrdersResult?.error || fieldTicketsResult?.error || fieldSubmissionsResult?.error || fieldOrderLpuResult?.error) throw new Error("Não foi possível carregar os dados da execução de Field Service.");
+  const { data: fieldLpuItems, error: fieldLpuError } = await supabase.from("field_service_lpu_items").select("id, organization_id, code, description, unit, unit_price").in("organization_id", organizationIds).eq("active", true).lte("valid_from", new Date().toISOString().slice(0, 10)).or(`valid_until.is.null,valid_until.gte.${new Date().toISOString().slice(0, 10)}`).order("code");
+  if (fieldLpuError) throw new Error("Não foi possível carregar a LPU vigente.");
   const signedEvidenceUrls = new Map<string, string>();
   if (fieldSubmissions.length) {
     try {
