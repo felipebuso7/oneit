@@ -96,6 +96,7 @@ end;
 $$;
 
 revoke all on function public.close_field_service_ticket(uuid, integer, uuid, text, text, boolean) from public;
+revoke all on function public.close_field_service_ticket(uuid, integer, uuid, text, text, boolean) from anon;
 grant execute on function public.close_field_service_ticket(uuid, integer, uuid, text, text, boolean) to authenticated;
 
 -- A composição do PDF e o RTO fechado devem permanecer iguais ao que o
