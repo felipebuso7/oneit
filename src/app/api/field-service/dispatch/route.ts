@@ -29,6 +29,23 @@ export async function POST(request: Request) {
   const { data: auth, error: authError } = await supabase.auth.getUser();
   if (authError || !auth.user) return reply(401, "AUTH_REQUIRED");
   const value = parsed.data;
+  const { data: ticketReference, error: ticketReferenceError } = await supabase
+    .from("tickets")
+    .select("organization_id")
+    .eq("id", value.ticketId)
+    .maybeSingle();
+  if (ticketReferenceError || !ticketReference) return reply(409, "DISPATCH_STATE_CONFLICT");
+
+  const { data: technicianMapping, error: technicianMappingError } = await supabase
+    .from("field_service_technicians")
+    .select("id")
+    .eq("organization_id", ticketReference.organization_id)
+    .eq("operational_technician_id", value.technicianId)
+    .eq("active", true)
+    .maybeSingle();
+  if (technicianMappingError) return reply(503, "DISPATCH_UNAVAILABLE");
+  if (!technicianMapping) return reply(422, "DISPATCH_REFERENCE_INVALID");
+
   const { data, error } = await supabase.rpc("dispatch_ticket_to_field", {
     target_ticket_id: value.ticketId,
     target_technician_id: value.technicianId,
