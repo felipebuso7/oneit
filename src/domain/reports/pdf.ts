@@ -17,6 +17,9 @@ export type ReportSnapshot = z.infer<typeof reportSnapshotSchema>;
 export type ReportEvidenceImage = { mimeType: "image/png" | "image/jpeg"; bytes: Uint8Array };
 export const fieldServiceRtoSnapshotSchema = z.object({
   service_order_id: z.uuid(), ticket_id: z.uuid(), order_number: z.string(), status: z.string(),
+  ticket_number: z.string().optional(), title: z.string().optional(), customer_name: z.string().optional(),
+  location_name: z.string().optional(), location_address: z.string().optional(), technician_name: z.string().optional(),
+  local_contact_name: z.string().optional(), local_contact_phone: z.string().optional(),
   scheduled_at: z.string().nullable().optional(), checked_in_at: z.string().nullable().optional(), checked_out_at: z.string().nullable().optional(),
   execution_report: z.string().nullable().optional(), customer_signature_name: z.string().nullable().optional(), customer_signature_data_url: z.string().nullable().optional(),
   evidence: z.array(z.unknown()).default([]),
@@ -33,7 +36,8 @@ export async function renderFieldServiceRtoPdf(snapshot: FieldServiceRtoSnapshot
   header();
   const text = (value: string, size = 9, strong = false) => { if (y < 62) { page = document.addPage([width, height]); y = height - 88; header(); } page.drawText(value.slice(0, 140), { x: margin, y, size, font: strong ? bold : font, color: rgb(0.12, 0.15, 0.2) }); y -= size + 6; };
   const money = (value: number) => `R$ ${value.toFixed(2).replace(".", ",")}`;
-  text(`OS ${snapshot.order_number}`, 15, true); text(`Status: ${snapshot.status}`); text(`Chamado: ${snapshot.ticket_id}`); y -= 8;
+  text(`OS ${snapshot.order_number}`, 15, true); text(`Status: ${snapshot.status}`); text(`Chamado: ${snapshot.ticket_number ?? snapshot.ticket_id}`); if (snapshot.title) text(`Título: ${snapshot.title}`); y -= 8;
+  text("DADOS DO ATENDIMENTO", 11, true); text(`Cliente: ${snapshot.customer_name ?? "Não informado"}`); text(`Local: ${snapshot.location_name ?? "Não informado"}`); text(`Endereço: ${snapshot.location_address ?? "Não informado"}`); text(`Técnico: ${snapshot.technician_name ?? "Não informado"}`); if (snapshot.local_contact_name || snapshot.local_contact_phone) text(`Contato local: ${snapshot.local_contact_name ?? "Não informado"}${snapshot.local_contact_phone ? ` · ${snapshot.local_contact_phone}` : ""}`); y -= 8;
   text("LINHA DO TEMPO", 11, true); text(`Agendamento: ${snapshot.scheduled_at ?? "Não informado"}`); text(`Check-in: ${snapshot.checked_in_at ?? "Não informado"}`); text(`Checkout: ${snapshot.checked_out_at ?? "Não informado"}`); y -= 8;
   text("RELATO TÉCNICO", 11, true); text(snapshot.execution_report ?? "Não informado"); y -= 8;
   text("COMPOSIÇÃO LPU", 11, true);
