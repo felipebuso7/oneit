@@ -51,6 +51,7 @@ Critério de conclusão: os testes de fronteira passam e nenhuma página produti
 
 ### Sprint B — Cadastros e fonte canônica
 
+- [~] Contrato automatizado da fonte canônica de técnicos criado; ainda falta executar CRUD e despacho autenticados no Supabase.
 - [ ] Executar CRUD de técnico interno e parceiro; verificar ativo/disponível, polos e seleção no despacho.
 - [ ] Executar empresa → departamento → solicitante → chamado com filtros dependentes.
 - [ ] Executar categoria → serviço → chamado.
@@ -96,6 +97,8 @@ Critério: riscos P0/P1 fechados ou explicitamente aceitos pelo Owner com evidê
 ## Alterações iniciadas neste ciclo
 
 - `tests/production-persistence-boundary.test.ts`: o gate agora cobre também `src/app/(portal)`, `src/app/field-service` e rejeita importações de demo nos caminhos produtivos.
+- `tests/technician-source-of-truth-contract.test.ts`: contrato estático da criação disponível, trigger de vínculo automático e resolução do técnico no despacho.
+- `tests/field-validation-flow.test.ts`: a cobertura do fluxo de validação foi movida da tela demo para o portal persistente, evitando validar uma implementação que não é fonte operacional.
 - Este documento: baseline executável para o plano de reconstrução, sem alterar dados ou migrations.
 
 ## Validação planejada
