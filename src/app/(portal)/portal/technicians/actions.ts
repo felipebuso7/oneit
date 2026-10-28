@@ -148,12 +148,14 @@ export async function updateTechnicianStatus(formData: FormData) {
   if (!parsed.success) redirect("/portal/technicians?message=Status+de+técnico+inválido.");
 
   const { supabase } = await requireUser();
-  const { error } = await supabase.from("technicians")
+  const { data: updated, error } = await supabase.from("technicians")
     .update({ status: parsed.data.status })
     .eq("id", parsed.data.technicianId)
     .eq("organization_id", parsed.data.organizationId)
-    .eq("active", true);
-  if (error) redirect("/portal/technicians?message=Não+foi+possível+alterar+a+disponibilidade+do+técnico.");
+    .eq("active", true)
+    .select("id,status")
+    .maybeSingle();
+  if (error || !updated) redirect(`/portal/technicians?message=${encodeURIComponent(error ? "Não foi possível alterar a disponibilidade do técnico." : "Técnico não encontrado, inativo ou sem permissão para alteração.")}`);
 
   revalidatePath("/portal/technicians");
   revalidatePath("/portal/field-service");
