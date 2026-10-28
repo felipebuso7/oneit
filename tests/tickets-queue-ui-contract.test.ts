@@ -8,7 +8,8 @@ describe("tickets queue UI contract", () => {
     expect(source).toContain("ticket-search");
     expect(source).toContain("ticket-status");
     expect(source).toContain("Todas as situações");
-    expect(source).toContain("min-w-[1080px]");
+    expect(source).toContain("min-w-[1240px]");
+    expect(source).toContain("table-fixed");
   });
 
   it("keeps the operational actions visible without breaking row layout", () => {
