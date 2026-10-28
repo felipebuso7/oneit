@@ -192,3 +192,10 @@ filas de chamados, agendamento, OS e rotas, além dos gates de caminhos produtiv
 testes aprovados. Os limites atuais evitam carregamento ilimitado, mas ainda não substituem paginação interativa para
 grandes volumes; isso permanece como melhoria P2, sem bloquear uma homologação de baixo volume.
 
+Na fila de chamados, a tabela foi estabilizada visualmente com `table-fixed`, largura mínima controlada e `colgroup`
+explícito para as nove colunas. Cliente/local, título, serviço e ações agora têm limites previsíveis, com truncamento
+ou quebra de texto controlados; isso evita que títulos longos empurrem o SLA e as ações para fora do alinhamento.
+O contrato visual foi atualizado para a ação vigente “Agendar visita →”. Foram executados o teste direcionado da fila
+(4 testes aprovados) e o typecheck; não houve alteração de dados, migration ou publicação em produção. A paginação
+interativa permanece uma melhoria P2 separada.
+

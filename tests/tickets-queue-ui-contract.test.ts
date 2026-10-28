@@ -13,7 +13,7 @@ describe("tickets queue UI contract", () => {
   });
 
   it("keeps the operational actions visible without breaking row layout", () => {
-    expect(source).toContain("Atribuir visita →");
+    expect(source).toContain("Agendar visita →");
     expect(source).toContain("Validar OS →");
     expect(source).toContain("Nenhum chamado corresponde aos filtros atuais.");
   });
