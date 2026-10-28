@@ -78,3 +78,56 @@ with check (exists (
   select 1 from public.field_service_lpu_compositions c
   where c.id = composition_id and public.has_organization_role(c.organization_id, array['SUPER_ADMIN','ORG_ADMIN']::public.platform_role[])
 ));
+
+create or replace function public.create_field_service_lpu_composition(
+  target_organization_id uuid,
+  target_code text,
+  target_description text,
+  target_valid_from date,
+  target_valid_until date,
+  target_lines jsonb
+)
+returns uuid language plpgsql security definer set search_path = public as $$
+declare
+  composition_id uuid;
+  line jsonb;
+  item public.field_service_lpu_items%rowtype;
+  quantity numeric;
+begin
+  if not public.has_organization_role(target_organization_id, array['SUPER_ADMIN','ORG_ADMIN']::public.platform_role[]) then
+    raise exception 'LPU_COMPOSITION_NOT_AUTHORIZED';
+  end if;
+  if target_valid_until is not null and target_valid_until < target_valid_from then
+    raise exception 'LPU_COMPOSITION_INVALID_VALIDITY';
+  end if;
+  if jsonb_typeof(target_lines) <> 'array' or jsonb_array_length(target_lines) = 0 then
+    raise exception 'LPU_COMPOSITION_LINES_REQUIRED';
+  end if;
+
+  insert into public.field_service_lpu_compositions (organization_id, code, description, valid_from, valid_until)
+  values (target_organization_id, upper(trim(target_code)), trim(target_description), coalesce(target_valid_from, current_date), target_valid_until)
+  returning id into composition_id;
+
+  for line in select * from jsonb_array_elements(target_lines) loop
+    quantity := (line->>'quantity')::numeric;
+    if quantity is null or quantity <= 0 or quantity > 100000 then
+      raise exception 'LPU_COMPOSITION_INVALID_QUANTITY';
+    end if;
+    select * into item from public.field_service_lpu_items
+    where id = (line->>'lpuItemId')::uuid
+      and organization_id = target_organization_id
+      and active
+      and valid_from <= coalesce(target_valid_from, current_date)
+      and (valid_until is null or valid_until >= coalesce(target_valid_from, current_date));
+    if item.id is null then raise exception 'LPU_COMPOSITION_ITEM_NOT_FOUND'; end if;
+    insert into public.field_service_lpu_composition_lines (composition_id, lpu_item_id, quantity, unit_price)
+    values (composition_id, item.id, quantity, item.unit_price);
+  end loop;
+  return composition_id;
+exception when unique_violation then
+  raise exception 'LPU_COMPOSITION_ALREADY_EXISTS';
+end;
+$$;
+
+revoke all on function public.create_field_service_lpu_composition(uuid, text, text, date, date, jsonb) from public;
+grant execute on function public.create_field_service_lpu_composition(uuid, text, text, date, date, jsonb) to authenticated;
