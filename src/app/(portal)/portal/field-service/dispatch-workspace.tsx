@@ -10,7 +10,7 @@ type Order = { id: string; organization_id: string; ticket_id: string; order_num
 type Technician = { id: string; organization_id: string; full_name: string; phone?: string | null; mobile?: string | null; status: string; base_city: string | null; active: boolean };
 type Location = { id: string; organization_id: string; customer_id: string; name: string; street: string | null; street_number: string | null; city: string; state_code: string | null; active: boolean };
 type Review = { id: string; organization_id: string; service_order_id: string; status: string };
-type Props = { tickets: Ticket[]; orders: Order[]; technicians: Technician[]; locations: Location[]; pendingReviews: Review[]; unlinkedTechnicians: number };
+type Props = { tickets: Ticket[]; orders: Order[]; technicians: Technician[]; locations: Location[]; pendingReviews: Review[]; unlinkedTechnicians: number; initialTicketId?: string };
 type DispatchSummary = { ticket: Ticket; technician: Technician; location: Location | undefined; start: string; accessUrl: string | null; accessCode: string | null };
 
 const dispatchable = new Set(["NEW", "TRIAGE", "AWAITING_SCHEDULING", "SCHEDULED", "ASSIGNED"]);
@@ -25,9 +25,9 @@ const dispatchErrors: Record<string, string> = {
   DISPATCH_REFERENCE_INVALID: "Confira técnico, polo e horários selecionados.",
 };
 
-export function DispatchWorkspace({ tickets, orders, technicians, locations, pendingReviews, unlinkedTechnicians }: Props) {
+export function DispatchWorkspace({ tickets, orders, technicians, locations, pendingReviews, unlinkedTechnicians, initialTicketId }: Props) {
   const router = useRouter();
-  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [selectedId, setSelectedId] = useState<string | null>(initialTicketId ?? null);
   const [search, setSearch] = useState("");
   const [technicianId, setTechnicianId] = useState("");
   const [locationId, setLocationId] = useState("");

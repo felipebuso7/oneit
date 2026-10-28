@@ -3,7 +3,10 @@ import { OneitEmptyState, OneitPageHeader } from "@/components/oneit";
 import { countUnlinkedActiveTechnicians, resolveDispatchTechnicians } from "@/lib/field-service/technician-eligibility";
 import { DispatchWorkspace } from "./dispatch-workspace";
 
-export default async function FieldServicePage() {
+type PageProps = { searchParams: Promise<{ ticket?: string }> };
+
+export default async function FieldServicePage({ searchParams }: PageProps) {
+  const { ticket: initialTicketId } = await searchParams;
   const { supabase, user } = await requireUser();
   const { data: roles, error: roleError } = await supabase.from("user_roles")
     .select("organization_id")
@@ -44,6 +47,6 @@ export default async function FieldServicePage() {
     <OneitPageHeader eyebrow="Operação" title="Central Field Service" description="Selecione um chamado, confira o técnico e confirme o despacho em uma só tela." />
     <DispatchWorkspace tickets={ticketResult.data ?? []} orders={orderResult.data ?? []}
       technicians={dispatchTechnicians} locations={locationResult.data ?? []}
-      pendingReviews={reviewResult.data ?? []} unlinkedTechnicians={unlinkedTechnicians} />
+      pendingReviews={reviewResult.data ?? []} unlinkedTechnicians={unlinkedTechnicians} initialTicketId={initialTicketId} />
   </section>;
 }
