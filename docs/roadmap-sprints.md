@@ -312,3 +312,11 @@ Fundação ITSM em evolução: o catálogo hierárquico categoria → subcategor
 - Catálogos centrais de unidades LPU e regiões operacionais.
 - Próxima evolução: substituir gradualmente os agregadores demonstrativos por consultas persistidas de chamados, polos, OS e medições.
 
+### Atualização de estabilização — 27/10/2026
+
+- CI de qualidade habilitado também para `prep/cloud-staging` e execução manual.
+- Proxy passou a propagar `x-request-id` seguro para rastreabilidade de requisições.
+- Política HTTP de permissões restringe câmera/geolocalização ao próprio OneIT e bloqueia microfone.
+- Testes de contrato cobrem geração e validação do request-id.
+- A validação autenticada ponta a ponta continua pendente; não marcar a Sprint 14 como concluída antes de executar o cenário em Linux/staging.
+
