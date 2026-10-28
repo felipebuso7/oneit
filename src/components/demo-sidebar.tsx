@@ -33,7 +33,6 @@ const items = [
   { id: "field-fiscal-history", icon: "◷", label: "Histórico de faturamento", href: "/demo/field-service/fiscal/history", group: "Faturamento", module: "FISCAL" },
   { id: "problems", icon: "?", label: "Problemas", href: "/demo/problems", group: "Gestão de serviços", module: "SERVICE_MANAGEMENT" },
   { id: "changes", icon: "↺", label: "Mudanças", href: "/demo/changes", group: "Gestão de serviços", module: "SERVICE_MANAGEMENT" },
-  { id: "inventory", icon: "▦", label: "Ativos", href: "/demo/inventory", group: "Gestão de serviços", module: "SERVICE_MANAGEMENT" },
   { id: "suppliers", icon: "◇", label: "Fornecedores", href: "/demo/suppliers", group: "Gestão de serviços", module: "SERVICE_MANAGEMENT" },
   { id: "sgsti-dashboard", icon: "▤", label: "Dashboard SGSTI", href: "/demo/sgsti/dashboard", group: "SGSTI", module: "SGSTI" },
   { id: "sgsti-alerts", icon: "◉", label: "Alertas e prazos", href: "/demo/sgsti/alerts", group: "SGSTI", module: "SGSTI" },
