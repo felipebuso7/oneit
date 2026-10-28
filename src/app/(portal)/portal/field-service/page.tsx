@@ -47,11 +47,13 @@ export default async function FieldServicePage({ searchParams }: PageProps) {
     return { ...technician, phone: mapping?.mobile || mapping?.phone || technician.mobile || technician.phone || null };
   });
   const unlinkedTechnicians = countUnlinkedActiveTechnicians(fieldTechnicianResult.data ?? []);
+  const linkedOperationalIds = new Set((fieldTechnicianResult.data ?? []).filter((item) => item.active && item.operational_technician_id).map((item) => item.operational_technician_id));
+  const unavailableTechnicians = (technicianResult.data ?? []).filter((technician) => technician.active && linkedOperationalIds.has(technician.id) && ["UNAVAILABLE", "OFFLINE", "VACATION"].includes(technician.status)).length;
 
   return <section className="mx-auto max-w-7xl p-5 sm:p-8">
     <OneitPageHeader eyebrow="Operação" title="Central Field Service" description="Selecione um chamado, confira o técnico e confirme o despacho em uma só tela." />
     <DispatchWorkspace tickets={ticketResult.data ?? []} orders={orderResult.data ?? []}
       technicians={dispatchTechnicians} locations={locationResult.data ?? []} locationContacts={contactResult.data ?? []}
-      pendingReviews={reviewResult.data ?? []} unlinkedTechnicians={unlinkedTechnicians} initialTicketId={initialTicketId} />
+      pendingReviews={reviewResult.data ?? []} unlinkedTechnicians={unlinkedTechnicians} unavailableTechnicians={unavailableTechnicians} initialTicketId={initialTicketId} />
   </section>;
 }

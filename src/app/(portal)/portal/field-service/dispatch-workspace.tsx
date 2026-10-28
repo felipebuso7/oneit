@@ -11,7 +11,7 @@ type Technician = { id: string; organization_id: string; full_name: string; phon
 type Location = { id: string; organization_id: string; customer_id: string; name: string; street: string | null; street_number: string | null; city: string; state_code: string | null; active: boolean };
 type LocationContact = { id: string; location_id: string; name: string; phone: string | null; mobile: string | null; active: boolean };
 type Review = { id: string; organization_id: string; service_order_id: string; status: string };
-type Props = { tickets: Ticket[]; orders: Order[]; technicians: Technician[]; locations: Location[]; locationContacts: LocationContact[]; pendingReviews: Review[]; unlinkedTechnicians: number; initialTicketId?: string };
+type Props = { tickets: Ticket[]; orders: Order[]; technicians: Technician[]; locations: Location[]; locationContacts: LocationContact[]; pendingReviews: Review[]; unlinkedTechnicians: number; unavailableTechnicians: number; initialTicketId?: string };
 type DispatchSummary = { ticket: Ticket; technician: Technician; location: Location | undefined; contact: LocationContact | undefined; date: string; shift: string; accessUrl: string | null; accessCode: string | null };
 
 const dispatchable = new Set(["NEW", "TRIAGE", "AWAITING_SCHEDULING", "SCHEDULED", "ASSIGNED"]);
@@ -27,7 +27,7 @@ const dispatchErrors: Record<string, string> = {
   DISPATCH_REFERENCE_INVALID: "Confira técnico, polo e horários selecionados.",
 };
 
-export function DispatchWorkspace({ tickets, orders, technicians, locations, locationContacts, pendingReviews, unlinkedTechnicians, initialTicketId }: Props) {
+export function DispatchWorkspace({ tickets, orders, technicians, locations, locationContacts, pendingReviews, unlinkedTechnicians, unavailableTechnicians, initialTicketId }: Props) {
   const router = useRouter();
   const [selectedId, setSelectedId] = useState<string | null>(initialTicketId ?? null);
   const [search, setSearch] = useState("");
@@ -160,6 +160,7 @@ export function DispatchWorkspace({ tickets, orders, technicians, locations, loc
 
   return <div className="mt-6 space-y-5">
     {unlinkedTechnicians > 0 ? <div role="status" className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-950"><span><strong>{unlinkedTechnicians} técnico(s) aguardando vínculo operacional.</strong> Eles não podem receber OS até serem associados ao cadastro usado pelo despacho.</span><Link href="/portal/technicians" className="font-semibold underline">Ajustar cadastros</Link></div> : null}
+    {waiting.length > 0 && !technicians.length && unavailableTechnicians > 0 ? <div role="alert" className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-950"><span><strong>Nenhum técnico está disponível para despacho.</strong> Existem {unavailableTechnicians} técnico(s) vinculado(s), mas com status indisponível. Habilite o despacho no cadastro antes de agendar.</span><Link href="/portal/technicians" className="font-semibold underline">Abrir técnicos</Link></div> : null}
     <div className="grid gap-3 sm:grid-cols-3" aria-label="Indicadores de Field Service">
       <Metric label="Aguardando despacho" count={waiting.length} />
       <Metric label="Em campo" count={active.length} />
