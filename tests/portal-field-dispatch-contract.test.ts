@@ -11,6 +11,7 @@ describe("despacho do portal", () => {
     expect(workspace).toContain("Despacho confirmado");
     expect(workspace).toContain("whatsappRecipient");
     expect(workspace).toContain("Abrir WhatsApp com resumo");
+    expect(workspace).toContain("Atualizar fila");
     expect(workspace).toContain("O OneIT não considera a mensagem enviada");
     expect(workspace).toContain("/api/field-service/partner/access");
     expect(workspace).toContain("/field-service/partner/access#token=");
