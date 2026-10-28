@@ -287,3 +287,7 @@ campos de seleção ganharam rótulos acessíveis. A mudança é exclusivamente 
 consultas, vínculos organizacionais, validação de e-mails ou persistência dos colaboradores. ESLint direcionado e typecheck
 passaram.
 
+No portal público do técnico, a seção “Detalhes do chamado” passou a usar uma barra de título azul escura com texto branco,
+reforçando a hierarquia das informações essenciais antes da execução. A jornada, os bloqueios por etapa, evidências,
+assinatura e checkout permanecem com o mesmo comportamento e contrato de API. ESLint direcionado e typecheck passaram.
+
