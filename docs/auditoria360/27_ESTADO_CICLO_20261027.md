@@ -29,6 +29,8 @@ Registrar o avanço do ciclo de estabilização após a consolidação do portal
 
 - Não foi executado neste ciclo um cenário autenticado completo criando registros reais de homologação: abertura → despacho → técnico → checkout → validação → RTO → encerramento.
 - Os testes automatizados direcionados não chegaram a coletar nenhum caso (`0 tests`), pois o bloqueio ocorreu durante a transformação SSR; isso não é evidência de aprovação nem de falha das asserções.
+- `npm run check:release-tree`: **bloqueado intencionalmente** pelo arquivo `AGENTS.md` modificado localmente pelo usuário; o gate evita publicar alterações não revisadas.
+- `npm run check:production-env`: não retornou diagnóstico no limite do ambiente local; a configuração efetiva de produção deve ser conferida na Vercel, não inferida pelo `.env` local.
 - Não foi comprovado o envio efetivo pelo WhatsApp; a abertura de conversa não deve ser tratada como confirmação de entrega.
 - Não foi comprovado o envio de e-mail ou a entrega do BM em provedor externo.
 - Não foi executado build/teste de navegador em Linux; o ambiente Windows local continua sujeito a `EPERM` ao criar arquivos temporários de `.next`/Supabase CLI.
