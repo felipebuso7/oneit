@@ -7,8 +7,10 @@ export async function GET(_: Request, { params }: { params: Promise<{ id: string
   const supabase = await createClient();
   const { data: auth, error: authError } = await supabase.auth.getUser();
   if (authError || !auth.user) return Response.json({ code: "AUTH_REQUIRED" }, { status: 401 });
-  const { data: batch } = await supabase.from("fiscal_batches").select("id,batch_number,status,total_amount,measurement_sheet_ids").eq("id", id).maybeSingle();
+  const { data: batch } = await supabase.from("fiscal_batches").select("id,organization_id,batch_number,status,total_amount,measurement_sheet_ids").eq("id", id).maybeSingle();
   if (!batch) return Response.json({ code: "FISCAL_BATCH_NOT_FOUND" }, { status: 404 });
+  const { data: role, error: roleError } = await supabase.from("user_roles").select("role").eq("user_id", auth.user.id).eq("organization_id", batch.organization_id).in("role", ["SUPER_ADMIN", "ORG_ADMIN", "MANAGER", "FINANCE"]).limit(1).maybeSingle();
+  if (roleError) return Response.json({ code: "FISCAL_BATCH_AUTHORIZATION_UNAVAILABLE" }, { status: 503 }); if (!role) return Response.json({ code: "FISCAL_BATCH_NOT_AUTHORIZED" }, { status: 403 });
   const sheetIds = Array.isArray(batch.measurement_sheet_ids) ? batch.measurement_sheet_ids.filter((value): value is string => typeof value === "string" && value.length > 0) : [];
   if (!sheetIds.length) return Response.json({ batch, reconciliation: { consistent: Number(batch.total_amount ?? 0) === 0, batchTotal: Number(batch.total_amount ?? 0), lineTotal: 0, difference: Number(batch.total_amount ?? 0), orderCount: 0, lineCount: 0 } }, { headers: { "Cache-Control": "private, no-store" } });
   const { data: lines, error } = await supabase.from("measurement_sheet_lines").select("ticket_number,total_price").in("measurement_sheet_id", sheetIds);
