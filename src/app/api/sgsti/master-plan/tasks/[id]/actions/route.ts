@@ -26,7 +26,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
       const action = await client.query<{ action_id: string }>("select public.create_sgsti_task_action_plan($1,$2,$3,$4,$5,$6) as action_id", [input.taskId, input.actionKind, input.description, input.priority, input.ownerId ?? null, input.dueAt ?? null]);
       return { actionId: action.rows[0]?.action_id };
     });
-    revalidatePath("/demo/sgsti/action-plan");
+    revalidatePath("/portal/sgsti/action-plan");
     return Response.json(result, { status: 201, headers: { "Cache-Control": "no-store" } });
   } catch {
     return reply(503, "SGSTI_ACTION_CREATION_UNAVAILABLE");

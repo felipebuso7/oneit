@@ -77,7 +77,7 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
     if (record.code === "ACTIVITY_NOT_FOUND") return reply(404, record.code);
     if (record.code === "SGSTI_MANAGEMENT_DENIED") return reply(403, record.code);
     if (record.code === "ACTIVITY_LOCKED") return reply(409, record.code);
-    revalidatePath("/demo/sgsti");
+    revalidatePath("/portal/sgsti");
     return Response.json({ occurrenceId: occurrenceId.data, status: parsed.data.status }, { headers: { "Cache-Control": "no-store" } });
   } catch {
     return reply(503, "SGSTI_UNAVAILABLE");

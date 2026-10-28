@@ -35,7 +35,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
       const exists = link.rowCount || (await client.query("select 1 from public.sgsti_initiative_task_evidences where task_id=$1 and evidence_id=$2", [parsed.data.taskId, parsed.data.evidenceId])).rowCount;
       if (!exists) throw new Error("SGSTI_EVIDENCE_NOT_AVAILABLE");
     });
-    revalidatePath("/demo/sgsti/action-plan");
+    revalidatePath("/portal/sgsti/action-plan");
     return Response.json({ linked: true }, { status: 201, headers: { "Cache-Control": "no-store" } });
   } catch {
     return reply(503, "SGSTI_EVIDENCE_LINK_UNAVAILABLE");

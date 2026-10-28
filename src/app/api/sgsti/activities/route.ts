@@ -94,7 +94,7 @@ export async function POST(request: Request) {
       return { templateId: created.rows[0]?.id, generatedOccurrences: generation.rows[0]?.generated ?? 0 };
     });
     if (activity === null) return reply(403, "SGSTI_MANAGEMENT_DENIED");
-    revalidatePath("/demo/sgsti");
+    revalidatePath("/portal/sgsti");
     return Response.json(activity, { status: 201, headers: { "Cache-Control": "no-store" } });
   } catch {
     return reply(503, "SGSTI_UNAVAILABLE");

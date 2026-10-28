@@ -39,7 +39,7 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
       }
       await client.query("select public.update_sgsti_initiative_task_execution($1,$2,$3,$4,$5)", [input.taskId, input.status, input.executionSummary ?? null, input.blockerReason ?? null, null]);
     });
-    revalidatePath("/demo/sgsti/action-plan");
+    revalidatePath("/portal/sgsti/action-plan");
     return Response.json({ updated: true }, { headers: { "Cache-Control": "no-store" } });
   } catch {
     return reply(503, "SGSTI_TASK_UPDATE_UNAVAILABLE");

@@ -95,7 +95,7 @@ export async function POST(request: Request) {
       return { initiativeId, taskCount: input.tasks.length };
     });
     if (created === null) return reply(403, "SGSTI_MANAGEMENT_DENIED");
-    revalidatePath("/demo/sgsti/action-plan");
+    revalidatePath("/portal/sgsti/action-plan");
     return Response.json(created, { status: 201, headers: { "Cache-Control": "no-store" } });
   } catch {
     return reply(503, "SGSTI_MASTER_PLAN_UNAVAILABLE");
