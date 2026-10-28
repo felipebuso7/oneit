@@ -199,3 +199,8 @@ O contrato visual foi atualizado para a ação vigente “Agendar visita →”.
 (4 testes aprovados) e o typecheck; não houve alteração de dados, migration ou publicação em produção. A paginação
 interativa permanece uma melhoria P2 separada.
 
+Na fila de validação gerencial, os cartões de OS pendente receberam um destaque lateral âmbar (`border-l-4`) para
+separar visualmente itens que exigem decisão dos históricos aprovados/devolvidos. A alteração é exclusivamente visual:
+não muda consultas, status, ações, LPU ou persistência. O teste direcionado de revisão/fluxo (3 testes) e o typecheck
+foram executados com sucesso.
+
