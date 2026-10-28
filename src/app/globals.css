@@ -174,7 +174,7 @@ textarea {
 [data-oneit-data-table] td { vertical-align: middle; }
 
 /* Acesso externo do técnico: as marcas precisam ser reconhecíveis em telas móveis. */
-img[alt="Servicia Facilities Services"] { height: 48px !important; width: auto !important; max-width: 48% !important; object-fit: contain; }
+img[alt="Servicia Facilities Services"] { height: 56px !important; width: auto !important; max-width: 58% !important; object-fit: contain; object-position: right center; }
 img[alt="OneIT"] { height: 48px !important; width: auto !important; max-width: 48% !important; object-fit: contain; }
 
 /* Gestor de Field Service: os indicadores devem ser lidos como um conjunto,
