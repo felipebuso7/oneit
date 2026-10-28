@@ -28,4 +28,11 @@ describe("technician CRUD integration contract", () => {
     expect(source).toContain("const { data: linkedRecord, error }");
     expect(source).toContain("!linkedRecord");
   });
+
+  it("reativa o vínculo operacional ao habilitar o técnico para despacho", () => {
+    expect(source).toContain('if (parsed.data.status === "AVAILABLE")');
+    expect(source).toContain('from("field_service_technicians")');
+    expect(source).toContain('.update({ active: true })');
+    expect(source).toContain('.eq("operational_technician_id", parsed.data.technicianId)');
+  });
 });

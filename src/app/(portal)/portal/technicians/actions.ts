@@ -160,6 +160,17 @@ export async function updateTechnicianStatus(formData: FormData) {
     .maybeSingle();
   if (error || !updated) redirect(`/portal/technicians?message=${encodeURIComponent(error ? "Não foi possível alterar a disponibilidade do técnico." : "Técnico não encontrado, inativo ou sem permissão para alteração.")}`);
 
+  // O cadastro operacional e o vínculo usado pelo despacho precisam permanecer
+  // coerentes. Um vínculo que foi desativado não pode continuar bloqueando o
+  // técnico depois que o gestor o habilita novamente.
+  if (parsed.data.status === "AVAILABLE") {
+    const { error: mappingError } = await supabase.from("field_service_technicians")
+      .update({ active: true })
+      .eq("organization_id", parsed.data.organizationId)
+      .eq("operational_technician_id", parsed.data.technicianId);
+    if (mappingError) redirect("/portal/technicians?message=Disponibilidade atualizada, mas não foi possível reativar o vínculo do Field Service.");
+  }
+
   revalidatePath("/portal/technicians");
   revalidatePath("/portal/field-service");
   redirect(`/portal/technicians?message=${parsed.data.status === "AVAILABLE" ? "Técnico+habilitado+para+despacho." : "Disponibilidade+do+técnico+atualizada."}`);
