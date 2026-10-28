@@ -10,6 +10,7 @@ import { OfflineMaterialQueue } from "@/components/field/offline-material-queue"
 import { SaveOfflineAgenda } from "@/components/field/save-offline-agenda";
 import { agendaSchema } from "@/lib/offline/agenda";
 import { OneitEmptyState, OneitPageHeader, OneitStatusBadge } from "@/components/oneit";
+import { JourneyTimeline } from "@/components/field/journey-timeline";
 
 type PageProps = { searchParams: Promise<{ message?: string }> };
 const actions = {
@@ -33,12 +34,13 @@ export default async function FieldPage({ searchParams }: PageProps) {
     .order("scheduled_at").limit(50);
   if (error) throw new Error("Não foi possível carregar a agenda.");
   const ids = (tickets ?? []).map((ticket) => ticket.id);
-  const [{ data: snapshots, error: snapshotError }, { data: templates, error: templateError }, { data: records, error: recordError }] = await Promise.all([
+  const [{ data: snapshots, error: snapshotError }, { data: templates, error: templateError }, { data: records, error: recordError }, { data: history, error: historyError }] = await Promise.all([
     ids.length ? supabase.from("ticket_checklist_items").select("ticket_id, item_code, label, position, required").in("ticket_id", ids).order("position") : Promise.resolve({ data: [], error: null }),
     supabase.from("checklist_templates").select("organization_id, item_code, label, position, required").order("position"),
     ids.length ? supabase.from("ticket_execution_records").select("ticket_id, fault_domain, diagnosis, solution, checklist_answers, created_at").in("ticket_id", ids).order("created_at", { ascending: false }).limit(1000) : Promise.resolve({ data: [], error: null }),
+    ids.length ? supabase.from("ticket_status_history").select("ticket_id, next_status, created_at").in("ticket_id", ids).order("created_at") : Promise.resolve({ data: [], error: null }),
   ]);
-  if (snapshotError || templateError || recordError) throw new Error("Não foi possível carregar os registros de execução.");
+  if (snapshotError || templateError || recordError || historyError) throw new Error("Não foi possível carregar os registros de execução.");
 
   const { data: reviews, error: reviewsError } = ids.length ? await supabase.from("ticket_reviews").select("ticket_id, decision, reason, created_at").in("ticket_id", ids).order("created_at", { ascending: false }) : { data: [], error: null };
   if (reviewsError) throw new Error("Não foi possível carregar as devoluções.");
@@ -66,18 +68,21 @@ export default async function FieldPage({ searchParams }: PageProps) {
       const organizationTemplate = (templates ?? []).filter((item) => item.organization_id === ticket.organization_id);
       const items = snapshot.length ? snapshot : organizationTemplate.length ? organizationTemplate : (templates ?? []).filter((item) => item.organization_id === null);
       const previous = (records ?? []).find((record) => record.ticket_id === ticket.id);
+      const ticketHistory = (history ?? []).filter((event) => event.ticket_id === ticket.id);
+      const ticketEvidence = (evidences ?? []).filter((item) => item.ticket_id === ticket.id);
       return <article className="rounded-xl border bg-white p-5 shadow-sm" key={ticket.id}>
         <p className="text-sm font-medium text-slate-500">{ticket.ticket_number}</p>
         <h2 className="mt-1 text-lg font-semibold">{ticket.title}</h2>
         <div className="mt-2 flex items-center gap-2 text-sm text-slate-600"><span>Status:</span><OneitStatusBadge tone={ticket.operational_status === "IN_PROGRESS" ? "info" : ticket.operational_status === "ON_SITE" ? "warning" : "neutral"}>{statusLabels[ticket.operational_status] ?? ticket.operational_status}</OneitStatusBadge></div>
         {ticket.administrative_status === "RETURNED_TO_TECHNICIAN" ? <p className="mt-3 rounded bg-amber-100 p-3 text-sm">Correção solicitada: {(reviews ?? []).find((review) => review.ticket_id === ticket.id)?.reason}</p> : null}
+        <JourneyTimeline status={ticket.operational_status} history={ticketHistory} evidenceCount={ticketEvidence.length} />
         {action ? <CheckInForm ticketId={ticket.id} ownerId={user.id} version={ticket.version} eventType={action[0]} label={action[1]} /> :
           <ExecutionForm key={`${ticket.id}:${ticket.version}`} ownerId={user.id} ticketId={ticket.id} version={ticket.version} items={items} previous={previous} />}
         {["ON_SITE", "WORK_STARTED", "IN_PROGRESS"].includes(ticket.operational_status) ?
           <Attachments ownerId={user.id} ticketId={ticket.id} version={ticket.version} canAddMaterial={ticket.operational_status !== "ON_SITE"}
             materials={(materials ?? []).filter((item) => item.organization_id === null || item.organization_id === ticket.organization_id)}
             usages={(usages ?? []).filter((item) => item.ticket_id === ticket.id)}
-            evidences={(evidences ?? []).filter((item) => item.ticket_id === ticket.id)} /> : null}
+            evidences={ticketEvidence} /> : null}
         {ticket.operational_status === "IN_PROGRESS" ? <CompletionForm ticketId={ticket.id} version={ticket.version} /> : null}
         <PendingForm ticketId={ticket.id} version={ticket.version} status={ticket.operational_status} />
       </article>;
