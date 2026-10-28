@@ -312,3 +312,7 @@ O build de produção foi revalidado após corrigir atributos de somente leitura
 Windows. `npm run build` concluiu com sucesso, compilando TypeScript e gerando 201 páginas. Essa evidência confirma a
 integridade do artefato local, mas não substitui a confirmação de deploy na Vercel.
 
+Os testes direcionados de Field Service, RTO, LPU, origem de técnicos, despacho sem técnicos e isolamento de demo foram
+executados com permissões adequadas do ambiente: 7 arquivos e 12 testes passaram. A primeira execução no sandbox foi
+bloqueada antes da coleta por `EPERM` do Vitest ao renomear temporários; a execução fora desse bloqueio confirmou o resultado.
+
