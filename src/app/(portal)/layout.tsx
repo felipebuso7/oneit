@@ -11,10 +11,9 @@ const navigation = [
 ] as const;
 
 export default async function PortalLayout({ children }: Readonly<{ children: ReactNode }>) {
-  // Allow stakeholders to navigate a realistic preview before Supabase is provisioned.
-  // Authenticated portal routes resume automatically once the environment is configured.
   if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
-    redirect("/demo");
+    if (process.env.NODE_ENV !== "production") redirect("/demo");
+    redirect("/login?error=environment");
   }
   const supabase = await createClient();
   const { data } = await supabase.auth.getUser();

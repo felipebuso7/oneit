@@ -8,6 +8,6 @@ describe("acesso externo com código temporário", () => {
     expect(source).toContain("/^\\d{6}$/");
     expect(source).toContain("/api/field-service/partner/context");
     expect(source).toContain('sessionStorage.setItem("oneit.partner.access.v1"');
-    expect(source).toContain('router.replace("/demo/field-service/partner")');
+    expect(source).toContain('router.replace("/field-service/partner")');
   });
 });

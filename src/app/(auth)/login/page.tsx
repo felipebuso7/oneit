@@ -16,7 +16,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
         <h1 id="login-title" className="mt-3 text-2xl font-semibold">Acessar a operação</h1>
         <p className="mt-2 text-sm text-slate-400">Use a conta corporativa autorizada para sua organização.</p>
         {message ? <p className="mt-5 rounded-md bg-amber-950/50 p-3 text-sm text-amber-200">{message}</p> : null}
-        {error ? <p className="mt-5 rounded-md bg-rose-950/50 p-3 text-sm text-rose-200">Não foi possível concluir a autenticação. Tente novamente ou contate o administrador.</p> : null}
+        {error === "environment" ? <p className="mt-5 rounded-md bg-rose-950/50 p-3 text-sm text-rose-200">O ambiente de produção não está configurado para autenticação. Contate o administrador.</p> : error ? <p className="mt-5 rounded-md bg-rose-950/50 p-3 text-sm text-rose-200">Não foi possível concluir a autenticação. Tente novamente ou contate o administrador.</p> : null}
         {selfHosted ? <a href="/api/auth/oidc/login?next=/portal" className="mt-6 block w-full rounded-md bg-cyan-300 px-4 py-2 text-center font-semibold text-slate-950 hover:bg-cyan-200">Entrar com OneIT ID</a> : <>
           <label className="mt-6 block text-sm font-medium" htmlFor="email">E-mail</label>
           <input className="mt-2 w-full rounded-md border border-slate-600 bg-slate-950 px-3 py-2 outline-none transition focus:border-cyan-300 focus:ring-2 focus:ring-cyan-300/30" id="email" name="email" type="email" autoComplete="email" required />
