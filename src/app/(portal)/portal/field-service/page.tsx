@@ -36,6 +36,11 @@ export default async function FieldServicePage({ searchParams }: PageProps) {
   if (ticketResult.error || orderResult.error || technicianResult.error || fieldTechnicianResult.error || locationResult.error || reviewResult.error) {
     throw new Error("Não foi possível carregar a central de Field Service.");
   }
+  const locationIds = (locationResult.data ?? []).map((location) => location.id);
+  const contactResult = locationIds.length
+    ? await supabase.from("location_contacts").select("id,location_id,name,phone,mobile,active").in("location_id", locationIds).eq("active", true).order("name").limit(500)
+    : { data: [], error: null };
+  if (contactResult.error) throw new Error("Não foi possível carregar os contatos das localidades.");
 
   const dispatchTechnicians = resolveDispatchTechnicians(fieldTechnicianResult.data ?? [], technicianResult.data ?? []).map((technician) => {
     const mapping = (fieldTechnicianResult.data ?? []).find((item) => item.organization_id === technician.organization_id && item.operational_technician_id === technician.id);
@@ -46,7 +51,7 @@ export default async function FieldServicePage({ searchParams }: PageProps) {
   return <section className="mx-auto max-w-7xl p-5 sm:p-8">
     <OneitPageHeader eyebrow="Operação" title="Central Field Service" description="Selecione um chamado, confira o técnico e confirme o despacho em uma só tela." />
     <DispatchWorkspace tickets={ticketResult.data ?? []} orders={orderResult.data ?? []}
-      technicians={dispatchTechnicians} locations={locationResult.data ?? []}
+      technicians={dispatchTechnicians} locations={locationResult.data ?? []} locationContacts={contactResult.data ?? []}
       pendingReviews={reviewResult.data ?? []} unlinkedTechnicians={unlinkedTechnicians} initialTicketId={initialTicketId} />
   </section>;
 }

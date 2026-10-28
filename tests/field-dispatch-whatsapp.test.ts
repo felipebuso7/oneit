@@ -20,7 +20,8 @@ describe("despacho com comunicação ao técnico", () => {
     expect(confirmationSource).toContain("Celular do técnico");
     expect(confirmationSource).toContain("Gerar acesso seguro");
     expect(confirmationSource).toContain("/api/field-service/partner/access");
-    expect(confirmationSource).toContain("/demo/field-service/partner/access");
+    expect(confirmationSource).toContain("/field-service/partner/access");
+    expect(confirmationSource).not.toContain("/demo/field-service/partner/access");
     expect(confirmationSource).toContain('url.hash = `token=${encodeURIComponent(payload.access.token)}`');
     expect(confirmationSource).not.toContain('url.searchParams.set("code", payload.access.code)');
     expect(confirmationSource).toContain("Informe o código ao técnico separadamente");
