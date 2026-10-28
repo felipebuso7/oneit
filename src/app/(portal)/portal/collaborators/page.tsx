@@ -4,6 +4,7 @@ import {
   assignCollaboratorOrganization,
   createCollaborator,
   createOrganizationUnit,
+  updateCollaborator,
   verifyCollaboratorAlias,
 } from "./actions";
 
@@ -116,7 +117,7 @@ export default async function CollaboratorsPage({ searchParams }: PageProps) {
 
       <section className="rounded-xl border border-slate-700 bg-slate-900/60 p-4">
         <h2 className="font-semibold text-white">Colaboradores cadastrados</h2>
-        <div className="mt-3 overflow-x-auto"><table className="w-full text-left text-sm"><thead className="text-slate-400"><tr><th className="p-2">Nome</th><th className="p-2">Matrícula</th><th className="p-2">E-mail principal</th><th className="p-2">Status</th></tr></thead><tbody>{(collaborators ?? []).map((collaborator) => <tr key={collaborator.id} className="border-t border-slate-800 text-slate-200"><td className="p-2">{collaborator.full_name}</td><td className="p-2">{collaborator.employee_number}</td><td className="p-2">{primaryEmail.get(collaborator.id) ?? "—"}</td><td className="p-2">{collaboratorStatusLabel[collaborator.status] ?? collaborator.status}</td></tr>)}</tbody></table></div>
+        <div className="mt-3 overflow-x-auto"><table className="w-full text-left text-sm"><thead className="text-slate-400"><tr><th className="p-2">Nome</th><th className="p-2">Matrícula</th><th className="p-2">E-mail principal</th><th className="p-2">Status</th><th className="p-2">Ação</th></tr></thead><tbody>{(collaborators ?? []).map((collaborator) => <tr key={collaborator.id} className="border-t border-slate-800 text-slate-200"><td className="p-2">{collaborator.full_name}</td><td className="p-2">{collaborator.employee_number}</td><td className="p-2">{primaryEmail.get(collaborator.id) ?? "—"}</td><td className="p-2">{collaboratorStatusLabel[collaborator.status] ?? collaborator.status}</td><td className="p-2"><details><summary className="cursor-pointer text-cyan-300">Editar</summary><form action={updateCollaborator} className="mt-2 grid min-w-64 gap-2 rounded bg-slate-800 p-3"><input type="hidden" name="collaboratorId" value={collaborator.id} /><input type="hidden" name="organizationId" value={collaborator.organization_id} /><input name="fullName" required maxLength={240} defaultValue={collaborator.full_name} className="rounded bg-slate-700 p-2 text-sm text-white" /><input name="employeeNumber" required maxLength={100} defaultValue={collaborator.employee_number} className="rounded bg-slate-700 p-2 text-sm text-white" /><select name="status" defaultValue={collaborator.status} className="rounded bg-slate-700 p-2 text-sm text-white"><option value="ACTIVE">Ativo</option><option value="INACTIVE">Inativo</option></select><button className="rounded bg-cyan-500 px-3 py-2 text-sm font-semibold text-slate-950">Salvar</button></form></details></td></tr>)}</tbody></table></div>
       </section>
 
       {pendingAliases.length > 0 ? (
