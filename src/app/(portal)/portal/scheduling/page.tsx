@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { requireUser } from "@/lib/auth/current-user";
 import { listAvailableOrganizations } from "@/lib/organizations/queries";
-import { resolveDispatchTechnicians } from "@/lib/field-service/technician-eligibility";
+import { resolveDispatchTechnicians, withMissingOperationalMappings } from "@/lib/field-service/technician-eligibility";
 import { assignTicket, scheduleTicket } from "./actions";
 import { OneitButton, OneitEmptyState, OneitPageHeader, OneitSection, OneitStatusBadge } from "@/components/oneit";
 
@@ -20,11 +20,11 @@ export default async function SchedulingPage({ searchParams }: PageProps) {
   const [{ data: tickets }, { data: operationalTechnicians }, { data: fieldTechnicianMappings }, { data: schedules }, { data: scheduledOrders }] = await Promise.all([
     organizationIds.length ? supabase.from("tickets").select("id, ticket_number, title, operational_status").in("organization_id", organizationIds).in("operational_status", ["NEW", "TRIAGE", "AWAITING_SCHEDULING", "SCHEDULED", "ASSIGNED"]).order("created_at").limit(500) : Promise.resolve({ data: [] }),
     organizationIds.length ? supabase.from("technicians").select("id, full_name, organization_id, status, base_city, active").in("organization_id", organizationIds).eq("active", true).order("full_name") : Promise.resolve({ data: [] }),
-    organizationIds.length ? supabase.from("field_service_technicians").select("organization_id, operational_technician_id, active").in("organization_id", organizationIds).eq("active", true) : Promise.resolve({ data: [] }),
+    organizationIds.length ? supabase.from("field_service_technicians").select("organization_id, operational_technician_id, active").in("organization_id", organizationIds) : Promise.resolve({ data: [] }),
     organizationIds.length ? supabase.from("ticket_schedules").select("ticket_id, technician_id, planned_start, planned_end").eq("status", "SCHEDULED").gte("planned_start", businessDayStart.toISOString()).lt("planned_start", businessDayEnd.toISOString()) : Promise.resolve({ data: [] }),
     organizationIds.length ? supabase.from("service_orders").select("id, ticket_id, technician_id, scheduled_at, status").in("organization_id", organizationIds).in("status", ["DISPATCHED", "TRAVELING", "CHECKED_IN", "IN_SERVICE"]).gte("scheduled_at", businessDayStart.toISOString()).lt("scheduled_at", businessDayEnd.toISOString()) : Promise.resolve({ data: [] }),
   ]);
-  const technicians = resolveDispatchTechnicians(fieldTechnicianMappings ?? [], operationalTechnicians ?? []);
+  const technicians = resolveDispatchTechnicians(withMissingOperationalMappings(fieldTechnicianMappings ?? [], operationalTechnicians ?? []), operationalTechnicians ?? []);
   const technicianById = new Map((technicians ?? []).map((technician) => [technician.id, technician]));
   const scheduleByTicket = new Map((schedules ?? []).map((schedule) => [schedule.ticket_id, schedule]));
   const agendaEntries = [...(schedules ?? []), ...(scheduledOrders ?? []).filter((order) => !scheduleByTicket.has(order.ticket_id)).map((order) => ({ ticket_id: order.ticket_id, technician_id: order.technician_id, planned_start: order.scheduled_at, planned_end: order.scheduled_at ? new Date(Date.parse(order.scheduled_at) + 60 * 60 * 1000).toISOString() : order.scheduled_at }))].filter((entry) => entry.planned_start && entry.planned_end);
