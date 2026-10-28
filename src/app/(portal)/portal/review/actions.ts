@@ -62,6 +62,24 @@ export async function addFieldServiceOrderLpuLine(formData: FormData) {
   redirect("/portal/review?message=Item+LPU+lançado+na+OS.");
 }
 
+export async function addFieldServiceOrderLpuComposition(formData: FormData) {
+  const serviceOrderId = String(formData.get("serviceOrderId") ?? "");
+  const compositionId = String(formData.get("compositionId") ?? "");
+  const quantity = Number(formData.get("quantity"));
+  if (!/^[0-9a-f-]{36}$/i.test(serviceOrderId) || !/^[0-9a-f-]{36}$/i.test(compositionId) || !Number.isFinite(quantity) || quantity <= 0) {
+    redirect("/portal/review?message=Informe+uma+composição+LPU+e+uma+quantidade+válida.");
+  }
+  const { supabase } = await requireUser();
+  const { error } = await supabase.rpc("add_field_service_order_lpu_composition", {
+    target_service_order_id: serviceOrderId,
+    target_composition_id: compositionId,
+    target_quantity: quantity,
+  });
+  if (error) redirect(`/portal/review?message=${encodeURIComponent(error.message.includes("LPU") ? "Composição LPU inválida ou incompatível com a organização." : "Não foi possível lançar a composição LPU.")}`);
+  revalidatePath("/portal/review"); revalidatePath("/portal/field-service");
+  redirect("/portal/review?message=Composição+LPU+lançada+na+OS.");
+}
+
 export async function generateFieldServiceRto(formData: FormData) {
   const queueId = String(formData.get("queueId") ?? "");
   if (!/^[0-9a-f-]{36}$/i.test(queueId)) redirect("/portal/review?message=Fila+de+RTO+inválida.");
