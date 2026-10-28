@@ -295,3 +295,7 @@ Na agenda do técnico interno, cada OS passou a ter acento lateral semântico, s
 resumida com data/hora agendada e próxima ação. A alteração reduz a carga de leitura antes do check-in sem modificar os
 componentes de execução, evidências, materiais, pendências ou checkout. ESLint direcionado e typecheck passaram.
 
+Na fila de validação gerencial, as mensagens de retorno passaram a ser regiões dinâmicas acessíveis (`aria-live`) com
+superfície e contraste consistentes com o portal. A alteração não modifica a fila, a LPU, as decisões ou a geração do RTO.
+ESLint direcionado e typecheck passaram.
+
