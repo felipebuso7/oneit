@@ -5,6 +5,7 @@ import path from "node:path";
 import { createClient } from "@/lib/supabase/server";
 import { validateBillingLineReadiness } from "@/lib/field-service/billing-readiness";
 import { competenceDateRange } from "@/lib/field-service/billing-period";
+import { billingTotalsMatch } from "@/lib/field-service/billing-total";
 
 const money = (v: number) => `R$ ${Number(v || 0).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`;
 export async function GET(_: Request, { params }: { params: Promise<{ id: string }> }) {
@@ -14,6 +15,7 @@ export async function GET(_: Request, { params }: { params: Promise<{ id: string
   const { data: lines, error } = await supabase.from("measurement_sheet_lines").select("ticket_number,lpu_code,description,quantity,unit_price,total_price,line_kind,source_reference,service_date,service_location,order_reference").in("measurement_sheet_id", batch.measurement_sheet_ids ?? []).order("ticket_number"); if (error) return Response.json({ code: "MEASUREMENT_LINES_UNAVAILABLE" }, { status: 503 });
   const incomplete = (lines ?? []).map((line) => ({ ticket: line.ticket_number, missing: validateBillingLineReadiness(line).missing })).filter((line) => line.missing.length);
   if (incomplete.length) return Response.json({ code: "BILLING_DOCUMENT_INCOMPLETE", incomplete }, { status: 422 });
+  if (!billingTotalsMatch(Number(batch.total_amount), (lines ?? []).map((line) => Number(line.total_price)))) return Response.json({ code: "BILLING_TOTAL_MISMATCH" }, { status: 422 });
   const pdf = await PDFDocument.create(); const regular = await pdf.embedFont(StandardFonts.Helvetica); const bold = await pdf.embedFont(StandardFonts.HelveticaBold); const navy = rgb(0.035, 0.184, 0.251); const orange = rgb(0.96, 0.29, 0.05); const light = rgb(0.94, 0.96, 0.97); const size: [number, number] = [595, 842];
   const [oneitLogo, serviciaLogo] = await Promise.all([readBrandLogo(pdf, "oneit-logo-rto.png"), readBrandLogo(pdf, "servicia-logo-rto.png")]);
   const header = (page: ReturnType<typeof pdf.addPage>, title: string) => { page.drawRectangle({ x: 0, y: 800, width: 595, height: 42, color: navy }); if (oneitLogo) page.drawImage(oneitLogo, { x: 32, y: 807, width: 70, height: 22 }); if (serviciaLogo) page.drawImage(serviciaLogo, { x: 470, y: 807, width: 92, height: 22 }); page.drawText("GESTÃO DE FIELD SERVICE", { x: 235, y: 817, size: 8, font: bold, color: rgb(1, 1, 1) }); page.drawText(title, { x: 32, y: 758, size: 21, font: bold, color: navy }); };
