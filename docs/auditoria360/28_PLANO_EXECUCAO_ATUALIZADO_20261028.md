@@ -158,6 +158,12 @@ Entrega desta rodada: o dossiê autenticado agora exibe esse estado e a ação c
 - A validação cobre o guard de validador do RTO, layout de assinatura, duração do chamado e contratos existentes de Field Service/BM.
 - Nenhuma migration ou dado de produção foi alterado nesta etapa; o próximo bloqueio continua sendo a homologação autenticada ponta a ponta com dados fictícios.
 
+### Atualização de execução — 28/10/2026 (lint remoto do Supabase)
+
+- `npx supabase db lint --linked --fail-on warning` executado contra o projeto vinculado.
+- Nenhum erro de função, policy ou schema foi encontrado. Permanecem somente dois avisos legados: o parâmetro `current_role` usa nome reservado e `transition_measurement_sheet` mantém `target_actor` sem uso por compatibilidade de contrato.
+- Esses avisos não foram alterados nesta etapa para evitar quebra de chamadas existentes; qualquer renomeação futura deve ser acompanhada por migration e busca de consumidores.
+
 ## 4. Critérios de avanço
 
 Uma tarefa só será marcada como concluída quando houver:
