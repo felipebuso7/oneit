@@ -256,6 +256,11 @@ No cadastro de empresas e departamentos, a tela foi alinhada ao cabeçalho padr�
 labels semânticos, tipos de unidade destacados e ações de edição/inativação identificadas por registro. A edição inline
 continua preservando a operação existente e a inativação segue mantendo o histórico. ESLint e typecheck passaram.
 
+No cadastro de localidades e polos, a tela passou a explicitar a reutilização do endereço no chamado e no despacho,
+organizar campos com labels, destacar cliente/cidade/endereço na listagem e separar visualmente edição e contato local.
+Não foi introduzido campo novo nem alterada a persistência; o objetivo foi tornar a dependência já existente legível
+para o usuário operacional. ESLint e typecheck passaram.
+
 Na tela de Rotas planejadas, cada técnico passou a receber um acento lateral discreto e determinístico, facilitando a
 leitura de várias agendas no mesmo dia sem transformar os cartões em um painel multicolorido. Também foi removida uma
 variável sem uso da página e preservada a compatibilidade do movimento de descida de parada para versões antigas do
