@@ -29,11 +29,17 @@ export async function POST(request: Request) {
   const storagePath = `partner/${order.service_order_id}/${crypto.randomUUID()}.${extension}`;
   try {
     const storage = createStorageAdmin();
-    const { error } = await storage.upload(storagePath, bytes, { contentType: mime, upsert: false });
-    if (error) {
-      const message = error.message.toLowerCase();
+    let uploadError: { message?: string } | null = null;
+    for (let attempt = 0; attempt < 2; attempt += 1) {
+      const { error } = await storage.upload(storagePath, bytes, { contentType: mime, upsert: false });
+      if (!error) { uploadError = null; break; }
+      uploadError = error;
+      if (attempt === 0) await new Promise((resolve) => setTimeout(resolve, 250));
+    }
+    if (uploadError) {
+      const message = (uploadError.message ?? "").toLowerCase();
       if (message.includes("bucket") && message.includes("not found")) return reply(503, "EVIDENCE_STORAGE_BUCKET_MISSING");
-      if (message.includes("jwt") || message.includes("api key") || message.includes("unauthorized")) return reply(503, "EVIDENCE_STORAGE_CREDENTIALS_INVALID");
+      if (message.includes("jwt") || message.includes("api key") || message.includes("unauthorized") || message.includes("row-level security") || message.includes("policy")) return reply(503, "EVIDENCE_STORAGE_CREDENTIALS_INVALID");
       if (message.includes("size") || message.includes("payload") || message.includes("too large")) return reply(413, "EVIDENCE_STORAGE_SIZE_REJECTED");
       return reply(503, "EVIDENCE_STORAGE_UPLOAD_FAILED");
     }
