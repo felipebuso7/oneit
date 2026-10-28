@@ -18,8 +18,9 @@ export async function storeFieldServiceRtoPdf(supabase: SupabaseClient, reportId
     .single();
   const snapshot = report ? fieldServiceRtoSnapshotSchema.safeParse(report.snapshot) : null;
   if (error || !report || !snapshot?.success) throw new Error("RTO_SNAPSHOT_UNAVAILABLE");
-  const { data: reviewer } = await supabase.from("user_profiles").select("full_name").eq("id", report.generated_by).maybeSingle();
-  const reportSnapshot = { ...snapshot.data, reviewer_name: reviewer?.full_name ?? undefined };
+  const { data: reviewer, error: reviewerError } = await supabase.from("user_profiles").select("full_name").eq("id", report.generated_by).maybeSingle();
+  if (reviewerError || !reviewer?.full_name?.trim()) throw new Error("RTO_REVIEWER_UNAVAILABLE");
+  const reportSnapshot = { ...snapshot.data, reviewer_name: reviewer.full_name.trim() };
 
   const evidenceStorage = createStorageAdmin("ticket-evidences");
   const evidenceImages: ReportEvidenceImage[] = [];

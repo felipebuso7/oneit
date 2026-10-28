@@ -47,7 +47,7 @@ export async function POST(request: Request) {
     const result = await storeFieldServiceRtoPdf(supabase, data);
     return Response.json(result, { headers: { "Cache-Control": "no-store" } });
   } catch (cause) {
-    const code = cause instanceof Error && /^RTO_(STORAGE_UNAVAILABLE|SNAPSHOT_UNAVAILABLE|UPLOAD_FAILED|REGISTER_FAILED|DOWNLOAD_UNAVAILABLE)$/.test(cause.message)
+    const code = cause instanceof Error && /^RTO_(STORAGE_UNAVAILABLE|SNAPSHOT_UNAVAILABLE|REVIEWER_UNAVAILABLE|UPLOAD_FAILED|REGISTER_FAILED|DOWNLOAD_UNAVAILABLE)$/.test(cause.message)
       ? cause.message : "RTO_STORAGE_UNAVAILABLE";
     return reply(503, code);
   }
