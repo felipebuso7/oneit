@@ -204,6 +204,10 @@ controles acessíveis de página anterior/próxima. A paginação não substitui
 renderizado por vez e mantém os filtros, ordenação e ações existentes. Testes da fila e dos limites server-side foram
 executados (4 testes aprovados) e o typecheck passou.
 
+Como refinamento, a ordenação pelos cabeçalhos da fila retorna à primeira página antes de aplicar a nova direção ou
+coluna. Isso evita que uma ordenação com poucos resultados mantenha o gestor em uma página vazia; filtros continuam
+protegidos pelo `safePage` para nunca renderizar uma página inexistente.
+
 Na fila de validação gerencial, os cartões de OS pendente receberam um destaque lateral âmbar (`border-l-4`) para
 separar visualmente itens que exigem decisão dos históricos aprovados/devolvidos. A alteração é exclusivamente visual:
 não muda consultas, status, ações, LPU ou persistência. O teste direcionado de revisão/fluxo (3 testes) e o typecheck
