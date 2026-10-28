@@ -157,3 +157,8 @@ local também ficou bloqueada pelo `EPERM` do Vitest antes da coleta.
 A tela de revisão passou a traduzir esse conflito para uma orientação operacional, indicando que o PDF existente deve
 ser consultado em vez de repetir a geração. Typecheck, ESLint e verificação de whitespace passaram após a alteração.
 
+O agendamento do portal foi alinhado ao mesmo contrato do despacho: a elegibilidade consulta `technicians` por
+organização, ativo e disponibilidade, sem bloquear um cadastro operacional válido apenas porque o vínculo legado em
+`field_service_technicians` ainda não foi materializado. O RPC continua sendo a autoridade transacional para estado e
+conflitos; foi adicionado contrato estático para evitar regressão dessa regra.
+
