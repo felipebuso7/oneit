@@ -30,7 +30,13 @@ export async function POST(request: Request) {
   try {
     const storage = createStorageAdmin();
     const { error } = await storage.upload(storagePath, bytes, { contentType: mime, upsert: false });
-    if (error) return reply(503, "EVIDENCE_STORAGE_UPLOAD_FAILED");
+    if (error) {
+      const message = error.message.toLowerCase();
+      if (message.includes("bucket") && message.includes("not found")) return reply(503, "EVIDENCE_STORAGE_BUCKET_MISSING");
+      if (message.includes("jwt") || message.includes("api key") || message.includes("unauthorized")) return reply(503, "EVIDENCE_STORAGE_CREDENTIALS_INVALID");
+      if (message.includes("size") || message.includes("payload") || message.includes("too large")) return reply(413, "EVIDENCE_STORAGE_SIZE_REJECTED");
+      return reply(503, "EVIDENCE_STORAGE_UPLOAD_FAILED");
+    }
   } catch { return reply(503, "EVIDENCE_STORAGE_UPLOAD_FAILED"); }
   return Response.json({ evidence: { name: file.name.slice(0, 180), storagePath, mime, size: bytes.length } }, { status: 201, headers: { "Cache-Control": "no-store" } });
 }

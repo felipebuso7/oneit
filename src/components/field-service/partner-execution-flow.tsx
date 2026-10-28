@@ -9,20 +9,33 @@ type ApiAccess = { token: string; code: string };
 type ExecutionStep = "ASSIGNED" | "ACCEPTED" | "TRAVELING" | "CHECKED_IN" | "SUBMITTED" | "DONE";
 type StepTimes = { travel?: string; arrival?: string; checkout?: string };
 
+const MAX_UPLOAD_BYTES = 3.5 * 1024 * 1024;
+
 async function compressEvidence(file: File): Promise<File> {
   const bitmap = await createImageBitmap(file);
-  const maxDimension = 1600;
-  const scale = Math.min(1, maxDimension / Math.max(bitmap.width, bitmap.height));
-  const canvas = document.createElement("canvas");
-  canvas.width = Math.max(1, Math.round(bitmap.width * scale));
-  canvas.height = Math.max(1, Math.round(bitmap.height * scale));
-  const context = canvas.getContext("2d");
-  if (!context) throw new Error("Não foi possível preparar a imagem.");
-  context.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
-  bitmap.close();
-  const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, "image/jpeg", 0.78));
-  if (!blob) throw new Error("Não foi possível preparar a imagem.");
-  return new File([blob], file.name.replace(/\.[^.]+$/, "") + ".jpg", { type: "image/jpeg" });
+  let maxDimension = 1600;
+  let quality = 0.78;
+  try {
+    for (let attempt = 0; attempt < 4; attempt += 1) {
+      const scale = Math.min(1, maxDimension / Math.max(bitmap.width, bitmap.height));
+      const canvas = document.createElement("canvas");
+      canvas.width = Math.max(1, Math.round(bitmap.width * scale));
+      canvas.height = Math.max(1, Math.round(bitmap.height * scale));
+      const context = canvas.getContext("2d");
+      if (!context) throw new Error("Não foi possível preparar a imagem.");
+      context.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+      const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, "image/jpeg", quality));
+      if (!blob) throw new Error("Não foi possível preparar a imagem.");
+      if (blob.size <= MAX_UPLOAD_BYTES || attempt === 3) {
+        return new File([blob], file.name.replace(/\.[^.]+$/, "") + ".jpg", { type: "image/jpeg" });
+      }
+      maxDimension = Math.round(maxDimension * 0.82);
+      quality = Math.max(0.58, quality - 0.06);
+    }
+  } finally {
+    bitmap.close();
+  }
+  throw new Error("Não foi possível preparar a imagem.");
 }
 
 const journeySteps = [
@@ -115,7 +128,7 @@ export function PartnerExecutionFlow({ access, apiAccess, onLocalComplete }: { a
       const form = new FormData(); form.set("token", apiAccess.token); form.set("code", apiAccess.code); form.set("file", file);
       const response = await fetch("/api/field-service/partner/upload", { method: "POST", body: form }).catch(() => null);
       const payload = await response?.json().catch(() => ({})) as { evidence?: Evidence; code?: string } | undefined;
-      if (!response?.ok || !payload?.evidence?.storagePath) { const message = payload?.code === "EVIDENCE_STORAGE_NOT_CONFIGURED" ? "O armazenamento de fotos ainda não está configurado no servidor. Avise o gestor." : payload?.code === "EVIDENCE_STORAGE_UPLOAD_FAILED" ? "O servidor não conseguiu salvar a foto. Tente novamente." : `Não foi possível enviar a foto: ${payload?.code ?? "erro de conexão"}.`; setNotice(message); continue; }
+      if (!response?.ok || !payload?.evidence?.storagePath) { const message = payload?.code === "EVIDENCE_STORAGE_NOT_CONFIGURED" ? "O armazenamento de fotos ainda não está configurado no servidor. Avise o gestor." : payload?.code === "EVIDENCE_STORAGE_BUCKET_MISSING" ? "O armazenamento de fotos não está disponível. Avise o gestor." : payload?.code === "EVIDENCE_STORAGE_CREDENTIALS_INVALID" ? "A conexão segura do armazenamento precisa ser revisada pelo gestor." : payload?.code === "EVIDENCE_STORAGE_SIZE_REJECTED" ? "A foto ficou acima do limite. Tente uma imagem menor." : payload?.code === "EVIDENCE_STORAGE_UPLOAD_FAILED" ? "O servidor não conseguiu salvar a foto. Tente novamente." : `Não foi possível enviar a foto: ${payload?.code ?? "erro de conexão"}.`; setNotice(message); continue; }
       const preview = await new Promise<string>((resolve) => { const reader = new FileReader(); reader.onload = () => resolve(typeof reader.result === "string" ? reader.result : ""); reader.readAsDataURL(file); });
       setEvidence((current) => [...current, { ...(payload.evidence as Evidence), dataUrl: preview }]);
     }
