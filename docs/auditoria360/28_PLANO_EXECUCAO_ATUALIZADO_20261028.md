@@ -92,6 +92,7 @@ Entrega desta rodada: o dossiê autenticado agora exibe esse estado e a ação c
 
 - A agenda autenticada `/portal/field` agora consulta `ticket_status_history` e exibe a jornada da OS em um componente único (`src/components/field/journey-timeline.tsx`): deslocamento, chegada, atendimento, evidências e checkout.
 - A etapa de evidências informa a contagem persistida de fotos e destaca `3` como requisito operacional; a linha do tempo não altera status nem substitui as validações do backend.
+- A agenda autenticada passou a liberar fotos e materiais somente após `WORK_STARTED` (antes, `ON_SITE` permitia abrir a seção antes do início formal do atendimento). Correção no commit `1502fe0`, validada por `tests/field-execution-gating.test.ts`, com typecheck e três testes focados aprovados.
 - Validação: typecheck, build, teste focado e suíte completa aprovados (**113 arquivos / 241 testes**).
 - Publicação confirmada no commit `6934e2d076dfaa0181f1c203b616b54d280c3af4`; `/api/ready` retornou `ready` com `deploymentMode=supabase`.
 
