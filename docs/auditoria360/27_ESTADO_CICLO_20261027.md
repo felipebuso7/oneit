@@ -9,6 +9,7 @@ Registrar o avanço do ciclo de estabilização após a consolidação do portal
 - `npm run audit:migrations:strict`: **aprovado** — 168 migrations encontradas e nenhum alerta estático.
 - `npm run typecheck`: **aprovado** — geração de tipos de rotas e TypeScript concluídos sem erros.
 - ESLint dos componentes centrais de readiness, revisão, elegibilidade de técnicos e RTO: **aprovado**.
+- Vitest direcionado para revisão interna e readiness: **bloqueado pelo ambiente Windows** antes da execução dos testes; o Vite falhou ao renomear arquivos SSR temporários com `EPERM`.
 - Branch `prep/cloud-staging`: sincronizada com `origin/prep/cloud-staging` no commit `91cc610`.
 - Migration `20261027170000_field_service_ticket_closure.sql`: aplicada no Supabase `oneit-staging`.
 - Migration `20261027200000_field_service_rto_internal_completion.sql`: aplicada no Supabase `oneit-staging`.
@@ -27,6 +28,7 @@ Registrar o avanço do ciclo de estabilização após a consolidação do portal
 ## O que ainda não está validado
 
 - Não foi executado neste ciclo um cenário autenticado completo criando registros reais de homologação: abertura → despacho → técnico → checkout → validação → RTO → encerramento.
+- Os testes automatizados direcionados não chegaram a coletar nenhum caso (`0 tests`), pois o bloqueio ocorreu durante a transformação SSR; isso não é evidência de aprovação nem de falha das asserções.
 - Não foi comprovado o envio efetivo pelo WhatsApp; a abertura de conversa não deve ser tratada como confirmação de entrega.
 - Não foi comprovado o envio de e-mail ou a entrega do BM em provedor externo.
 - Não foi executado build/teste de navegador em Linux; o ambiente Windows local continua sujeito a `EPERM` ao criar arquivos temporários de `.next`/Supabase CLI.
