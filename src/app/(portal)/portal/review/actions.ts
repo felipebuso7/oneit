@@ -6,6 +6,7 @@ import { reviewSchema } from "@/lib/validation/completion";
 import { storeFieldServiceRtoPdf } from "@/lib/reports/store-field-service-rto";
 
 function reviewMessage(message: string | undefined): string {
+  if (message?.includes("FIELD_REVIEW_SUBMISSION_REQUIRED")) return "A execução do técnico não foi encontrada. Não é seguro aprovar esta OS.";
   if (message?.includes("FIELD_REVIEW_INVALID_STATE")) return "Esta OS já foi revisada. Atualize a fila antes de tentar novamente.";
   if (message?.includes("FIELD_REVIEW_ORDER_NOT_COMPLETED")) return "A OS não está mais no estado aguardando validação.";
   if (message?.includes("FIELD_REVIEW_NOT_AUTHORIZED")) return "Seu perfil não pode validar esta OS.";
