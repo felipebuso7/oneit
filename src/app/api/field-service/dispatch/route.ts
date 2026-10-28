@@ -52,19 +52,11 @@ export async function POST(request: Request) {
     .maybeSingle();
   if (technicianMappingError) return reply(503, "DISPATCH_UNAVAILABLE");
   if (technicianMapping && !technicianMapping.active) return reply(422, "DISPATCH_REFERENCE_INVALID");
-  if (!technicianMapping) {
-    const email = (operationalTechnician.email ?? `tecnico-${operationalTechnician.id.slice(0, 8)}@oneit.local`).toLowerCase();
-    const { error: mappingInsertError } = await supabase.from("field_service_technicians").insert({
-      organization_id: operationalTechnician.organization_id,
-      name: operationalTechnician.full_name,
-      email,
-      technician_type: /parceir|extern/i.test(operationalTechnician.employment_type ?? "") ? "partner" : "internal",
-      phone: operationalTechnician.phone ?? null,
-      operational_technician_id: operationalTechnician.id,
-      active: true,
-    });
-    if (mappingInsertError && mappingInsertError.code !== "23505") return reply(503, "DISPATCH_UNAVAILABLE");
-  }
+  // A missing mapping is a legacy-data condition, not a reason to block a
+  // dispatcher. The authenticated dispatcher is allowed to execute the
+  // atomic dispatch RPC, while creation/repair of the administrative mapping
+  // remains restricted to its owner/admin workflow. An explicit inactive
+  // mapping is still respected above.
 
   const { data, error } = await supabase.rpc("dispatch_ticket_to_field", {
     target_ticket_id: value.ticketId,

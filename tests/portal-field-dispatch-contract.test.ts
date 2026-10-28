@@ -16,7 +16,7 @@ describe("despacho do portal", () => {
     expect(workspace).toContain("Agendar visita e encaminhar por WhatsApp");
     expect(workspace).not.toContain("Abrir WhatsApp com resumo");
     expect(workspace).toContain("Atualizar fila");
-    expect(workspace).toContain("recuperados automaticamente no primeiro despacho");
+    expect(workspace).toContain("O despacho pode usar o técnico operacional ativo");
     expect(workspace).toContain("O OneIT não considera a mensagem enviada");
     expect(workspace).toContain("/api/field-service/partner/access");
     expect(workspace).toContain("/field-service/partner/access#token=");
@@ -42,6 +42,7 @@ describe("despacho do portal", () => {
     expect(dispatchApi).toContain("field_service_technicians");
     expect(dispatchApi).toContain("select(\"id, active\")");
     expect(dispatchApi).toContain("!technicianMapping.active");
-    expect(dispatchApi).toContain("operational_technician_id: operationalTechnician.id");
+    expect(dispatchApi).toContain("A missing mapping is a legacy-data condition");
+    expect(dispatchApi).not.toContain("mappingInsertError");
   });
 });
