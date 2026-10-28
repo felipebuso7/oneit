@@ -223,6 +223,12 @@ Na manutenção do catálogo, a atualização/inativação de categorias, subcat
 `/portal/sla`, assim como já ocorria na criação. Isso mantém os seletores de SLA coerentes imediatamente após editar ou
 inativar um item, sem exigir hard refresh. O contrato do catálogo foi ampliado e passou com 9 testes.
 
+Na Central Field Service, a fila de despacho passou a indicar visualmente o chamado selecionado com acento lateral,
+estado acessível (`aria-current`) e transição discreta. O painel de planejamento agora explicita a sequência operacional
+em três passos — selecionar, agendar e comunicar — sem alterar o contrato de despacho, a elegibilidade do técnico ou a
+agenda. ESLint e typecheck passaram. Os contratos direcionados ficaram bloqueados antes da coleta pelo `EPERM` do
+Vitest no Windows, sem indicar falha funcional do código.
+
 Na tela de Rotas planejadas, cada técnico passou a receber um acento lateral discreto e determinístico, facilitando a
 leitura de várias agendas no mesmo dia sem transformar os cartões em um painel multicolorido. Também foi removida uma
 variável sem uso da página e preservada a compatibilidade do movimento de descida de parada para versões antigas do
