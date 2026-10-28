@@ -271,3 +271,9 @@ Os seis indicadores de decisão operacional permanecem em destaque; SLA, pausas 
 seção compacta de indicadores complementares. A alteração reduz carga cognitiva e espaço vertical sem remover dados ou
 mudar fórmulas, permissões e consultas. A validação local passou por ESLint direcionado e `npm run typecheck`.
 
+Na tela de Solicitantes e colaboradores, a interface legada escura foi alinhada ao shell claro do portal. O cabeçalho agora
+usa o padrão compartilhado, os formulários e a tabela receberam superfícies, bordas, tipografia e ações consistentes, e os
+campos de seleção ganharam rótulos acessíveis. A mudança é exclusivamente visual e de acessibilidade: não altera as ações,
+consultas, vínculos organizacionais, validação de e-mails ou persistência dos colaboradores. ESLint direcionado e typecheck
+passaram.
+
