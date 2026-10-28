@@ -154,3 +154,6 @@ responde `409` para uma tentativa de registrar outro arquivo sobre uma versão j
 um conflito de imutabilidade como falha temporária do servidor. O teste de contrato foi criado, mas sua execução
 local também ficou bloqueada pelo `EPERM` do Vitest antes da coleta.
 
+A tela de revisão passou a traduzir esse conflito para uma orientação operacional, indicando que o PDF existente deve
+ser consultado em vez de repetir a geração. Typecheck, ESLint e verificação de whitespace passaram após a alteração.
+
