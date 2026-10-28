@@ -17,9 +17,9 @@ export type ReportSnapshot = z.infer<typeof reportSnapshotSchema>;
 export type ReportEvidenceImage = { mimeType: "image/png" | "image/jpeg"; bytes: Uint8Array };
 export const fieldServiceRtoSnapshotSchema = z.object({
   service_order_id: z.uuid(), ticket_id: z.uuid(), order_number: z.string(), status: z.string(),
-  ticket_number: z.string().optional(), title: z.string().optional(), customer_name: z.string().optional(),
-  location_name: z.string().optional(), location_address: z.string().optional(), technician_name: z.string().optional(), reviewer_name: z.string().optional(),
-  local_contact_name: z.string().optional(), local_contact_phone: z.string().optional(),
+  ticket_number: z.string().nullable().optional(), title: z.string().nullable().optional(), customer_name: z.string().nullable().optional(),
+  location_name: z.string().nullable().optional(), location_address: z.string().nullable().optional(), technician_name: z.string().nullable().optional(), reviewer_name: z.string().nullable().optional(),
+  local_contact_name: z.string().nullable().optional(), local_contact_phone: z.string().nullable().optional(),
   ticket_opened_at: z.string().nullable().optional(), ticket_closed_at: z.string().nullable().optional(),
   scheduled_at: z.string().nullable().optional(), checked_in_at: z.string().nullable().optional(), checked_out_at: z.string().nullable().optional(),
   execution_report: z.string().nullable().optional(), customer_signature_name: z.string().nullable().optional(), customer_signature_data_url: z.string().nullable().optional(),
