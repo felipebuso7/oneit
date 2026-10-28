@@ -144,3 +144,8 @@ isso é uma limitação do ambiente local e não evidência de falha de compila�
 em CI/Linux ou após liberar o diretório `.next`. A repetição com `ONEIT_NEXT_DIST_DIR=.next-verify` reproduziu o
 mesmo `EPERM` em outra pasta de saída, reforçando que o bloqueio é ambiental e não específico de uma rota.
 
+O contrato `tests/field-service-rto-download-audit.test.ts` também foi ampliado para verificar explicitamente o
+escopo organizacional e os quatro perfis autorizados. A execução direcionada não coletou testes porque o Vitest foi
+bloqueado pelo Windows ao renomear um artefato temporário (`EPERM`); portanto, o teste permanece não validado nesta
+máquina e deve ser executado em CI/Linux.
+
