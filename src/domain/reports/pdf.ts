@@ -31,7 +31,7 @@ export type FieldServiceRtoSnapshot = z.infer<typeof fieldServiceRtoSnapshotSche
 export async function renderFieldServiceRtoPdf(snapshot: FieldServiceRtoSnapshot, evidenceImages: ReportEvidenceImage[] = []): Promise<Uint8Array> {
   const document = await PDFDocument.create();
   const font = await document.embedFont(StandardFonts.Helvetica); const bold = await document.embedFont(StandardFonts.HelveticaBold);
-  const width = 595.28, height = 841.89, margin = 42; let page = document.addPage([width, height]); let y = height - 88;
+  const width = 595.28, height = 841.89, margin = 42; let page = document.addPage([width, height]); let y = height - 116;
   // Standard PDF fonts use WinAnsi. Technician-entered text may contain
   // symbols outside that encoding; replace only those characters so a single
   // unsupported glyph cannot abort PDF generation after the RTO was created.
@@ -39,9 +39,20 @@ export async function renderFieldServiceRtoPdf(snapshot: FieldServiceRtoSnapshot
     try { font.encodeText(character); return character; } catch { return "?"; }
   }).join("");
   const [oneitLogo, serviciaLogo] = await Promise.all([readBrandLogo(document, "oneit-logo-rto.png"), readBrandLogo(document, "servicia-logo-rto.png")]);
-  const header = () => { if (oneitLogo) page.drawImage(oneitLogo, { x: margin, y: height - 58, width: 70, height: 22 }); if (serviciaLogo) page.drawImage(serviciaLogo, { x: width - margin - 92, y: height - 58, width: 92, height: 22 }); page.drawText(safeText("RELATÓRIO TÉCNICO OPERACIONAL · FIELD SERVICE"), { x: margin, y: height - 78, size: 10, font: bold, color: rgb(0.02, 0.17, 0.35) }); };
+  const drawLogoContain = (image: NonNullable<typeof oneitLogo>, x: number, top: number, maxWidth: number, maxHeight: number) => {
+    const scaled = image.scaleToFit(maxWidth, maxHeight);
+    page.drawImage(image, { x, y: top - scaled.height, width: scaled.width, height: scaled.height });
+  };
+  const header = () => {
+    if (oneitLogo) drawLogoContain(oneitLogo, margin, height - 24, 112, 34);
+    if (serviciaLogo) drawLogoContain(serviciaLogo, width - margin - 154, height - 24, 154, 34);
+    page.drawLine({ start: { x: margin, y: height - 70 }, end: { x: width - margin, y: height - 70 }, thickness: 1.4, color: rgb(0.02, 0.17, 0.35) });
+    page.drawText(safeText("RELATÓRIO TÉCNICO OPERACIONAL · FIELD SERVICE"), { x: margin, y: height - 86, size: 9, font: bold, color: rgb(0.02, 0.17, 0.35) });
+  };
   header();
-  const text = (value: string, size = 9, strong = false) => { if (y < 62) { page = document.addPage([width, height]); y = height - 88; header(); } page.drawText(safeText(value).slice(0, 140), { x: margin, y, size, font: strong ? bold : font, color: rgb(0.12, 0.15, 0.2) }); y -= size + 6; };
+  const ensureSpace = (required: number) => { if (y < 62 + required) { page = document.addPage([width, height]); y = height - 116; header(); } };
+  const text = (value: string, size = 9, strong = false) => { ensureSpace(size + 8); page.drawText(safeText(value).slice(0, 140), { x: margin, y, size, font: strong ? bold : font, color: rgb(0.12, 0.15, 0.2) }); y -= size + 6; };
+  const section = (value: string) => { ensureSpace(28); page.drawRectangle({ x: margin - 4, y: y - 5, width: width - (2 * margin) + 8, height: 20, color: rgb(0.92, 0.95, 0.98) }); page.drawText(safeText(value), { x: margin + 4, y, size: 10, font: bold, color: rgb(0.02, 0.17, 0.35) }); y -= 28; };
   const money = (value: number) => `R$ ${value.toFixed(2).replace(".", ",")}`;
   const duration = (from: string | null | undefined, to: string | null | undefined) => {
     if (!from || !to) return "Não calculado";
@@ -51,15 +62,16 @@ export async function renderFieldServiceRtoPdf(snapshot: FieldServiceRtoSnapshot
     return `${days ? `${days}d ` : ""}${hours}h ${minutes}min`;
   };
   text(`OS ${snapshot.order_number}`, 15, true); text(`Status: ${snapshot.status}`); text(`Chamado: ${snapshot.ticket_number ?? snapshot.ticket_id}`); if (snapshot.title) text(`Título: ${snapshot.title}`); y -= 8;
-  text("DADOS DO ATENDIMENTO", 11, true); text(`Cliente: ${snapshot.customer_name ?? "Não informado"}`); text(`Local: ${snapshot.location_name ?? "Não informado"}`); text(`Endereço: ${snapshot.location_address ?? "Não informado"}`); text(`Técnico: ${snapshot.technician_name ?? "Não informado"}`); text(`Validador: ${snapshot.reviewer_name ?? "Não informado"}`); if (snapshot.local_contact_name || snapshot.local_contact_phone) text(`Contato local: ${snapshot.local_contact_name ?? "Não informado"}${snapshot.local_contact_phone ? ` · ${snapshot.local_contact_phone}` : ""}`); y -= 8;
-  text("LINHA DO TEMPO", 11, true); text(`Abertura do chamado: ${snapshot.ticket_opened_at ?? "Não informado"}`); text(`Agendamento: ${snapshot.scheduled_at ?? "Não informado"}`); text(`Check-in: ${snapshot.checked_in_at ?? "Não informado"}`); text(`Checkout: ${snapshot.checked_out_at ?? "Não informado"}`); text(`Fechamento do chamado: ${snapshot.ticket_closed_at ?? "Não informado"}`); text(`Tempo total do chamado: ${duration(snapshot.ticket_opened_at, snapshot.ticket_closed_at)}`); text(`Tempo em atendimento: ${duration(snapshot.checked_in_at, snapshot.checked_out_at)}`); y -= 8;
-  text("RELATO TÉCNICO", 11, true); text(snapshot.execution_report ?? "Não informado"); y -= 8;
-  text("COMPOSIÇÃO LPU", 11, true);
+  section("DADOS DO ATENDIMENTO"); text(`Cliente: ${snapshot.customer_name ?? "Não informado"}`); text(`Local: ${snapshot.location_name ?? "Não informado"}`); text(`Endereço: ${snapshot.location_address ?? "Não informado"}`); text(`Técnico: ${snapshot.technician_name ?? "Não informado"}`); text(`Validador: ${snapshot.reviewer_name ?? "Não informado"}`); if (snapshot.local_contact_name || snapshot.local_contact_phone) text(`Contato local: ${snapshot.local_contact_name ?? "Não informado"}${snapshot.local_contact_phone ? ` · ${snapshot.local_contact_phone}` : ""}`); y -= 8;
+  section("LINHA DO TEMPO"); text(`Abertura do chamado: ${snapshot.ticket_opened_at ?? "Não informado"}`); text(`Agendamento: ${snapshot.scheduled_at ?? "Não informado"}`); text(`Check-in: ${snapshot.checked_in_at ?? "Não informado"}`); text(`Checkout: ${snapshot.checked_out_at ?? "Não informado"}`); text(`Fechamento do chamado: ${snapshot.ticket_closed_at ?? "Não informado"}`); text(`Tempo total do chamado: ${duration(snapshot.ticket_opened_at, snapshot.ticket_closed_at)}`); text(`Tempo em atendimento: ${duration(snapshot.checked_in_at, snapshot.checked_out_at)}`); y -= 8;
+  section("RELATO TÉCNICO"); text(snapshot.execution_report ?? "Não informado"); y -= 8;
+  section("COMPOSIÇÃO LPU");
   let total = 0; for (const line of snapshot.lpu_lines) { total += line.total; text(`${line.code} · ${line.description} · ${line.quantity} ${line.unit} · ${money(line.unit_price)} · Total ${money(line.total)}`); }
   text(`TOTAL DA OS: ${money(total)}`, 10, true); y -= 8;
   text(`ASSINATURA DO RESPONSÁVEL: ${snapshot.customer_signature_name ?? "Não informada"}`, 10, true);
   if (snapshot.customer_signature_data_url?.startsWith("data:image/png;base64,")) { try { const bytes = Uint8Array.from(atob(snapshot.customer_signature_data_url.split(",")[1]), (c) => c.charCodeAt(0)); const image = await document.embedPng(bytes); const scale = Math.min(150 / image.width, 55 / image.height); page.drawImage(image, { x: margin, y: y - image.height * scale, width: image.width * scale, height: image.height * scale }); y -= image.height * scale + 12; } catch { text("Imagem da assinatura não pôde ser incorporada."); } }
-  text("RELATÓRIO FOTOGRÁFICO", 11, true);
+  y -= 8;
+  section("RELATÓRIO FOTOGRÁFICO");
   text(`${snapshot.evidence.length} evidência(s) registrada(s); ${Math.min(evidenceImages.length, 8)} incorporada(s) ao PDF.`);
   for (const evidence of evidenceImages.slice(0, 8)) { try { const image = evidence.mimeType === "image/png" ? await document.embedPng(evidence.bytes) : await document.embedJpg(evidence.bytes); if (y < 180) { page = document.addPage([width, height]); y = height - 88; header(); } const scale = Math.min((width - 2 * margin) / image.width, 180 / image.height); page.drawImage(image, { x: margin, y: y - image.height * scale, width: image.width * scale, height: image.height * scale }); y -= image.height * scale + 14; } catch { text("Evidência inválida ignorada."); } }
   document.getPages().forEach((item, index, pages) => item.drawText(`RTO Field Service · ${index + 1}/${pages.length}`, { x: margin, y: 28, size: 8, font, color: rgb(0.4, 0.4, 0.4) }));
