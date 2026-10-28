@@ -252,6 +252,10 @@ No cadastro de regiões, a tela foi alinhada ao shell do portal e movida visualm
 Field Service. O formulário agora explicita organização, nome e UF, e a listagem explica que a região é reutilizada em
 polos, triagem e agenda. A alteração é visual e não muda o vínculo persistido da região. ESLint e typecheck passaram.
 
+No cadastro de empresas e departamentos, a tela foi alinhada ao cabeçalho padrão do portal, com seção de criação,
+labels semânticos, tipos de unidade destacados e ações de edição/inativação identificadas por registro. A edição inline
+continua preservando a operação existente e a inativação segue mantendo o histórico. ESLint e typecheck passaram.
+
 Na tela de Rotas planejadas, cada técnico passou a receber um acento lateral discreto e determinístico, facilitando a
 leitura de várias agendas no mesmo dia sem transformar os cartões em um painel multicolorido. Também foi removida uma
 variável sem uso da página e preservada a compatibilidade do movimento de descida de parada para versões antigas do
