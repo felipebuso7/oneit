@@ -1,8 +1,10 @@
 import { hasRequiredPublicEnvironment, hasRequiredSelfHostedEnvironment, hasRequiredSupabaseEnvironment } from "@/lib/runtime/readiness";
+import { createStorageAdmin } from "@/lib/supabase/storage-admin";
 
 export const dynamic = "force-dynamic";
 
 export async function GET() {
+  const request = arguments[0] as Request | undefined;
   const selfHosted = process.env.ONEIT_DEPLOYMENT_MODE === "self_hosted";
   const supabase = process.env.ONEIT_DEPLOYMENT_MODE === "supabase";
   const deploymentMode = selfHosted ? "self_hosted" : supabase ? "supabase" : "legacy";
@@ -30,6 +32,22 @@ export async function GET() {
       { status: "not_ready", deploymentMode },
       { status: 503, headers: { "Cache-Control": "no-store" } },
     );
+  }
+
+  const storageCheck = new URL(request?.url ?? "http://localhost").searchParams.get("storage") === "1";
+  if (storageCheck && supabase) {
+    try {
+      const { error } = await createStorageAdmin("ticket-evidences").list("", { limit: 1 });
+      return Response.json(
+        { status: "ready", deploymentMode, storage: error ? "error" : "ready" },
+        { headers: { "Cache-Control": "no-store" } },
+      );
+    } catch {
+      return Response.json(
+        { status: "ready", deploymentMode, storage: "error" },
+        { headers: { "Cache-Control": "no-store" } },
+      );
+    }
   }
 
   return Response.json(
