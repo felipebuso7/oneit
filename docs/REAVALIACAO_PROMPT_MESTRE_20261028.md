@@ -23,6 +23,7 @@ Não foram feitas alterações destrutivas, migrations ou alterações de dados 
 | Evidências e assinatura | Parcial | rotas de upload, storage e testes existem; provedor/storage real e limites de payload precisam de prova operacional | Executar upload de 3 fotos, assinatura, consulta e controle de acesso |
 | Validação, precificação e RTO | Parcial/implementada em código | `review`, LPU lines, geração RTO e fechamento têm funções e testes; fluxo autenticado real não foi completado | Validar pré-condições, devolução, versão do PDF e encerramento transacional |
 | BM por competência | Parcial | APIs, PDF, totais, congelamento e e-mail/fiscal possuem migrations/testes; worker e envio real ainda não comprovados | Homologar elegibilidade, idempotência, snapshot e fila de e-mail |
+| LPU e composição | Parcial | `field_service_lpu_items` e `field_service_order_lpu_lines` persistem unidade, quantidade e preço congelado; o fluxo ainda não possui uma entidade de composição multi-item (mão de obra + materiais) | Validar o modelo atual com itens independentes; só criar composição após definir regra contratual e impacto no BM |
 | Segurança/RLS | Aberta | RBAC/RLS e migrations existem; teste de duas organizações em banco real ainda não foi concluído | Executar matriz owner/admin/dispatcher/financeiro/técnico/externo |
 | Integrações WhatsApp/e-mail | Não comprovada | abertura de conversa e contratos de fila existem; não há evidência de provedor oficial/entrega | Configurar sandbox autorizado e distinguir preparado, aceito, falho e entregue |
 | UI/UX e design system | Parcial | portal usa shell claro e telas RTO/revisão foram refinadas; inventário visual global continua aberto | Revisar fila de chamados, despacho, validação e BM com critérios de tarefa |
@@ -100,6 +101,7 @@ Critério: riscos P0/P1 fechados ou explicitamente aceitos pelo Owner com evidê
 - `tests/technician-source-of-truth-contract.test.ts`: contrato estático da criação disponível, trigger de vínculo automático e resolução do técnico no despacho.
 - `tests/field-validation-flow.test.ts`: a cobertura do fluxo de validação foi movida da tela demo para o portal persistente, evitando validar uma implementação que não é fonte operacional.
 - `tests/service-catalog-portal-contract.test.ts`: contratos do catálogo autenticado cobrem ausência de `localStorage`/demo, escopo por organização, itens ativos nos seletores e revalidação da abertura de chamados.
+- O modelo LPU foi revisado: a linha da OS congela `lpu_code`, descrição, unidade, quantidade e preço unitário; composição de vários itens ainda é uma lacuna de produto, não uma falha a ser mascarada com dados locais.
 - Este documento: baseline executável para o plano de reconstrução, sem alterar dados ou migrations.
 
 ## Validação planejada
