@@ -6,6 +6,7 @@ import { requireUser } from "@/lib/auth/current-user";
 import { linkAssetToTicket, linkTicketByNumber, postTicketCommunication, updateTicketTriageContext } from "./actions";
 import { FirstResponsePrompt } from "@/components/tickets/first-response-prompt";
 import { OneitPageHeader, OneitStatusBadge } from "@/components/oneit";
+import { TicketCaseFileView } from "@/components/tickets/ticket-case-file-view";
 
 type PageProps = { params: Promise<{ id: string }>; searchParams: Promise<{ message?: string }> };
 
@@ -61,6 +62,22 @@ export default async function TicketCaseFilePage({ params, searchParams }: PageP
   ].sort((first, second) => Date.parse(first.at) - Date.parse(second.at));
   const canDispatch = ["NEW", "TRIAGE", "AWAITING_SCHEDULING", "SCHEDULED"].includes(ticket.operational_status);
   const awaitingValidation = ticket.operational_status === "TECHNICALLY_COMPLETED";
+
+  if (process.env.NEXT_PUBLIC_TICKET_DETAIL_LAYOUT !== "legacy") {
+    return <TicketCaseFileView
+      ticket={ticket}
+      requesterName={requester?.full_name ?? "Não identificado"}
+      groupLabel={group ? `${group.code} — ${group.name}` : ""}
+      level={levels}
+      communications={communications ?? []}
+      timeline={timeline}
+      canDispatch={canDispatch}
+      awaitingValidation={awaitingValidation}
+      message={message}
+      statusLabel={awaitingValidation ? "Aguardando validação" : operationalLabels[ticket.operational_status] ?? ticket.operational_status}
+      onCommunication={postTicketCommunication}
+    />;
+  }
 
   return <section className="mx-auto max-w-7xl p-5 sm:p-8"><style>{`section[class*="gap-5"][class*="lg:grid-cols-2"], section[class*="lg:grid-cols-[1fr_360px]"] { display: none; }`}</style>
     {shouldPromptFirstResponse ? <FirstResponsePrompt ticketId={ticket.id} /> : null}
