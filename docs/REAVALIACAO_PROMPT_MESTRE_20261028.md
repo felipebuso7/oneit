@@ -17,7 +17,7 @@ Não foram feitas alterações destrutivas, migrations ou alterações de dados 
 | Frente | Estado | Evidência atual | Próxima ação |
 |---|---|---|---|
 | Fonte de verdade portal vs. demo | Parcial, com gate | `src/app/page.tsx` direciona produção para `/portal`; `src/proxy.ts` bloqueia `/demo` em produção; páginas demo ainda usam `localStorage` | Manter demo somente para prévia explícita e executar smoke test no portal publicado |
-| Cadastros e relacionamentos | Parcial | APIs/migrations existem para clientes, localidades, técnicos, catálogo e LPU; a auditoria remota ainda não comprovou todos os seletores e edições em banco | Homologar CRUD + seleção dependente em sequência, começando por técnico |
+| Cadastros e relacionamentos | Parcial | APIs/migrations existem para clientes, localidades, técnicos, catálogo e LPU; contratos do catálogo confirmam portal autenticado, escopo organizacional, itens ativos e revalidação dos consumidores, mas CRUD/seletores ainda não foram homologados em banco remoto | Homologar CRUD + seleção dependente em sequência, começando por técnico |
 | Despacho Field Service | Parcial | `dispatch`, agenda, elegibilidade e testes contratuais existem; não houve E2E autenticado comprovado no ciclo registrado | Testar atribuição, conflito de agenda, status e histórico em banco real |
 | Link do técnico externo | Parcial | há `partner/access`, token/code gate e eventos; validade, revogação e upload dependem de homologação real | Testar token expirado/revogado, retomada e isolamento por OS |
 | Evidências e assinatura | Parcial | rotas de upload, storage e testes existem; provedor/storage real e limites de payload precisam de prova operacional | Executar upload de 3 fotos, assinatura, consulta e controle de acesso |
@@ -99,6 +99,7 @@ Critério: riscos P0/P1 fechados ou explicitamente aceitos pelo Owner com evidê
 - `tests/production-persistence-boundary.test.ts`: o gate agora cobre também `src/app/(portal)`, `src/app/field-service` e rejeita importações de demo nos caminhos produtivos.
 - `tests/technician-source-of-truth-contract.test.ts`: contrato estático da criação disponível, trigger de vínculo automático e resolução do técnico no despacho.
 - `tests/field-validation-flow.test.ts`: a cobertura do fluxo de validação foi movida da tela demo para o portal persistente, evitando validar uma implementação que não é fonte operacional.
+- `tests/service-catalog-portal-contract.test.ts`: contratos do catálogo autenticado cobrem ausência de `localStorage`/demo, escopo por organização, itens ativos nos seletores e revalidação da abertura de chamados.
 - Este documento: baseline executável para o plano de reconstrução, sem alterar dados ou migrations.
 
 ## Validação planejada
