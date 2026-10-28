@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { requireUser } from "@/lib/auth/current-user";
 import { locationContactSchema, locationSchema } from "@/lib/validation/organization";
+import { z } from "zod";
 
 export async function createLocation(formData: FormData) {
   const parsed = locationSchema.safeParse({ organizationId: formData.get("organizationId"), customerId: formData.get("customerId"), name: formData.get("name"), city: formData.get("city"), stateCode: formData.get("stateCode") || undefined, externalCode: formData.get("externalCode") || undefined, street: formData.get("street") || undefined, streetNumber: formData.get("streetNumber") || undefined });
@@ -12,6 +13,23 @@ export async function createLocation(formData: FormData) {
   const { error } = await supabase.from("customer_locations").insert({ organization_id: parsed.data.organizationId, customer_id: parsed.data.customerId, name: parsed.data.name, city: parsed.data.city, state_code: parsed.data.stateCode, external_code: parsed.data.externalCode, street: parsed.data.street, street_number: parsed.data.streetNumber });
   if (error) redirect("/portal/locations?message=Não+foi+possível+criar+a+localidade.");
   revalidatePath("/portal/locations"); redirect("/portal/locations?message=Localidade+cadastrada.");
+}
+
+export async function updateLocation(formData: FormData) {
+  const parsed = locationSchema.extend({ locationId: z.uuid() }).safeParse({
+    locationId: formData.get("locationId"), organizationId: formData.get("organizationId"), customerId: formData.get("customerId"),
+    name: formData.get("name"), city: formData.get("city"), stateCode: formData.get("stateCode") || undefined,
+    externalCode: formData.get("externalCode") || undefined, street: formData.get("street") || undefined, streetNumber: formData.get("streetNumber") || undefined,
+  });
+  if (!parsed.success) redirect("/portal/locations?message=Dados+da+localidade+inválidos.");
+  const { supabase } = await requireUser();
+  const { error } = await supabase.from("customer_locations").update({
+    customer_id: parsed.data.customerId, name: parsed.data.name, city: parsed.data.city, state_code: parsed.data.stateCode ?? null,
+    external_code: parsed.data.externalCode ?? null, street: parsed.data.street ?? null, street_number: parsed.data.streetNumber ?? null,
+  }).eq("id", parsed.data.locationId).eq("organization_id", parsed.data.organizationId);
+  if (error) redirect("/portal/locations?message=Não+foi+possível+atualizar+a+localidade.");
+  revalidatePath("/portal/locations"); revalidatePath("/portal/tickets"); revalidatePath("/portal/field-service");
+  redirect("/portal/locations?message=Localidade+atualizada.");
 }
 
 export async function createLocationContact(formData: FormData) {
