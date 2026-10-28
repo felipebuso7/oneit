@@ -7,14 +7,19 @@ import { requireUser } from "@/lib/auth/current-user";
 import { createTicketSchema, transitionTicketSchema } from "@/lib/validation/ticket";
 
 function ticketCreationMessage(message: string | undefined): string {
+  if (message?.includes("TICKET_INITIAL_STATE_REQUIRED")) return "O chamado não pôde ser aberto porque o estado inicial está inconsistente. Recarregue a tela e tente novamente.";
   if (message?.includes("TICKET_REQUESTER_INVALID")) return "Solicitante inválido ou inativo para esta organização.";
   if (message?.includes("TICKET_DEPARTMENT_INVALID")) return "Departamento inválido ou inativo para esta organização.";
   if (message?.includes("TICKET_SERVICE_OFFERING_INVALID")) return "O serviço selecionado está inativo ou não pertence à organização do chamado.";
+  if (message?.includes("TICKET_CATEGORY_INVALID")) return "A categoria do serviço está inativa ou não pertence à organização do chamado.";
+  if (message?.includes("TICKET_SUBCATEGORY_INVALID")) return "A subcategoria do serviço está inativa ou não pertence à categoria selecionada.";
   if (message?.includes("Ticket customer must belong")) return "O cliente selecionado não pertence à organização escolhida.";
   if (message?.includes("Ticket contract must belong")) return "O contrato selecionado não pertence ao cliente escolhido.";
   if (message?.includes("Ticket location must belong")) return "A localidade selecionada não pertence ao cliente escolhido.";
   if (message?.toLowerCase().includes("servicenow") || message?.includes("tickets_organization_id_servicenow_id_key")) return "Já existe um chamado com essa referência ServiceNow nesta organização.";
   if (message?.includes("foreign key") || message?.includes("ticket_service_offering")) return "Cliente, localidade, contrato ou serviço não pertence à organização selecionada.";
+  if (message?.includes("duplicate key") || message?.includes("unique constraint")) return "Já existe um registro com a mesma referência. Confira o número externo e tente novamente.";
+  if (message?.includes("permission denied") || message?.includes("row-level security")) return "Seu perfil não tem permissão para abrir chamados nesta organização.";
   return "Não foi possível abrir o chamado. Revise os dados e tente novamente.";
 }
 
