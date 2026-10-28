@@ -36,5 +36,13 @@ export async function POST(request: Request) {
     if (error.message.includes("measurement_final_email_not_confirmed")) return reply(409, "FINAL_EMAIL_NOT_CONFIRMED");
     return reply(503, "MEASUREMENT_TRANSITION_UNAVAILABLE");
   }
-  return Response.json({ measurementSheet: data }, { headers: { "Cache-Control": "no-store" } });
+  const sheet = data as { id?: string; billing_period_id?: string } | null;
+  if (!sheet?.id || !sheet.billing_period_id) return reply(503, "MEASUREMENT_TRANSITION_UNAVAILABLE");
+  const { data: period, error: periodError } = await supabase
+    .from("billing_periods")
+    .select("status")
+    .eq("id", sheet.billing_period_id)
+    .maybeSingle();
+  if (periodError || !period) return reply(503, "MEASUREMENT_TRANSITION_UNAVAILABLE");
+  return Response.json({ measurementSheet: { ...data, status: period.status } }, { headers: { "Cache-Control": "no-store" } });
 }
