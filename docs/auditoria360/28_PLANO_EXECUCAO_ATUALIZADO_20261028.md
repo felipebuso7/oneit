@@ -74,6 +74,13 @@ Entrega desta rodada: o dossiê autenticado agora exibe esse estado e a ação c
 - Validação local: typecheck aprovado, build de produção aprovado, suíte completa com **111 arquivos / 237 testes aprovados**.
 - Limitação: ainda não há homologação autenticada do ciclo completo com dados fictícios no Supabase nem teste real de provedor WhatsApp/e-mail; S2, S3 e S4 permanecem abertos.
 
+### Atualização de execução — 28/10/2026 (integridade da validação)
+
+- A migration aditiva `20261028154000_field_service_review_submission_guard.sql` foi aplicada no Supabase vinculado. A fila agora rejeita aprovação sem submissão persistida do parceiro ou execução interna com conclusão e registro de execução.
+- A ação do portal traduz `FIELD_REVIEW_SUBMISSION_REQUIRED` para uma mensagem operacional, sem expor erro SQL ao gestor.
+- Validações: auditoria estrita de migrations (180 migrations, sem alertas), typecheck, build e testes focados aprovados.
+- Produção confirmada no commit `22fde44c0d61d08590ffea18bd09c67fcf91c001`; `/api/ready` retornou `status=ready` e `deploymentMode=supabase`.
+
 ## 4. Critérios de avanço
 
 Uma tarefa só será marcada como concluída quando houver:
