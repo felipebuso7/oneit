@@ -229,6 +229,11 @@ em três passos — selecionar, agendar e comunicar — sem alterar o contrato d
 agenda. ESLint e typecheck passaram. Os contratos direcionados ficaram bloqueados antes da coleta pelo `EPERM` do
 Vitest no Windows, sem indicar falha funcional do código.
 
+Na fila de validação gerencial, cada OS pendente passou a ter nome acessível, e a área de decisão do gestor ganhou uma
+hierarquia explícita: conferência obrigatória, justificativa e ações de aprovar/devolver. O conteúdo operacional, as
+evidências, a assinatura e a composição LPU permanecem inalterados; foi apenas reduzida a ambiguidade visual sobre o
+que está sendo validado e qual é o próximo passo. ESLint e typecheck passaram.
+
 Na tela de Rotas planejadas, cada técnico passou a receber um acento lateral discreto e determinístico, facilitando a
 leitura de várias agendas no mesmo dia sem transformar os cartões em um painel multicolorido. Também foi removida uma
 variável sem uso da página e preservada a compatibilidade do movimento de descida de parada para versões antigas do
