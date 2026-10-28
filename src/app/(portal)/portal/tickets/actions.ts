@@ -14,13 +14,22 @@ function ticketCreationMessage(message: string | undefined): string {
   return "Não foi possível abrir o chamado. Revise os dados e tente novamente.";
 }
 
+function ticketValidationMessage(issues: { path: PropertyKey[]; message: string }[]): string {
+  const labels: Record<string, string> = {
+    organizationId: "organização", customerId: "cliente", locationId: "localidade", ticketType: "tipo",
+    title: "assunto", description: "descrição", impact: "impacto", urgency: "urgência", serviceOfferingId: "serviço",
+  };
+  const fields = [...new Set(issues.map((issue) => labels[String(issue.path[0])] ?? String(issue.path[0])))].filter(Boolean);
+  return fields.length ? `Dados inválidos: confira ${fields.join(", ")}.` : "Dados do chamado inválidos. Revise os campos obrigatórios.";
+}
+
 export async function createTicket(formData: FormData) {
   const parsed = createTicketSchema.safeParse({
     organizationId: formData.get("organizationId"), servicenowNumber: formData.get("servicenowNumber") || undefined, customerId: formData.get("customerId"),
     contractId: formData.get("contractId") || undefined, serviceOfferingId: formData.get("serviceOfferingId") || undefined, requesterCollaboratorId: formData.get("requesterCollaboratorId") || undefined, departmentUnitId: formData.get("departmentUnitId") || undefined, ticketType: formData.get("ticketType"), locationId: formData.get("locationId"),
     title: formData.get("title"), description: formData.get("description"), impact: formData.get("impact"), urgency: formData.get("urgency"),
   });
-  if (!parsed.success) redirect("/portal/tickets?message=Dados+do+chamado+inválidos.");
+  if (!parsed.success) redirect(`/portal/tickets?message=${encodeURIComponent(ticketValidationMessage(parsed.error.issues))}`);
 
   const { supabase } = await requireUser();
   const { data: createdTicket, error } = await supabase.from("tickets").insert({
