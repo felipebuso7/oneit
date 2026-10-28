@@ -34,6 +34,14 @@ export function LpuSettingsClient({ organizations, initialItems }: { organizatio
     for (const [name, value] of Object.entries({ code: item.code, description: item.description, kind: item.kind, unit: item.unit, unitPrice: String(item.unit_price) })) { const field = form.elements.namedItem(name) as HTMLInputElement | HTMLSelectElement | null; if (field) field.value = value; }
   }
 
+  function cancelEdit() {
+    setEditingId(null);
+    setNotice(null);
+    const form = document.querySelector<HTMLFormElement>("form[data-lpu-settings-form]");
+    form?.reset();
+    setOrganizationId(organizations[0]?.id ?? "");
+  }
+
   async function deactivate(item: Item) {
     const response = item.active
       ? await fetch(`/api/field-service/lpu/${item.id}?organizationId=${encodeURIComponent(item.organization_id)}`, { method: "DELETE" })
@@ -45,8 +53,8 @@ export function LpuSettingsClient({ organizations, initialItems }: { organizatio
   return <>
     {notice ? <p role="status" className="mt-4 rounded-lg border border-sky-200 bg-sky-50 p-3 text-sm text-sky-900">{notice}</p> : null}
     <div className="mt-6 grid gap-5 lg:grid-cols-[22rem_1fr]">
-      <form data-lpu-settings-form onSubmit={submit} className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-        <h2 className="font-semibold">{editingId ? "Editar item" : "Novo item"}</h2>
+      <form data-lpu-settings-form aria-label={editingId ? "Editar item da LPU" : "Cadastrar item da LPU"} onSubmit={submit} className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+        <h2 className="font-semibold text-slate-950">{editingId ? "Editar item" : "Novo item"}</h2><p className="mt-1 text-sm text-slate-500">Defina unidade e preço unitário para a composição da OS.</p>
         <div className="mt-4 grid gap-3">
           <label className="grid gap-1 text-sm font-medium">Organização<select value={organizationId} onChange={(event) => setOrganizationId(event.target.value)} required className="rounded-lg border border-slate-300 p-2.5 font-normal"><option value="">Selecione</option>{organizations.map((organization) => <option key={organization.id} value={organization.id}>{organization.display_name}</option>)}</select></label>
           <label className="grid gap-1 text-sm font-medium">Código<input name="code" required className="rounded-lg border border-slate-300 p-2.5 font-normal" placeholder="Ex.: CAB-RJ45" /></label>
@@ -55,7 +63,7 @@ export function LpuSettingsClient({ organizations, initialItems }: { organizatio
           <label className="grid gap-1 text-sm font-medium">Unidade<select name="unit" defaultValue="unidade" className="rounded-lg border border-slate-300 p-2.5 font-normal">{LPU_UNITS.map((unit) => <option key={unit}>{unit}</option>)}</select></label>
           <label className="grid gap-1 text-sm font-medium">Valor unitário<input name="unitPrice" required type="number" min="0" step="0.01" className="rounded-lg border border-slate-300 p-2.5 font-normal" /></label>
         </div>
-        <div className="mt-4 flex gap-2"><OneitButton type="submit">{editingId ? "Atualizar item" : "Salvar item"}</OneitButton>{editingId ? <button type="button" onClick={() => setEditingId(null)} className="rounded-lg border border-slate-300 px-4 py-2 text-sm font-semibold">Cancelar</button> : null}</div>
+        <div className="mt-4 flex gap-2"><OneitButton type="submit">{editingId ? "Atualizar item" : "Salvar item"}</OneitButton>{editingId ? <button type="button" onClick={cancelEdit} className="rounded-lg border border-slate-300 px-4 py-2 text-sm font-semibold">Cancelar edição</button> : null}</div>
       </form>
       <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm"><div className="flex items-center justify-between gap-3"><div><h2 className="font-semibold">Itens da organização</h2><p className="mt-1 text-sm text-slate-500">Somente itens ativos podem ser usados em novas validações.</p></div><span className="text-sm text-slate-500">{visibleItems.filter((item) => item.active).length} ativo(s)</span></div>
         {visibleItems.length ? <ul className="mt-4 divide-y divide-slate-100">{visibleItems.map((item) => <li key={item.id} className="flex items-center justify-between gap-4 py-3"><div><strong>{formatLpuLabel({ code: item.code, description: item.description, unit: item.unit, price: item.unit_price })}</strong><p className="mt-1 text-sm text-slate-500">{item.kind === "mao_de_obra" ? "Mão de obra" : item.kind === "deslocamento" ? "Deslocamento" : "Material"} · R$ {Number(item.unit_price).toFixed(2).replace(".", ",")}</p></div><div className="flex items-center gap-2"><OneitStatusBadge tone={item.active ? "success" : "neutral"}>{item.active ? "Ativo" : "Inativo"}</OneitStatusBadge><button type="button" onClick={() => edit(item)} className="rounded-lg border border-slate-300 px-3 py-1.5 text-xs font-semibold">Editar</button><button type="button" onClick={() => void deactivate(item)} className={`rounded-lg border px-3 py-1.5 text-xs font-semibold ${item.active ? "border-red-200 text-red-700" : "border-sky-200 text-sky-700"}`}>{item.active ? "Desativar" : "Reativar"}</button></div></li>)}</ul> : <div className="mt-5"><OneitEmptyState title="Nenhum item cadastrado" description="Cadastre o primeiro material, serviço ou composição da LPU." /></div>}

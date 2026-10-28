@@ -243,6 +243,11 @@ campos com linguagem operacional e espaçamento alinhado ao Design System. A edi
 vínculo operacional permanecem iguais; a alteração reduz ambiguidade no cadastro que alimenta o despacho. ESLint e
 typecheck passaram.
 
+Na LPU, o formulário passou a explicar explicitamente a relação entre unidade, preço unitário e composição da OS. Ao
+cancelar uma edição, os campos são limpos e o contexto retorna para novo cadastro, evitando reaproveitamento acidental
+de valores antigos. A persistência, desativação/reativação e contratos de API foram preservados. ESLint e typecheck
+passaram.
+
 Na tela de Rotas planejadas, cada técnico passou a receber um acento lateral discreto e determinístico, facilitando a
 leitura de várias agendas no mesmo dia sem transformar os cartões em um painel multicolorido. Também foi removida uma
 variável sem uso da página e preservada a compatibilidade do movimento de descida de parada para versões antigas do
