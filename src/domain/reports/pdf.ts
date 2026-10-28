@@ -52,7 +52,7 @@ export async function renderFieldServiceRtoPdf(snapshot: FieldServiceRtoSnapshot
   header();
   const ensureSpace = (required: number) => { if (y < 62 + required) { page = document.addPage([width, height]); y = height - 116; header(); } };
   const text = (value: string, size = 9, strong = false) => { ensureSpace(size + 8); page.drawText(safeText(value).slice(0, 140), { x: margin, y, size, font: strong ? bold : font, color: rgb(0.12, 0.15, 0.2) }); y -= size + 6; };
-  const section = (value: string) => { ensureSpace(28); page.drawRectangle({ x: margin - 4, y: y - 5, width: width - (2 * margin) + 8, height: 20, color: rgb(0.92, 0.95, 0.98) }); page.drawText(safeText(value), { x: margin + 4, y, size: 10, font: bold, color: rgb(0.02, 0.17, 0.35) }); y -= 28; };
+  const section = (value: string) => { ensureSpace(30); page.drawRectangle({ x: margin, y: y - 6, width: width - (2 * margin), height: 22, color: rgb(0.02, 0.17, 0.35) }); page.drawText(safeText(value), { x: margin + 8, y, size: 10, font: bold, color: rgb(1, 1, 1) }); y -= 32; };
   const money = (value: number) => `R$ ${value.toFixed(2).replace(".", ",")}`;
   const duration = (from: string | null | undefined, to: string | null | undefined) => {
     if (!from || !to) return "Não calculado";
@@ -65,15 +65,62 @@ export async function renderFieldServiceRtoPdf(snapshot: FieldServiceRtoSnapshot
   section("DADOS DO ATENDIMENTO"); text(`Cliente: ${snapshot.customer_name ?? "Não informado"}`); text(`Local: ${snapshot.location_name ?? "Não informado"}`); text(`Endereço: ${snapshot.location_address ?? "Não informado"}`); text(`Técnico: ${snapshot.technician_name ?? "Não informado"}`); text(`Validador: ${snapshot.reviewer_name ?? "Não informado"}`); if (snapshot.local_contact_name || snapshot.local_contact_phone) text(`Contato local: ${snapshot.local_contact_name ?? "Não informado"}${snapshot.local_contact_phone ? ` · ${snapshot.local_contact_phone}` : ""}`); y -= 8;
   section("LINHA DO TEMPO"); text(`Abertura do chamado: ${snapshot.ticket_opened_at ?? "Não informado"}`); text(`Agendamento: ${snapshot.scheduled_at ?? "Não informado"}`); text(`Check-in: ${snapshot.checked_in_at ?? "Não informado"}`); text(`Checkout: ${snapshot.checked_out_at ?? "Não informado"}`); text(`Fechamento do chamado: ${snapshot.ticket_closed_at ?? "Não informado"}`); text(`Tempo total do chamado: ${duration(snapshot.ticket_opened_at, snapshot.ticket_closed_at)}`); text(`Tempo em atendimento: ${duration(snapshot.checked_in_at, snapshot.checked_out_at)}`); y -= 8;
   section("RELATO TÉCNICO"); text(snapshot.execution_report ?? "Não informado"); y -= 8;
-  section("COMPOSIÇÃO LPU");
-  let total = 0; for (const line of snapshot.lpu_lines) { total += line.total; text(`${line.code} · ${line.description} · ${line.quantity} ${line.unit} · ${money(line.unit_price)} · Total ${money(line.total)}`); }
-  text(`TOTAL DA OS: ${money(total)}`, 10, true); y -= 8;
-  text(`ASSINATURA DO RESPONSÁVEL: ${snapshot.customer_signature_name ?? "Não informada"}`, 10, true);
-  if (snapshot.customer_signature_data_url?.startsWith("data:image/png;base64,")) { try { const bytes = Uint8Array.from(atob(snapshot.customer_signature_data_url.split(",")[1]), (c) => c.charCodeAt(0)); const image = await document.embedPng(bytes); const scale = Math.min(150 / image.width, 55 / image.height); page.drawImage(image, { x: margin, y: y - image.height * scale, width: image.width * scale, height: image.height * scale }); y -= image.height * scale + 12; } catch { text("Imagem da assinatura não pôde ser incorporada."); } }
-  y -= 8;
+  section("COMPOSIÇÃO LPU / PRECIFICAÇÃO");
+  const contentWidth = width - (2 * margin);
+  const tableColumns = [
+    { label: "Item", width: 200 },
+    { label: "Quantidade", width: 78 },
+    { label: "Valor unitário", width: 105 },
+    { label: "Total", width: contentWidth - 383 },
+  ];
+  const drawTableRow = (values: string[], headerRow = false) => {
+    const rowHeight = 22;
+    ensureSpace(rowHeight + 8);
+    let x = margin;
+    page.drawRectangle({ x: margin, y: y - 5, width: contentWidth, height: rowHeight, borderColor: rgb(0.72, 0.78, 0.84), borderWidth: 0.6, color: headerRow ? rgb(0.92, 0.95, 0.98) : rgb(1, 1, 1) });
+    values.forEach((value, index) => {
+      const column = tableColumns[index];
+      const maxChars = Math.max(8, Math.floor(column.width / (headerRow ? 5.3 : 5.1)));
+      page.drawText(safeText(value).slice(0, maxChars), { x: x + 6, y: y + 2, size: 8, font: headerRow ? bold : font, color: headerRow ? rgb(0.02, 0.17, 0.35) : rgb(0.12, 0.15, 0.2) });
+      x += column.width;
+    });
+    y -= rowHeight;
+  };
+  drawTableRow(tableColumns.map((column) => column.label), true);
+  let total = 0;
+  if (!snapshot.lpu_lines.length) drawTableRow(["Nenhum item LPU lançado", "-", "-", money(0)]);
+  for (const line of snapshot.lpu_lines) { total += line.total; drawTableRow([`${line.code} · ${line.description}`, `${line.quantity} ${line.unit}`, money(line.unit_price), money(line.total)]); }
+  y -= 5;
+  text(`VALOR TOTAL DA OS: ${money(total)}`, 10, true); y -= 8;
   section("RELATÓRIO FOTOGRÁFICO");
-  text(`${snapshot.evidence.length} evidência(s) registrada(s); ${Math.min(evidenceImages.length, 8)} incorporada(s) ao PDF.`);
-  for (const evidence of evidenceImages.slice(0, 8)) { try { const image = evidence.mimeType === "image/png" ? await document.embedPng(evidence.bytes) : await document.embedJpg(evidence.bytes); if (y < 180) { page = document.addPage([width, height]); y = height - 88; header(); } const scale = Math.min((width - 2 * margin) / image.width, 180 / image.height); page.drawImage(image, { x: margin, y: y - image.height * scale, width: image.width * scale, height: image.height * scale }); y -= image.height * scale + 14; } catch { text("Evidência inválida ignorada."); } }
+  text(`${snapshot.evidence.length} evidência(s) registrada(s); ${Math.min(evidenceImages.length, 9)} incorporada(s) ao PDF.`);
+  const photoImages = evidenceImages.slice(0, 9);
+  const photoGap = 8;
+  const photoWidth = (contentWidth - (photoGap * 2)) / 3;
+  const photoHeight = 122;
+  let photoIndex = 0;
+  for (const evidence of photoImages) {
+    try {
+      const image = evidence.mimeType === "image/png" ? await document.embedPng(evidence.bytes) : await document.embedJpg(evidence.bytes);
+      if (photoIndex % 3 === 0) ensureSpace(photoHeight + 26);
+      const column = photoIndex % 3;
+      const x = margin + column * (photoWidth + photoGap);
+      const rowTop = y;
+      page.drawRectangle({ x, y: rowTop - photoHeight, width: photoWidth, height: photoHeight, color: rgb(0.96, 0.97, 0.98), borderColor: rgb(0.72, 0.78, 0.84), borderWidth: 0.7 });
+      const scale = Math.min((photoWidth - 10) / image.width, (photoHeight - 24) / image.height);
+      const drawWidth = image.width * scale;
+      const drawHeight = image.height * scale;
+      page.drawImage(image, { x: x + (photoWidth - drawWidth) / 2, y: rowTop - 5 - drawHeight, width: drawWidth, height: drawHeight });
+      page.drawText(`Foto ${photoIndex + 1}`, { x: x + 6, y: rowTop - photoHeight + 7, size: 7, font, color: rgb(0.35, 0.4, 0.45) });
+      photoIndex += 1;
+      if (photoIndex % 3 === 0) y -= photoHeight + photoGap;
+    } catch { text("Evidência inválida ignorada."); }
+  }
+  if (photoIndex % 3 !== 0) y -= photoHeight + photoGap;
+  y -= 18;
+  section("ASSINATURA DO RESPONSÁVEL");
+  text(snapshot.customer_signature_name ?? "Não informada", 10, true);
+  if (snapshot.customer_signature_data_url?.startsWith("data:image/png;base64,")) { try { const bytes = Uint8Array.from(atob(snapshot.customer_signature_data_url.split(",")[1]), (c) => c.charCodeAt(0)); const image = await document.embedPng(bytes); ensureSpace(80); const scale = Math.min(190 / image.width, 58 / image.height); page.drawImage(image, { x: margin, y: y - image.height * scale, width: image.width * scale, height: image.height * scale }); y -= image.height * scale + 14; } catch { text("Imagem da assinatura não pôde ser incorporada."); } }
   document.getPages().forEach((item, index, pages) => item.drawText(`RTO Field Service · ${index + 1}/${pages.length}`, { x: margin, y: 28, size: 8, font, color: rgb(0.4, 0.4, 0.4) }));
   document.setTitle(`RTO ${snapshot.order_number}`); return document.save();
 }
