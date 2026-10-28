@@ -234,6 +234,10 @@ hierarquia explícita: conferência obrigatória, justificativa e ações de apr
 evidências, a assinatura e a composição LPU permanecem inalterados; foi apenas reduzida a ambiguidade visual sobre o
 que está sendo validado e qual é o próximo passo. ESLint e typecheck passaram.
 
+No painel de BM, o fluxo visual agora é apresentado em quatro etapas: fechar competência, validar BM, enviar ao cliente
+e aguardar fiscal. Os status da tabela passaram a usar cores semânticas e bordas consistentes, mantendo a leitura rápida
+sem alterar o workflow, os cálculos ou as permissões. ESLint e typecheck passaram.
+
 Na tela de Rotas planejadas, cada técnico passou a receber um acento lateral discreto e determinístico, facilitando a
 leitura de várias agendas no mesmo dia sem transformar os cartões em um painel multicolorido. Também foi removida uma
 variável sem uso da página e preservada a compatibilidade do movimento de descida de parada para versões antigas do
