@@ -145,6 +145,12 @@ Entrega desta rodada: o dossiê autenticado agora exibe esse estado e a ação c
 - Técnico e validador aparecem na seção de dados do atendimento sem campos de assinatura. O validador é resolvido pelo `generated_by` do relatório e pelo perfil do usuário autenticado que gerou o documento, sem ampliar a leitura de perfis de outras pessoas.
 - Validação: teste focado de layout aprovado, suíte completa com **133 arquivos / 268 testes aprovados** e typecheck aprovado. Publicação confirmada no commit `21759bf1cb3ddafbd5a45edd9c688cb351de9b74`; `/api/ready` retornou `status=ready` e `deploymentMode=supabase`.
 
+### Atualização de execução — 28/10/2026 (integridade do validador no RTO)
+
+- A persistência do PDF agora falha explicitamente com `RTO_REVIEWER_UNAVAILABLE` quando o perfil do usuário que gerou o RTO não pode ser resolvido; o sistema não emite documento com validador ausente.
+- Auditoria estrita: **185 migrations, nenhum alerta estático**. Typecheck aprovado e testes focados de assinatura, proveniência do validador e duração do RTO: **3 arquivos / 5 testes aprovados**.
+- Produção confirmada no commit `3d948ff6d3cbda4905e074c3e762cee9cecefda3`; `/api/ready` retornou `status=ready` e `deploymentMode=supabase`.
+
 ## 4. Critérios de avanço
 
 Uma tarefa só será marcada como concluída quando houver:
