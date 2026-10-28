@@ -116,3 +116,6 @@ A geração do BM foi endurecida: a checagem de itens LPU agora usa os mesmos jo
 (`service_orders.status = VALIDATED` e `tickets.administrative_status = CLOSED`), evitando criar BM vazio por contar
 linhas de uma OS não elegível. A migration ainda precisa ser aplicada no Supabase antes de ser considerada ativa.
 
+A transição do BM também passou a devolver o status efetivo de `billing_periods` após o RPC. Antes, a tela recebia apenas
+`measurement_sheets` e mantinha visualmente o status anterior, mesmo quando a transição havia sido persistida.
+
