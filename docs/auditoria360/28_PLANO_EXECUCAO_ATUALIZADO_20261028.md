@@ -39,6 +39,7 @@ Entrega desta rodada: o dossiê autenticado agora exibe esse estado e a ação c
 - Validação: a fila oficial de Field Service não duplica mais chamados exibidos no fluxo legado (`d31fb9e`).
 - Financeiro: destinatários de BM/fiscal agora são normalizados e deduplicados antes da validação e do enfileiramento, evitando rejeição por capitalização (`queue-email/route.ts`).
 - Financeiro: migration `20261028120000_defer_fiscal_batch_acceptance.sql` preparada para impedir que a criação do lote marque a competência como enviada antes da confirmação do e-mail fiscal; a promoção passa a ocorrer no evento `SENT` do worker.
+- Financeiro: migration `20261028123000_allow_fiscal_batch_closure_context.sql` preparada para permitir o fechamento de cada BM quando o e-mail fiscal `SENT` pertence a um lote fiscal confirmado que contém o BM, mantendo organização e status como pré-condições.
 - Fronteira de persistência: auditoria estática confirmou que APIs, serviços de Field Service e componentes do parceiro não usam `localStorage`; a única persistência temporária do parceiro é o token de `sessionStorage`, removido após a leitura.
 - Suíte: 106 arquivos e 223 testes aprovados; typecheck aprovado.
 - A publicação foi confirmada em produção pelo endpoint `/api/version`, mas a homologação autenticada com dados reais de teste ainda não foi executada.
