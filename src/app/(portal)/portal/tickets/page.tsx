@@ -10,16 +10,26 @@ type PageProps = { searchParams: Promise<{ message?: string }> };
 export default async function TicketsPage({ searchParams }: PageProps) {
   const [{ supabase }, organizations, customers, { message }] = await Promise.all([requireUser(), listAvailableOrganizations(), listAvailableCustomers(), searchParams]);
   const organizationIds = organizations.map((item) => item.id);
-  const [{ data: contracts }, { data: locations }, { data: categories }, { data: subcategories }, { data: offerings }, { data: collaborators }, { data: departments }, { data: tickets, error: ticketsError }] = await Promise.all([
+  const [{ data: contracts }, { data: locations }, { data: categories }, { data: collaborators }, { data: departments }, { data: tickets, error: ticketsError }] = await Promise.all([
     organizationIds.length ? supabase.from("contracts").select("id, organization_id, customer_id, code, name").in("organization_id", organizationIds).eq("active", true).order("name") : Promise.resolve({ data: [] }),
     organizationIds.length ? supabase.from("customer_locations").select("id, organization_id, customer_id, name, city").in("organization_id", organizationIds).eq("active", true).order("name") : Promise.resolve({ data: [] }),
     organizationIds.length ? supabase.from("service_categories").select("id, organization_id, name").in("organization_id", organizationIds).eq("active", true).order("name") : Promise.resolve({ data: [] }),
-    organizationIds.length ? supabase.from("service_subcategories").select("id, category_id, name").eq("active", true).order("name") : Promise.resolve({ data: [] }),
-    organizationIds.length ? supabase.from("service_offerings").select("id, subcategory_id, code, name").eq("active", true).order("name") : Promise.resolve({ data: [] }),
     organizationIds.length ? supabase.from("collaborators").select("id, organization_id, full_name").in("organization_id", organizationIds).eq("status", "ACTIVE").order("full_name") : Promise.resolve({ data: [] }),
     organizationIds.length ? supabase.from("organization_units").select("id, organization_id, name").in("organization_id", organizationIds).eq("unit_type", "DEPARTMENT").eq("active", true).order("name") : Promise.resolve({ data: [] }),
     organizationIds.length ? supabase.from("tickets").select("id, ticket_number, servicenow_number, customer_id, location_id, title, ticket_type, priority, operational_status, administrative_status, created_at, category_code, service_type_code, version").in("organization_id", organizationIds).order("created_at", { ascending: false }).limit(500) : Promise.resolve({ data: [], error: null }),
   ]);
+  // O catálogo é hierárquico. Carregar os níveis inferiores sem restringir pelos
+  // IDs do nível anterior permitia que opções de outra organização aparecessem
+  // no formulário (e falhassem somente ao salvar). Cada seletor agora consome
+  // exclusivamente a cadeia persistida que o usuário pode utilizar.
+  const categoryIds = (categories ?? []).map((item) => item.id);
+  const { data: subcategories } = categoryIds.length
+    ? await supabase.from("service_subcategories").select("id, category_id, name").in("category_id", categoryIds).eq("active", true).order("name")
+    : { data: [] };
+  const subcategoryIds = (subcategories ?? []).map((item) => item.id);
+  const { data: offerings } = subcategoryIds.length
+    ? await supabase.from("service_offerings").select("id, subcategory_id, code, name").in("subcategory_id", subcategoryIds).eq("active", true).order("name")
+    : { data: [] };
   const ticketIds = (tickets ?? []).map((ticket) => ticket.id);
   const { data: serviceLevels } = ticketIds.length ? await supabase.from("ticket_service_levels").select("ticket_id,resolution_due_at").in("ticket_id", ticketIds) : { data: [] };
   const levelByTicketId = new Map((serviceLevels ?? []).map((level) => [level.ticket_id, level.resolution_due_at]));

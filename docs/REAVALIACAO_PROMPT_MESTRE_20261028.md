@@ -162,3 +162,12 @@ organização, ativo e disponibilidade, sem bloquear um cadastro operacional vá
 `field_service_technicians` ainda não foi materializado. O RPC continua sendo a autoridade transacional para estado e
 conflitos; foi adicionado contrato estático para evitar regressão dessa regra.
 
+Nesta continuidade, a abertura de chamados deixou de carregar subcategorias e serviços ativos de forma global. A página
+`/portal/tickets` agora consulta categorias por organização, depois subcategorias pelos IDs dessas categorias e, por fim,
+serviços pelos IDs das subcategorias. Isso reduz vazamento de opções entre organizações e evita que um serviço legítimo
+seja exibido no formulário, mas rejeitado apenas no salvamento. O contrato `tests/service-catalog-portal-contract.test.ts`
+passou a proteger essa cadeia de dependência.
+
+Validação desta alteração: `npm run typecheck`, ESLint direcionado, `git diff --check` e o teste direcionado do catálogo
+passaram localmente (7 testes). A suíte completa e o build continuam dependentes da validação CI/Linux registrada acima.
+
