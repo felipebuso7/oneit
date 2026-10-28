@@ -102,6 +102,12 @@ Entrega desta rodada: o dossiê autenticado agora exibe esse estado e a ação c
 - Regressão completa após a alteração: **114 arquivos / 242 testes aprovados**. Build e typecheck também aprovados.
 - A melhoria foi publicada em produção no commit `7a709d186580ede698220d0da650a03725a69e5b`; `/api/ready` retornou `ready` com Supabase.
 
+### Atualização de execução — 28/10/2026 (fronteira produção/demo)
+
+- Smoke HTTP anônimo confirmou `/portal` e `/portal/field-service` respondendo `307` para `/login`, com `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff` e `Permissions-Policy` presentes.
+- A rota `/demo` respondeu `404` na implantação de produção, confirmando que a área demonstrativa não está sendo oferecida como operação pública nesse deployment.
+- Esta verificação é de fronteira e segurança sem sessão; não substitui a homologação autenticada das transições operacionais.
+
 ## 4. Critérios de avanço
 
 Uma tarefa só será marcada como concluída quando houver:
