@@ -9,6 +9,7 @@ import { createTicketSchema, transitionTicketSchema } from "@/lib/validation/tic
 function ticketCreationMessage(message: string | undefined): string {
   if (message?.includes("TICKET_REQUESTER_INVALID")) return "Solicitante inválido ou inativo para esta organização.";
   if (message?.includes("TICKET_DEPARTMENT_INVALID")) return "Departamento inválido ou inativo para esta organização.";
+  if (message?.toLowerCase().includes("servicenow") || message?.includes("tickets_organization_id_servicenow_id_key")) return "Já existe um chamado com essa referência ServiceNow nesta organização.";
   if (message?.includes("foreign key") || message?.includes("ticket_service_offering")) return "Cliente, localidade, contrato ou serviço não pertence à organização selecionada.";
   return "Não foi possível abrir o chamado. Revise os dados e tente novamente.";
 }
