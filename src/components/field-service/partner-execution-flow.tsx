@@ -115,7 +115,7 @@ export function PartnerExecutionFlow({ access, apiAccess, onLocalComplete }: { a
       const form = new FormData(); form.set("token", apiAccess.token); form.set("code", apiAccess.code); form.set("file", file);
       const response = await fetch("/api/field-service/partner/upload", { method: "POST", body: form }).catch(() => null);
       const payload = await response?.json().catch(() => ({})) as { evidence?: Evidence; code?: string } | undefined;
-      if (!response?.ok || !payload?.evidence?.storagePath) { setNotice(`Não foi possível enviar a foto: ${payload?.code ?? "erro de conexão"}.`); continue; }
+      if (!response?.ok || !payload?.evidence?.storagePath) { const message = payload?.code === "EVIDENCE_STORAGE_NOT_CONFIGURED" ? "O armazenamento de fotos ainda não está configurado no servidor. Avise o gestor." : payload?.code === "EVIDENCE_STORAGE_UPLOAD_FAILED" ? "O servidor não conseguiu salvar a foto. Tente novamente." : `Não foi possível enviar a foto: ${payload?.code ?? "erro de conexão"}.`; setNotice(message); continue; }
       const preview = await new Promise<string>((resolve) => { const reader = new FileReader(); reader.onload = () => resolve(typeof reader.result === "string" ? reader.result : ""); reader.readAsDataURL(file); });
       setEvidence((current) => [...current, { ...(payload.evidence as Evidence), dataUrl: preview }]);
     }

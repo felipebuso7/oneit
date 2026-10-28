@@ -24,13 +24,13 @@ export async function POST(request: Request) {
   const bytes = new Uint8Array(await file.arrayBuffer());
   let mime: "image/jpeg" | "image/png" | "image/webp";
   try { mime = validateEvidenceBytes(bytes, file.type); } catch { return reply(422, "EVIDENCE_FILE_INVALID"); }
-  if (!process.env.SUPABASE_SERVICE_ROLE_KEY) return reply(503, "EVIDENCE_UPLOAD_UNAVAILABLE");
+  if (!process.env.SUPABASE_SERVICE_ROLE_KEY) return reply(503, "EVIDENCE_STORAGE_NOT_CONFIGURED");
   const extension = mime === "image/jpeg" ? "jpg" : mime === "image/png" ? "png" : "webp";
   const storagePath = `partner/${order.service_order_id}/${crypto.randomUUID()}.${extension}`;
   try {
     const storage = createStorageAdmin();
     const { error } = await storage.upload(storagePath, bytes, { contentType: mime, upsert: false });
-    if (error) return reply(503, "EVIDENCE_UPLOAD_UNAVAILABLE");
-  } catch { return reply(503, "EVIDENCE_UPLOAD_UNAVAILABLE"); }
+    if (error) return reply(503, "EVIDENCE_STORAGE_UPLOAD_FAILED");
+  } catch { return reply(503, "EVIDENCE_STORAGE_UPLOAD_FAILED"); }
   return Response.json({ evidence: { name: file.name.slice(0, 180), storagePath, mime, size: bytes.length } }, { status: 201, headers: { "Cache-Control": "no-store" } });
 }
