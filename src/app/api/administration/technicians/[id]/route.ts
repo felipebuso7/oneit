@@ -26,18 +26,24 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
 
   try {
     const outcome = await withPostgresActor({ userId: actor.id }, async (client) => {
-      const current = await client.query<{ organization_id: string }>("select organization_id from public.technicians where id = $1 for update", [technicianId.data]);
+      const current = await client.query<{ organization_id: string; active: boolean; status: string }>("select organization_id, active, status from public.technicians where id = $1 for update", [technicianId.data]);
       if (!current.rows[0]) return "NOT_FOUND" as const;
       const value = parsed.data;
       if (current.rows[0].organization_id !== value.organizationId || !await canAdministerSgstiOrganization(client, value.organizationId)) return "DENIED" as const;
+      const nextStatus = !value.active
+        ? "UNAVAILABLE"
+        : !current.rows[0].active
+          ? "AVAILABLE"
+          : current.rows[0].status;
       await client.query(
         `update public.technicians set user_id=$2, full_name=$3, email=$4, phone=$5, mobile=$6,
            employee_identifier=$7, job_title=$8, employment_type=$9, hourly_cost=$10,
-           visibility_scope=$11::public.user_visibility_scope, external_partner_reference=$12, active=$13
+           visibility_scope=$11::public.user_visibility_scope, external_partner_reference=$12, active=$13,
+           status=$14::public.technician_status
          where id=$1`,
         [technicianId.data, value.userId ?? null, value.fullName, value.email ?? null, value.phone ?? null,
           value.mobile ?? null, value.employeeIdentifier ?? null, value.jobTitle ?? null, value.employmentType,
-          value.hourlyCost ?? null, value.visibilityScope, value.externalPartnerReference ?? null, value.active],
+          value.hourlyCost ?? null, value.visibilityScope, value.externalPartnerReference ?? null, value.active, nextStatus],
       );
       await client.query(
         `insert into public.audit_logs (organization_id, actor_id, action, entity_type, entity_id, after_value, source)

@@ -43,4 +43,11 @@ describe("contrato da API de técnicos", () => {
     expect(source).toContain("active, status");
     expect(source).toContain("'AVAILABLE'");
   });
+
+  it("mantém status e ativo coerentes na edição administrativa", () => {
+    expect(readFileSync("src/app/api/administration/technicians/[id]/route.ts", "utf8"))
+      .toContain("status=$14::public.technician_status");
+    expect(readFileSync("src/app/api/administration/technicians/[id]/route.ts", "utf8"))
+      .toContain('const nextStatus = !value.active');
+  });
 });
