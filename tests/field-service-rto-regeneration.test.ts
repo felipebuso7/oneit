@@ -9,5 +9,6 @@ describe("regeração de arquivo RTO", () => {
     expect(storage).toContain('registrationError.message?.includes("RTO_FILE_ALREADY_REGISTERED")');
     expect(route).toContain('cause.message === "RTO_FILE_ALREADY_REGISTERED"');
     expect(route).toContain('reply(409, "RTO_FILE_ALREADY_REGISTERED")');
+    expect(readFileSync("src/app/(portal)/portal/review/actions.ts", "utf8")).toContain("Este RTO já possui um PDF registrado");
   });
 });

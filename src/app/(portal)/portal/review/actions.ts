@@ -82,6 +82,8 @@ export async function generateFieldServiceRto(formData: FormData) {
       ? "O snapshot do RTO não pôde ser lido. Atualize a fila e tente novamente."
       : code === "RTO_REVIEWER_UNAVAILABLE"
         ? "O usuário validador não possui nome cadastrado. Atualize o perfil antes de gerar o RTO."
+        : code === "RTO_FILE_ALREADY_REGISTERED"
+          ? "Este RTO já possui um PDF registrado. Consulte ou baixe a versão existente antes de tentar gerar outra."
         : code === "RTO_REGISTER_FAILED"
           ? "O PDF foi enviado, mas não foi possível registrar o arquivo no RTO. Tente novamente."
           : "O RTO foi registrado, mas o PDF não foi salvo. Tente novamente.";
