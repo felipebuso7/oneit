@@ -248,6 +248,11 @@ cancelar uma edição, os campos são limpos e o contexto retorna para novo cada
 de valores antigos. A persistência, desativação/reativação e contratos de API foram preservados. ESLint e typecheck
 passaram.
 
+Na Central de Agendamento de OS, o seletor de técnico passou a explicar explicitamente que somente técnicos ativos da
+organização do chamado são elegíveis. A ação principal de despacho agora permanece desabilitada até técnico, data e período
+estarem preenchidos, evitando cliques sem efeito e tornando o próximo passo previsível. A validação de conflito, a criação da
+OS, o link público e a comunicação pelo WhatsApp permanecem inalterados. ESLint direcionado e typecheck passaram.
+
 O Catálogo de serviços também foi alinhado ao cabeçalho compartilhado do portal, com mensagem de feedback semântica e
 editor de itens com bordas explícitas. A hierarquia de categoria, subcategoria e oferta, os filtros por organização e as
 ações de criação, edição e inativação foram preservados; nenhuma regra de catálogo ou integração com a abertura de
