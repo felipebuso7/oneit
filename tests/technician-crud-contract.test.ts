@@ -15,4 +15,10 @@ describe("technician CRUD integration contract", () => {
     expect(source).toContain('revalidatePath("/portal/field-service")');
     expect(page).toContain("action={updateTechnician}");
   });
+
+  it("creates new technicians as dispatchable without changing existing availability", () => {
+    expect(source).toContain('status: "AVAILABLE"');
+    expect(readFileSync("supabase/migrations/20261028110000_new_technicians_available.sql", "utf8"))
+      .toContain("alter column status set default 'AVAILABLE'");
+  });
 });

@@ -27,6 +27,9 @@ export async function createTechnician(formData: FormData) {
     organization_id: parsed.data.organizationId, full_name: parsed.data.fullName, email: parsed.data.email,
     phone: parsed.data.phone, employment_type: parsed.data.employmentType, base_city: parsed.data.baseCity,
     primary_region_id: parsed.data.primaryRegionId,
+    // A technician created by an administrator is ready for dispatch by default.
+    // Explicit unavailability remains available through the status action.
+    status: "AVAILABLE",
   }).select("id,full_name,email,phone,employment_type,organization_id").single();
   if (error) redirect("/portal/technicians?message=Não+foi+possível+criar+o+técnico.");
   // A trigger no banco cria o cadastro mestre automaticamente. O update abaixo
