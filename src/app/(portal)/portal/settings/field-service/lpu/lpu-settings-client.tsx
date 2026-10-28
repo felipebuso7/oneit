@@ -35,9 +35,11 @@ export function LpuSettingsClient({ organizations, initialItems }: { organizatio
   }
 
   async function deactivate(item: Item) {
-    const response = await fetch(`/api/field-service/lpu/${item.id}?organizationId=${encodeURIComponent(item.organization_id)}`, { method: "DELETE" });
-    if (!response.ok) { setNotice("Não foi possível desativar o item."); return; }
-    setItems((current) => current.map((value) => value.id === item.id ? { ...value, active: false } : value)); setNotice("Item desativado.");
+    const response = item.active
+      ? await fetch(`/api/field-service/lpu/${item.id}?organizationId=${encodeURIComponent(item.organization_id)}`, { method: "DELETE" })
+      : await fetch(`/api/field-service/lpu/${item.id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ organizationId: item.organization_id, active: true }) });
+    if (!response.ok) { setNotice(item.active ? "Não foi possível desativar o item." : "Não foi possível reativar o item."); return; }
+    setItems((current) => current.map((value) => value.id === item.id ? { ...value, active: !item.active } : value)); setNotice(item.active ? "Item desativado." : "Item reativado.");
   }
 
   return <>
@@ -56,7 +58,7 @@ export function LpuSettingsClient({ organizations, initialItems }: { organizatio
         <div className="mt-4 flex gap-2"><OneitButton type="submit">{editingId ? "Atualizar item" : "Salvar item"}</OneitButton>{editingId ? <button type="button" onClick={() => setEditingId(null)} className="rounded-lg border border-slate-300 px-4 py-2 text-sm font-semibold">Cancelar</button> : null}</div>
       </form>
       <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm"><div className="flex items-center justify-between gap-3"><div><h2 className="font-semibold">Itens da organização</h2><p className="mt-1 text-sm text-slate-500">Somente itens ativos podem ser usados em novas validações.</p></div><span className="text-sm text-slate-500">{visibleItems.filter((item) => item.active).length} ativo(s)</span></div>
-        {visibleItems.filter((item) => item.active).length ? <ul className="mt-4 divide-y divide-slate-100">{visibleItems.filter((item) => item.active).map((item) => <li key={item.id} className="flex items-center justify-between gap-4 py-3"><div><strong>{formatLpuLabel({ code: item.code, description: item.description, unit: item.unit, price: item.unit_price })}</strong><p className="mt-1 text-sm text-slate-500">{item.kind === "mao_de_obra" ? "Mão de obra" : item.kind === "deslocamento" ? "Deslocamento" : "Material"} · R$ {Number(item.unit_price).toFixed(2).replace(".", ",")}</p></div><div className="flex items-center gap-2"><OneitStatusBadge tone="success">Ativo</OneitStatusBadge><button type="button" onClick={() => edit(item)} className="rounded-lg border border-slate-300 px-3 py-1.5 text-xs font-semibold">Editar</button><button type="button" onClick={() => void deactivate(item)} className="rounded-lg border border-red-200 px-3 py-1.5 text-xs font-semibold text-red-700">Desativar</button></div></li>)}</ul> : <div className="mt-5"><OneitEmptyState title="Nenhum item ativo" description="Cadastre o primeiro material, serviço ou composição da LPU." /></div>}
+        {visibleItems.length ? <ul className="mt-4 divide-y divide-slate-100">{visibleItems.map((item) => <li key={item.id} className="flex items-center justify-between gap-4 py-3"><div><strong>{formatLpuLabel({ code: item.code, description: item.description, unit: item.unit, price: item.unit_price })}</strong><p className="mt-1 text-sm text-slate-500">{item.kind === "mao_de_obra" ? "Mão de obra" : item.kind === "deslocamento" ? "Deslocamento" : "Material"} · R$ {Number(item.unit_price).toFixed(2).replace(".", ",")}</p></div><div className="flex items-center gap-2"><OneitStatusBadge tone={item.active ? "success" : "neutral"}>{item.active ? "Ativo" : "Inativo"}</OneitStatusBadge><button type="button" onClick={() => edit(item)} className="rounded-lg border border-slate-300 px-3 py-1.5 text-xs font-semibold">Editar</button><button type="button" onClick={() => void deactivate(item)} className={`rounded-lg border px-3 py-1.5 text-xs font-semibold ${item.active ? "border-red-200 text-red-700" : "border-sky-200 text-sky-700"}`}>{item.active ? "Desativar" : "Reativar"}</button></div></li>)}</ul> : <div className="mt-5"><OneitEmptyState title="Nenhum item cadastrado" description="Cadastre o primeiro material, serviço ou composição da LPU." /></div>}
       </section>
     </div>
   </>;

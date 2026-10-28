@@ -41,4 +41,11 @@ describe("contratos das APIs de cadastro", () => {
       }
     }
   });
+
+  it("permite editar o código da LPU e reativar itens sem apagar o registro", () => {
+    const source = readFileSync(files[5], "utf8");
+    expect(source).toContain('code: z.string().trim().min(2).max(60).optional()');
+    expect(source).toContain('active: value.active');
+    expect(source).toContain('LPU_ITEM_ALREADY_EXISTS');
+  });
 });

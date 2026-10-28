@@ -6,6 +6,7 @@ import { hasSameOrigin } from "@/lib/http/same-origin";
 const units = ["unidade", "peça", "metro", "centímetro", "hora", "visita", "quilômetro"] as const;
 const schema = z.object({
   organizationId: z.string().uuid(),
+  code: z.string().trim().min(2).max(60).optional(),
   description: z.string().trim().min(2).max(240).optional(),
   kind: z.enum(["material", "mao_de_obra", "deslocamento"]).optional(),
   unit: z.enum(units).optional(),
@@ -32,9 +33,9 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
   if (authError || !auth.user) return reply(401, "AUTH_REQUIRED");
   const value = parsed.data;
   if (value.validUntil && value.validFrom && value.validUntil < value.validFrom) return reply(400, "INVALID_VALIDITY");
-  const update = Object.fromEntries(Object.entries({ description: value.description, kind: value.kind, unit: value.unit, unit_price: value.unitPrice, valid_from: value.validFrom, valid_until: value.validUntil, active: value.active }).filter(([, item]) => item !== undefined));
+  const update = Object.fromEntries(Object.entries({ code: value.code?.toUpperCase(), description: value.description, kind: value.kind, unit: value.unit, unit_price: value.unitPrice, valid_from: value.validFrom, valid_until: value.validUntil, active: value.active }).filter(([, item]) => item !== undefined));
   const { data, error } = await supabase.from("field_service_lpu_items").update(update).eq("id", id).eq("organization_id", value.organizationId).select("id,organization_id,code,description,kind,unit,unit_price,valid_from,valid_until,active").single();
-  if (error) return reply(error.code === "PGRST116" ? 404 : 503, error.code === "PGRST116" ? "LPU_ITEM_NOT_FOUND" : "LPU_UPDATE_UNAVAILABLE");
+  if (error) return reply(error.code === "PGRST116" ? 404 : error.code === "23505" ? 409 : 503, error.code === "PGRST116" ? "LPU_ITEM_NOT_FOUND" : error.code === "23505" ? "LPU_ITEM_ALREADY_EXISTS" : "LPU_UPDATE_UNAVAILABLE");
   return Response.json({ item: data }, { headers: { "Cache-Control": "no-store" } });
 }
 
