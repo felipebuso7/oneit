@@ -21,7 +21,7 @@ Não foram feitas alterações destrutivas, migrations ou alterações de dados 
 | Despacho Field Service | Parcial | `dispatch`, agenda, elegibilidade e testes contratuais existem; o endpoint foi ajustado para não exigir que um dispatcher insira uma tabela administrativa protegida por RLS quando o vínculo legado está ausente; não houve E2E autenticado comprovado no ciclo registrado | Testar atribuição, conflito de agenda, status e histórico em banco real |
 | Link do técnico externo | Parcial | há `partner/access`, token/code gate e eventos; validade, revogação e upload dependem de homologação real | Testar token expirado/revogado, retomada e isolamento por OS |
 | Evidências e assinatura | Parcial | rotas de upload, storage e testes existem; provedor/storage real e limites de payload precisam de prova operacional | Executar upload de 3 fotos, assinatura, consulta e controle de acesso |
-| Validação, precificação e RTO | Parcial/implementada em código | `review`, LPU lines, geração RTO e fechamento têm funções e testes; fluxo autenticado real não foi completado | Validar pré-condições, devolução, versão do PDF e encerramento transacional |
+| Validação, precificação e RTO | Parcial/implementada em código | `review`, LPU lines, geração RTO e fechamento têm funções e testes; o RTO é gerado antes do fechamento definitivo, embora o snapshot contenha `ticket_closed_at`; fluxo autenticado real não foi completado | Definir transação final para que o PDF preserve o horário real de fechamento sem quebrar a imutabilidade |
 | BM por competência | Parcial | APIs, PDF, totais, congelamento e e-mail/fiscal possuem migrations/testes; worker e envio real ainda não comprovados | Homologar elegibilidade, idempotência, snapshot e fila de e-mail |
 | LPU e composição | Parcial | `field_service_lpu_items` e `field_service_order_lpu_lines` persistem unidade, quantidade e preço congelado; o fluxo ainda não possui uma entidade de composição multi-item (mão de obra + materiais) | Validar o modelo atual com itens independentes; só criar composição após definir regra contratual e impacto no BM |
 | Segurança/RLS | Aberta | RBAC/RLS e migrations existem; teste de duas organizações em banco real ainda não foi concluído | Executar matriz owner/admin/dispatcher/financeiro/técnico/externo |
@@ -38,6 +38,7 @@ Não foram feitas alterações destrutivas, migrations ou alterações de dados 
 5. Backup/restauração e operação Linux/VPS com rollback testado.
 6. Benchmark com volume representativo e paginação validada nas listas operacionais.
 7. Inventário visual de todas as rotas administrativas; não é seguro declarar uniformidade global apenas por inspeção de algumas telas.
+8. RTO final ainda pode não conter `ticket_closed_at`: `generate_field_service_rto` grava o snapshot antes de `close_field_service_ticket`, que exige o PDF já persistido.
 
 ## Plano de ação priorizado
 
@@ -103,6 +104,7 @@ Critério: riscos P0/P1 fechados ou explicitamente aceitos pelo Owner com evidê
 - `tests/service-catalog-portal-contract.test.ts`: contratos do catálogo autenticado cobrem ausência de `localStorage`/demo, escopo por organização, itens ativos nos seletores e revalidação da abertura de chamados.
 - `src/app/api/field-service/dispatch/route.ts` e `tests/portal-field-dispatch-contract.test.ts`: removido o bloqueio indevido que tentava criar vínculo administrativo durante o despacho de um usuário dispatcher; vínculos inativos continuam bloqueando, mas vínculo legado ausente não impede o RPC transacional.
 - O modelo LPU foi revisado: a linha da OS congela `lpu_code`, descrição, unidade, quantidade e preço unitário; composição de vários itens ainda é uma lacuna de produto, não uma falha a ser mascarada com dados locais.
+- A sequência RTO → fechamento foi auditada: o fechamento grava `field_service_ticket_closures.closed_at`, mas não atualiza o snapshot/PDF já imutável. Essa decisão exige alteração transacional planejada, não um ajuste visual.
 - Este documento: baseline executável para o plano de reconstrução, sem alterar dados ou migrations.
 
 ## Validação planejada
