@@ -23,14 +23,15 @@ export async function createTicket(formData: FormData) {
   if (!parsed.success) redirect("/portal/tickets?message=Dados+do+chamado+inválidos.");
 
   const { supabase } = await requireUser();
-  const { error } = await supabase.from("tickets").insert({
+  const { data: createdTicket, error } = await supabase.from("tickets").insert({
     organization_id: parsed.data.organizationId, servicenow_number: parsed.data.servicenowNumber || null, customer_id: parsed.data.customerId,
     contract_id: parsed.data.contractId, service_offering_id: parsed.data.serviceOfferingId, requester_collaborator_id: parsed.data.requesterCollaboratorId, department_unit_id: parsed.data.departmentUnitId, location_id: parsed.data.locationId,
     title: parsed.data.title, description: parsed.data.description, impact: parsed.data.impact,
     urgency: parsed.data.urgency, ticket_type: parsed.data.ticketType,
-  });
-  if (error) redirect(`/portal/tickets?message=${encodeURIComponent(ticketCreationMessage(error.message))}`);
-  revalidatePath("/portal/tickets"); redirect("/portal/tickets?message=Chamado+aberto.");
+  }).select("id,ticket_number").single();
+  if (error || !createdTicket) redirect(`/portal/tickets?message=${encodeURIComponent(ticketCreationMessage(error?.message))}`);
+  revalidatePath("/portal/tickets");
+  redirect(`/portal/tickets?message=${encodeURIComponent(`Chamado ${createdTicket.ticket_number} aberto e salvo na fila.`)}`);
 }
 
 export async function sendToTriage(formData: FormData) {
