@@ -70,10 +70,9 @@ export default async function FieldPage({ searchParams }: PageProps) {
       const previous = (records ?? []).find((record) => record.ticket_id === ticket.id);
       const ticketHistory = (history ?? []).filter((event) => event.ticket_id === ticket.id);
       const ticketEvidence = (evidences ?? []).filter((item) => item.ticket_id === ticket.id);
-      return <article className="rounded-xl border bg-white p-5 shadow-sm" key={ticket.id}>
-        <p className="text-sm font-medium text-slate-500">{ticket.ticket_number}</p>
-        <h2 className="mt-1 text-lg font-semibold">{ticket.title}</h2>
-        <div className="mt-2 flex items-center gap-2 text-sm text-slate-600"><span>Status:</span><OneitStatusBadge tone={ticket.operational_status === "IN_PROGRESS" ? "info" : ticket.operational_status === "ON_SITE" ? "warning" : "neutral"}>{statusLabels[ticket.operational_status] ?? ticket.operational_status}</OneitStatusBadge></div>
+      return <article className={`rounded-xl border border-slate-200 border-l-4 bg-white p-5 shadow-sm ${ticket.operational_status === "IN_PROGRESS" ? "border-l-sky-700" : ticket.operational_status === "ON_SITE" ? "border-l-amber-500" : "border-l-slate-300"}`} key={ticket.id}>
+        <div className="flex flex-wrap items-start justify-between gap-3"><div><p className="text-sm font-medium text-sky-900">{ticket.ticket_number}</p><h2 className="mt-1 text-lg font-semibold text-slate-950">{ticket.title}</h2></div><OneitStatusBadge tone={ticket.operational_status === "IN_PROGRESS" ? "info" : ticket.operational_status === "ON_SITE" ? "warning" : "neutral"}>{statusLabels[ticket.operational_status] ?? ticket.operational_status}</OneitStatusBadge></div>
+        <div className="mt-3 flex flex-wrap gap-x-5 gap-y-1 text-xs text-slate-500"><span>Agendado: <strong className="font-semibold text-slate-700">{ticket.scheduled_at ? new Date(ticket.scheduled_at).toLocaleString("pt-BR") : "A definir"}</strong></span><span>Próxima ação: <strong className="font-semibold text-slate-700">{action?.[1] ?? "Registrar execução"}</strong></span></div>
         {ticket.administrative_status === "RETURNED_TO_TECHNICIAN" ? <p className="mt-3 rounded bg-amber-100 p-3 text-sm">Correção solicitada: {(reviews ?? []).find((review) => review.ticket_id === ticket.id)?.reason}</p> : null}
         <JourneyTimeline status={ticket.operational_status} history={ticketHistory} evidenceCount={ticketEvidence.length} />
         {action ? <CheckInForm ticketId={ticket.id} ownerId={user.id} version={ticket.version} eventType={action[0]} label={action[1]} /> :

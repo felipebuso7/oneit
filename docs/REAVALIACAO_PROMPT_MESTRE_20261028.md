@@ -291,3 +291,7 @@ No portal público do técnico, a seção “Detalhes do chamado” passou a usa
 reforçando a hierarquia das informações essenciais antes da execução. A jornada, os bloqueios por etapa, evidências,
 assinatura e checkout permanecem com o mesmo comportamento e contrato de API. ESLint direcionado e typecheck passaram.
 
+Na agenda do técnico interno, cada OS passou a ter acento lateral semântico, status destacado no cabeçalho e uma linha
+resumida com data/hora agendada e próxima ação. A alteração reduz a carga de leitura antes do check-in sem modificar os
+componentes de execução, evidências, materiais, pendências ou checkout. ESLint direcionado e typecheck passaram.
+
