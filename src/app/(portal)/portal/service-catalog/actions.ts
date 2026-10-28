@@ -18,7 +18,13 @@ async function persist(formData: FormData, kind: "category" | "subcategory" | "o
     ({ error } = await supabase.from("service_offerings").insert({ subcategory_id: parsed.data.subcategoryId, code: parsed.data.code, name: parsed.data.name }));
   }
   if (error) redirect("/portal/service-catalog?message=Não+foi+possível+salvar.+Verifique+permissão,+código+e+hierarquia.");
-  revalidatePath("/portal/service-catalog"); redirect("/portal/service-catalog?message=Catálogo+atualizado.");
+  // O catálogo é consumido pelo fluxo de abertura de chamados e por regras de
+  // SLA. Invalide as telas dependentes para que um novo item apareça sem
+  // exigir logout, hard refresh ou uma nova sessão.
+  revalidatePath("/portal/service-catalog");
+  revalidatePath("/portal/tickets");
+  revalidatePath("/portal/sla");
+  redirect("/portal/service-catalog?message=Catálogo+atualizado.");
 }
 export async function createServiceCategory(formData: FormData) { await persist(formData, "category"); }
 export async function createServiceSubcategory(formData: FormData) { await persist(formData, "subcategory"); }
