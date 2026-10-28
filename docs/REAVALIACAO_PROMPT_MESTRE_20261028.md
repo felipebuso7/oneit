@@ -175,3 +175,9 @@ Também foram alinhadas as consultas administrativas do catálogo e de SLA: amba
 subcategoria → oferta e restringem os itens aos descendentes das organizações autorizadas. O teste direcionado passou a
 cobrir os dois consumidores adicionais (8 testes aprovados).
 
+Foi acrescentado o contrato `tests/field-service-end-to-end-contract.test.ts`, que verifica a sequência estrutural
+despacho → acesso público do técnico → check-in/check-out → fila persistente de validação → RTO → encerramento. A
+validação confirmou que o técnico conclui a `service_order` como `COMPLETED`, a fila gerencial é criada pelo trigger
+`service_orders_enqueue_review` com estado `PENDING`, e o chamado só é encerrado após revisão, PDF e fechamento transacional.
+O teste direcionado do fluxo passou com 5 testes aprovados.
+
