@@ -15,4 +15,12 @@ describe("referência ServiceNow do chamado", () => {
     expect(dossier).toContain("servicenow_number");
     expect(component).toContain("name=\"servicenowNumber\"");
   });
+
+  it("bloqueia o envio até que organização, cliente e localidade estejam definidos", () => {
+    const component = readFileSync("src/components/tickets/ticket-create-flow.tsx", "utf8");
+    expect(component).toContain("const [locationId, setLocationId] = useState(\"\");");
+    expect(component).toContain("setLocationId(\"\")");
+    expect(component).toContain("!organizationId || !offeringId || !customerId || !locationId");
+    expect(component).toContain("Selecione a localidade");
+  });
 });
