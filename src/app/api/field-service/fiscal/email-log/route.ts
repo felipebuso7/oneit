@@ -12,6 +12,9 @@ export async function GET(request: Request) {
   const supabase = await createClient();
   const { data: auth, error: authError } = await supabase.auth.getUser();
   if (authError || !auth.user) return reply(401, "AUTH_REQUIRED");
+  const { data: role, error: roleError } = await supabase.from("user_roles").select("role").eq("user_id", auth.user.id).eq("organization_id", organizationId).in("role", ["SUPER_ADMIN", "ORG_ADMIN", "MANAGER", "FINANCE"]).limit(1).maybeSingle();
+  if (roleError) return reply(503, "EMAIL_LOG_AUTHORIZATION_UNAVAILABLE");
+  if (!role) return reply(403, "EMAIL_LOG_NOT_AUTHORIZED");
   let query = supabase.from("billing_email_log").select("id,email_type,status,provider,recipients,subject,attachments,context,created_at,sent_at,error_message").eq("organization_id", organizationId).order("created_at", { ascending: false }).limit(Math.min(Number(params.get("limit") ?? 50) || 50, 100));
   const emailType = params.get("emailType");
   const status = params.get("status");
