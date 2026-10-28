@@ -37,6 +37,8 @@ describe("despacho do portal", () => {
     expect(securePartner).toContain("PartnerExecutionFlow");
     expect(dispatchApi).toContain("operationalTechnician");
     expect(dispatchApi).toContain("field_service_technicians");
+    expect(dispatchApi).toContain("select(\"id, active\")");
+    expect(dispatchApi).toContain("!technicianMapping.active");
     expect(dispatchApi).toContain("operational_technician_id: operationalTechnician.id");
   });
 });

@@ -46,13 +46,12 @@ export async function POST(request: Request) {
 
   const { data: technicianMapping, error: technicianMappingError } = await supabase
     .from("field_service_technicians")
-    .select("id")
+    .select("id, active")
     .eq("organization_id", ticketReference.organization_id)
     .eq("operational_technician_id", value.technicianId)
-    .eq("active", true)
     .maybeSingle();
   if (technicianMappingError) return reply(503, "DISPATCH_UNAVAILABLE");
-  if (technicianMapping && !technicianMapping.id) return reply(422, "DISPATCH_REFERENCE_INVALID");
+  if (technicianMapping && !technicianMapping.active) return reply(422, "DISPATCH_REFERENCE_INVALID");
   if (!technicianMapping) {
     const email = (operationalTechnician.email ?? `tecnico-${operationalTechnician.id.slice(0, 8)}@oneit.local`).toLowerCase();
     const { error: mappingInsertError } = await supabase.from("field_service_technicians").insert({
