@@ -18,14 +18,12 @@ export async function updateOrganization(formData: FormData) {
   }
 
   const { supabase } = await requireUser();
-  const { error } = await supabase
+  const { data: updated, error } = await supabase
     .from("organizations")
     .update({ legal_name: parsed.data.legalName, display_name: parsed.data.displayName })
-    .eq("id", id);
+    .eq("id", id).select("id").maybeSingle();
 
-  if (error) {
-    redirect("/portal/organizations?message=Não+foi+possível+atualizar+a+organização.");
-  }
+  if (error || !updated) redirect(`/portal/organizations?message=${encodeURIComponent(error ? "Não foi possível atualizar a organização." : "Organização não encontrada ou sem permissão para edição.")}`);
 
   revalidatePath("/portal/organizations");
   redirect("/portal/organizations?message=Organização+atualizada.");

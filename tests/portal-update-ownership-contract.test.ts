@@ -4,6 +4,9 @@ import { describe, expect, it } from "vitest";
 const assets = readFileSync("src/app/(portal)/portal/assets/actions.ts", "utf8");
 const supplierActions = readFileSync("src/app/(portal)/portal/supplier-actions/actions.ts", "utf8");
 const technicians = readFileSync("src/app/(portal)/portal/technicians/actions.ts", "utf8");
+const customers = readFileSync("src/app/(portal)/portal/customers/actions.ts", "utf8");
+const locations = readFileSync("src/app/(portal)/portal/locations/actions.ts", "utf8");
+const organizations = readFileSync("src/app/(portal)/portal/organizations/actions.ts", "utf8");
 
 describe("atualizações do portal não mascaram falhas de persistência", () => {
   it("confirma que a atualização de ativo afetou uma linha visível ao usuário", () => {
@@ -22,5 +25,12 @@ describe("atualizações do portal não mascaram falhas de persistência", () =>
     expect(technicians).toContain('.select("id,status")');
     expect(technicians).toContain("!updated");
     expect(technicians).toContain("Técnico não encontrado");
+  });
+
+  it("confirma que cadastros mestres não mascaram atualização sem linha afetada", () => {
+    for (const source of [customers, locations, organizations]) {
+      expect(source).toContain('.select("id").maybeSingle()');
+      expect(source).toContain("!updated");
+    }
   });
 });

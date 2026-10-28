@@ -23,11 +23,11 @@ export async function updateLocation(formData: FormData) {
   });
   if (!parsed.success) redirect("/portal/locations?message=Dados+da+localidade+inválidos.");
   const { supabase } = await requireUser();
-  const { error } = await supabase.from("customer_locations").update({
+  const { data: updated, error } = await supabase.from("customer_locations").update({
     customer_id: parsed.data.customerId, name: parsed.data.name, city: parsed.data.city, state_code: parsed.data.stateCode ?? null,
     external_code: parsed.data.externalCode ?? null, street: parsed.data.street ?? null, street_number: parsed.data.streetNumber ?? null,
-  }).eq("id", parsed.data.locationId).eq("organization_id", parsed.data.organizationId);
-  if (error) redirect("/portal/locations?message=Não+foi+possível+atualizar+a+localidade.");
+  }).eq("id", parsed.data.locationId).eq("organization_id", parsed.data.organizationId).select("id").maybeSingle();
+  if (error || !updated) redirect(`/portal/locations?message=${encodeURIComponent(error ? "Não foi possível atualizar a localidade." : "Localidade não encontrada ou sem permissão para edição.")}`);
   revalidatePath("/portal/locations"); revalidatePath("/portal/tickets"); revalidatePath("/portal/field-service");
   redirect("/portal/locations?message=Localidade+atualizada.");
 }

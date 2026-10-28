@@ -40,9 +40,9 @@ export async function updateCustomer(formData: FormData) {
   });
   if (!parsed.success) redirect("/portal/customers?message=Dados+do+cliente+inválidos.");
   const { supabase } = await requireUser();
-  const { error } = await supabase.from("customers").update({ name: parsed.data.name, external_code: parsed.data.externalCode ?? null })
-    .eq("id", parsed.data.customerId).eq("organization_id", parsed.data.organizationId);
-  if (error) redirect("/portal/customers?message=Não+foi+possível+atualizar+o+cliente.");
+  const { data: updated, error } = await supabase.from("customers").update({ name: parsed.data.name, external_code: parsed.data.externalCode ?? null })
+    .eq("id", parsed.data.customerId).eq("organization_id", parsed.data.organizationId).select("id").maybeSingle();
+  if (error || !updated) redirect(`/portal/customers?message=${encodeURIComponent(error ? "Não foi possível atualizar o cliente." : "Cliente não encontrado ou sem permissão para edição.")}`);
   revalidatePath("/portal/customers"); revalidatePath("/portal/tickets"); revalidatePath("/portal/locations");
   redirect("/portal/customers?message=Cliente+atualizado.");
 }
