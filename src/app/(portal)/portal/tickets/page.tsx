@@ -18,7 +18,7 @@ export default async function TicketsPage({ searchParams }: PageProps) {
     organizationIds.length ? supabase.from("service_offerings").select("id, subcategory_id, code, name").eq("active", true).order("name") : Promise.resolve({ data: [] }),
     organizationIds.length ? supabase.from("collaborators").select("id, organization_id, full_name").in("organization_id", organizationIds).eq("status", "ACTIVE").order("full_name") : Promise.resolve({ data: [] }),
     organizationIds.length ? supabase.from("organization_units").select("id, organization_id, name").in("organization_id", organizationIds).eq("unit_type", "DEPARTMENT").eq("active", true).order("name") : Promise.resolve({ data: [] }),
-    organizationIds.length ? supabase.from("tickets").select("id, ticket_number, servicenow_number, customer_id, location_id, title, ticket_type, priority, operational_status, administrative_status, created_at, category_code, service_type_code").in("organization_id", organizationIds).order("created_at", { ascending: false }).limit(500) : Promise.resolve({ data: [], error: null }),
+    organizationIds.length ? supabase.from("tickets").select("id, ticket_number, servicenow_number, customer_id, location_id, title, ticket_type, priority, operational_status, administrative_status, created_at, category_code, service_type_code, version").in("organization_id", organizationIds).order("created_at", { ascending: false }).limit(500) : Promise.resolve({ data: [], error: null }),
   ]);
   const ticketIds = (tickets ?? []).map((ticket) => ticket.id);
   const { data: serviceLevels } = ticketIds.length ? await supabase.from("ticket_service_levels").select("ticket_id,resolution_due_at").in("ticket_id", ticketIds) : { data: [] };

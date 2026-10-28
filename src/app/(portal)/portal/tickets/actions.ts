@@ -74,3 +74,28 @@ export async function awaitScheduling(formData: FormData) {
   if (error) redirect("/portal/tickets?message=Não+foi+possível+atualizar+o+chamado.");
   revalidatePath("/portal/tickets"); redirect("/portal/tickets?message=Chamado+pronto+para+agendamento.");
 }
+
+export async function cancelTicket(formData: FormData) {
+  const ticketId = String(formData.get("ticketId") ?? "");
+  const version = Number(formData.get("version"));
+  const reason = String(formData.get("reason") ?? "").trim();
+  if (!ticketId || !Number.isInteger(version) || version < 1) {
+    redirect("/portal/tickets?message=Não foi possível identificar o chamado para cancelamento.");
+  }
+
+  const { supabase } = await requireUser();
+  const { error } = await supabase.rpc("cancel_ticket", {
+    target_ticket_id: ticketId,
+    expected_version: version,
+    target_reason: reason || null,
+  });
+  if (error) {
+    if (error.message.includes("TICKET_VERSION_CONFLICT")) redirect("/portal/tickets?message=O chamado foi alterado por outra pessoa. Recarregue a fila e tente novamente.");
+    if (error.message.includes("TICKET_CANCEL_NOT_ALLOWED")) redirect("/portal/tickets?message=Este chamado já iniciou o atendimento e não pode ser removido da fila.");
+    if (error.message.includes("TICKET_NOT_AUTHORIZED")) redirect("/portal/tickets?message=Seu perfil não pode remover este chamado da fila.");
+    redirect("/portal/tickets?message=Não foi possível remover o chamado da fila.");
+  }
+  revalidatePath("/portal/tickets");
+  revalidatePath("/portal/field-service");
+  redirect("/portal/tickets?message=Chamado removido da fila e cancelado com histórico preservado.");
+}
