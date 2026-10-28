@@ -116,6 +116,14 @@ Entrega desta rodada: o dossiê autenticado agora exibe esse estado e a ação c
 - O lint remoto passou sem erros; permanecem apenas dois avisos legados não bloqueantes (nome de parâmetro reservado e parâmetro fiscal compatível mantido por contrato).
 - Auditoria estrita: **182 migrations, nenhum alerta estático**. Suíte completa: **115 arquivos / 244 testes aprovados**. Typecheck aprovado.
 
+### Atualização de execução — 28/10/2026 (contexto operacional congelado no RTO)
+
+- A migration aditiva `20261028162000_field_service_rto_context_snapshot.sql` passou a congelar no snapshot do RTO o número e título do chamado, cliente, localidade, endereço, técnico e contato local, além dos dados operacionais já existentes (linha do tempo, relato, assinatura, evidências e composição LPU).
+- O PDF do RTO passou a exibir uma seção `DADOS DO ATENDIMENTO` com esses campos, mantendo compatibilidade com relatórios antigos que não possuam os novos atributos.
+- Validação: typecheck aprovado; suíte completa **124 arquivos / 254 testes aprovados**; build de produção aprovado; `supabase db push --linked --yes` aplicou somente a migration aditiva.
+- Publicação confirmada em `https://oneit-omega.vercel.app`: `/api/version` retornou commit `1ecf844bd0eb6a423026fb9e85b8c398cc0f3f2a`, `environment=production`; `/api/ready` retornou `status=ready` e `deploymentMode=supabase`.
+- Limitação mantida: ainda não há evidência de homologação autenticada ponta a ponta nem de entrega real por WhatsApp/e-mail; essa entrega melhora o dossiê do RTO, mas não encerra a Sprint S2.
+
 ## 4. Critérios de avanço
 
 Uma tarefa só será marcada como concluída quando houver:
