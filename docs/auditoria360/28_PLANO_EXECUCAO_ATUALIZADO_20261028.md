@@ -139,6 +139,12 @@ Entrega desta rodada: o dossiê autenticado agora exibe esse estado e a ação c
 - Publicação confirmada: `/api/version` retornou commit `f428a9822d94f891c9b3ffd8449e2afd13e80f1a`; `/api/ready` retornou `status=ready` e `deploymentMode=supabase`.
 - Limitação: ainda não há evidência de homologação autenticada ponta a ponta nem de entrega real por WhatsApp/e-mail. O timestamp de fechamento administrativo do chamado pode permanecer como “Não calculado” no RTO quando o relatório é gerado antes da etapa final de fechamento, conforme o fluxo atual.
 
+### Atualização de execução — 28/10/2026 (assinatura do RTO)
+
+- O RTO exibe somente a assinatura do responsável do cliente, preservando nome e imagem coletados no atendimento técnico.
+- Técnico e validador aparecem na seção de dados do atendimento sem campos de assinatura. O validador é resolvido pelo `generated_by` do relatório e pelo perfil do usuário autenticado que gerou o documento, sem ampliar a leitura de perfis de outras pessoas.
+- Validação: teste focado de layout aprovado, suíte completa com **133 arquivos / 268 testes aprovados** e typecheck aprovado. Publicação confirmada no commit `21759bf1cb3ddafbd5a45edd9c688cb351de9b74`; `/api/ready` retornou `status=ready` e `deploymentMode=supabase`.
+
 ## 4. Critérios de avanço
 
 Uma tarefa só será marcada como concluída quando houver:
