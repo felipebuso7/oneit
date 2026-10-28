@@ -15,7 +15,7 @@ export default async function LpuSettingsPage() {
     : { data: [] };
 
   return <section className="mx-auto max-w-6xl p-8">
-    <OneitPageHeader eyebrow="Configurações · Field Service" title="LPU e materiais" description="Cadastre serviços, materiais, mão de obra e deslocamentos que poderão ser usados na validação e no faturamento." />
+    <OneitPageHeader eyebrow="Configurações · Field Service" title="Cadastro de LPU" description="Cadastre materiais, mão de obra e deslocamentos com unidade e preço unitário para a validação e o faturamento." />
     <LpuSettingsClient organizations={organizations} initialItems={items ?? []} />
   </section>;
 }
