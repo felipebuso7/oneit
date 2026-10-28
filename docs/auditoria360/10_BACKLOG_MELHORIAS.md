@@ -32,6 +32,10 @@
 
 Nenhum item deve ser marcado como concluído sem evidência executada, arquivos alterados e teste correspondente.
 
+### Atualização financeira — 2026-10-28
+
+Foi preparada a migration `20261028120000_defer_fiscal_batch_acceptance.sql`. A criação do lote fiscal permanece em `READY` e não marca BMs ou competência como enviados. Essa promoção só ocorre quando o worker registra o e-mail fiscal como `SENT`, com evento por BM e referência ao log do e-mail. A aplicação remota ainda depende de homologação em cópia restaurada.
+
 ## Evidência do ciclo de estabilização 2026-10-28
 
 - Suíte automatizada: **106 arquivos / 223 testes aprovados** (`npx vitest run tests`).

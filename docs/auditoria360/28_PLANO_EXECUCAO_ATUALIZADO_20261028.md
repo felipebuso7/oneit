@@ -38,6 +38,7 @@ Entrega desta rodada: o dossiê autenticado agora exibe esse estado e a ação c
 - Despacho: técnicos ativos sem vínculo legado podem ser recuperados com segurança no primeiro despacho; vínculos inativos continuam bloqueados (`e13f4be`).
 - Validação: a fila oficial de Field Service não duplica mais chamados exibidos no fluxo legado (`d31fb9e`).
 - Financeiro: destinatários de BM/fiscal agora são normalizados e deduplicados antes da validação e do enfileiramento, evitando rejeição por capitalização (`queue-email/route.ts`).
+- Financeiro: migration `20261028120000_defer_fiscal_batch_acceptance.sql` preparada para impedir que a criação do lote marque a competência como enviada antes da confirmação do e-mail fiscal; a promoção passa a ocorrer no evento `SENT` do worker.
 - Suíte: 106 arquivos e 223 testes aprovados; typecheck aprovado.
 - A publicação foi confirmada em produção pelo endpoint `/api/version`, mas a homologação autenticada com dados reais de teste ainda não foi executada.
 
