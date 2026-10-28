@@ -5,7 +5,7 @@ const source = readFileSync("src/app/(portal)/portal/settings/field-service/lpu/
 
 describe("cadastro de LPU", () => {
   it("mantém itens inativos visíveis e permite reativá-los", () => {
-    expect(source).toContain("visibleItems.length ?");
+    expect(source).toContain("filteredItems.length ?");
     expect(source).toContain('item.active ? "Desativar" : "Reativar"');
     expect(source).toContain('active: true');
   });
