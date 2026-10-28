@@ -39,4 +39,24 @@ describe("isolamento da demonstração", () => {
     const response = await proxy(new NextRequest("https://oneit.example/demo"));
     expect(response.status).toBe(404);
   });
+
+  it("propaga um request-id válido para a resposta", async () => {
+    vi.stubEnv("NODE_ENV", "development");
+    vi.stubEnv("NEXT_PUBLIC_SUPABASE_URL", "");
+    vi.stubEnv("NEXT_PUBLIC_SUPABASE_ANON_KEY", "");
+    const response = await proxy(new NextRequest("http://localhost:3000/portal", {
+      headers: { "x-request-id": "homologacao-123" },
+    }));
+    expect(response.headers.get("x-request-id")).toBe("homologacao-123");
+  });
+
+  it("substitui request-id inválido por um identificador seguro", async () => {
+    vi.stubEnv("NODE_ENV", "development");
+    vi.stubEnv("NEXT_PUBLIC_SUPABASE_URL", "");
+    vi.stubEnv("NEXT_PUBLIC_SUPABASE_ANON_KEY", "");
+    const response = await proxy(new NextRequest("http://localhost:3000/portal", {
+      headers: { "x-request-id": "id com espaços e tamanho inválido" },
+    }));
+    expect(response.headers.get("x-request-id")).toMatch(/^[0-9a-f-]{36}$/);
+  });
 });
