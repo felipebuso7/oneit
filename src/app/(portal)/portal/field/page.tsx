@@ -78,8 +78,11 @@ export default async function FieldPage({ searchParams }: PageProps) {
         <JourneyTimeline status={ticket.operational_status} history={ticketHistory} evidenceCount={ticketEvidence.length} />
         {action ? <CheckInForm ticketId={ticket.id} ownerId={user.id} version={ticket.version} eventType={action[0]} label={action[1]} /> :
           <ExecutionForm key={`${ticket.id}:${ticket.version}`} ownerId={user.id} ticketId={ticket.id} version={ticket.version} items={items} previous={previous} />}
-        {["ON_SITE", "WORK_STARTED", "IN_PROGRESS"].includes(ticket.operational_status) ?
-          <Attachments ownerId={user.id} ticketId={ticket.id} version={ticket.version} canAddMaterial={ticket.operational_status !== "ON_SITE"}
+        {/* Evidências e materiais só ficam disponíveis depois do check-in de início
+            do atendimento. O check-in de chegada apenas confirma presença no local;
+            liberar anexos antes disso criava uma etapa operacional ambígua. */}
+        {["WORK_STARTED", "IN_PROGRESS"].includes(ticket.operational_status) ?
+          <Attachments ownerId={user.id} ticketId={ticket.id} version={ticket.version} canAddMaterial
             materials={(materials ?? []).filter((item) => item.organization_id === null || item.organization_id === ticket.organization_id)}
             usages={(usages ?? []).filter((item) => item.ticket_id === ticket.id)}
             evidences={ticketEvidence} /> : null}
