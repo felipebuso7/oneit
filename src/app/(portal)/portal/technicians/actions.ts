@@ -29,14 +29,50 @@ export async function createTechnician(formData: FormData) {
     primary_region_id: parsed.data.primaryRegionId,
   }).select("id,full_name,email,phone,employment_type,organization_id").single();
   if (error) redirect("/portal/technicians?message=Não+foi+possível+criar+o+técnico.");
-  const fieldEmail = technician.email ?? `tecnico-${technician.id.slice(0, 8)}@oneit.local`;
+  // A trigger no banco cria o cadastro mestre automaticamente. O update abaixo
+  // também torna a operação compatível com ambientes anteriores à trigger e
+  // mantém os dados administrativos como fonte de verdade.
+  const fieldEmail = (technician.email ?? `tecnico-${technician.id.slice(0, 8)}@oneit.local`).toLowerCase();
   const fieldType = /parceir|extern/i.test(technician.employment_type) ? "partner" : "internal";
-  const { error: fieldError } = await supabase.from("field_service_technicians").insert({
-    organization_id: technician.organization_id, name: technician.full_name, email: fieldEmail,
-    technician_type: fieldType, phone: technician.phone, operational_technician_id: technician.id,
-  });
-  if (fieldError) redirect("/portal/technicians?message=Técnico criado, mas não foi possível criar o vínculo automático com o Field Service. Use Sincronizar cadastros.");
+  const fieldPayload = { name: technician.full_name, email: fieldEmail, technician_type: fieldType, phone: technician.phone ?? null, active: true };
+  const { data: existingField, error: fieldLookupError } = await supabase.from("field_service_technicians")
+    .select("id").eq("organization_id", technician.organization_id).eq("operational_technician_id", technician.id).maybeSingle();
+  if (fieldLookupError) redirect("/portal/technicians?message=Técnico criado, mas não foi possível confirmar o vínculo automático com o Field Service.");
+  if (existingField) {
+    const { error: fieldUpdateError } = await supabase.from("field_service_technicians").update(fieldPayload).eq("id", existingField.id);
+    if (fieldUpdateError) redirect("/portal/technicians?message=Técnico criado, mas não foi possível atualizar o vínculo do Field Service.");
+  } else {
+    const { error: fieldInsertError } = await supabase.from("field_service_technicians").insert({
+      organization_id: technician.organization_id, ...fieldPayload, operational_technician_id: technician.id,
+    });
+    if (fieldInsertError && fieldInsertError.code !== "23505") redirect("/portal/technicians?message=Técnico criado, mas não foi possível criar o vínculo automático com o Field Service.");
+  }
   revalidatePath("/portal/technicians"); redirect("/portal/technicians?message=Técnico+cadastrado.");
+}
+
+export async function updateTechnician(formData: FormData) {
+  const parsed = technicianSchema.extend({ technicianId: z.uuid() }).safeParse({
+    technicianId: formData.get("technicianId"), organizationId: formData.get("organizationId"), fullName: formData.get("fullName"),
+    email: formData.get("email") || undefined, phone: formData.get("phone") || undefined,
+    employmentType: formData.get("employmentType"), baseCity: formData.get("baseCity") || undefined,
+    primaryRegionId: formData.get("primaryRegionId") || undefined,
+  });
+  if (!parsed.success) redirect("/portal/technicians?message=Dados do técnico inválidos.");
+  const { supabase } = await requireUser();
+  const { data: technician, error } = await supabase.from("technicians").update({
+    full_name: parsed.data.fullName, email: parsed.data.email, phone: parsed.data.phone,
+    employment_type: parsed.data.employmentType, base_city: parsed.data.baseCity, primary_region_id: parsed.data.primaryRegionId,
+  }).eq("id", parsed.data.technicianId).eq("organization_id", parsed.data.organizationId)
+    .select("id,full_name,email,phone,employment_type,organization_id,active").single();
+  if (error || !technician) redirect("/portal/technicians?message=Não foi possível atualizar o técnico.");
+  const fieldEmail = (technician.email ?? `tecnico-${technician.id.slice(0, 8)}@oneit.local`).toLowerCase();
+  const fieldType = /parceir|extern/i.test(technician.employment_type) ? "partner" : "internal";
+  const { error: fieldError } = await supabase.from("field_service_technicians").update({
+    name: technician.full_name, email: fieldEmail, phone: technician.phone ?? null, technician_type: fieldType, active: technician.active,
+  }).eq("organization_id", technician.organization_id).eq("operational_technician_id", technician.id);
+  if (fieldError) redirect("/portal/technicians?message=Técnico atualizado, mas o vínculo do Field Service não foi atualizado.");
+  revalidatePath("/portal/technicians"); revalidatePath("/portal/field-service");
+  redirect("/portal/technicians?message=Técnico+atualizado.");
 }
 
 export async function syncFieldServiceTechnicians(formData: FormData) {
