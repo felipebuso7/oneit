@@ -23,5 +23,8 @@ describe("despacho do portal", () => {
     expect(tickets).toContain("Aguardando validação");
     expect(caseFile).toContain("Atribuir visita");
     expect(caseFile).toContain("canDispatch");
+    expect(caseFile).toContain("awaitingValidation");
+    expect(caseFile).toContain("Validar OS");
+    expect(caseFile).toContain("Aguardando validação");
   });
 });
