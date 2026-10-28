@@ -170,6 +170,12 @@ Entrega desta rodada: o dossiê autenticado agora exibe esse estado e a ação c
 - Não foram criados registros, enviados WhatsApp/e-mails ou marcadas transições como aprovadas sem uma sessão autenticada verificável.
 - O roteiro permanece bloqueado somente por essa pré-condição operacional; contratos, testes automatizados, build e health checks continuam aprovados.
 
+### Atualização de execução — 28/10/2026 (alinhamento de migrations)
+
+- `npx supabase migration list --linked` confirmou que todas as migrations locais estão aplicadas no projeto remoto, sem divergências de versão.
+- A versão mais recente alinhada é `20261028163000_field_service_rto_duration_snapshot`.
+- A verificação foi somente leitura; nenhuma migration foi executada ou alterada nesta etapa.
+
 ## 4. Critérios de avanço
 
 Uma tarefa só será marcada como concluída quando houver:
