@@ -14,7 +14,9 @@
 | A360-P1-10 | P1 | Fechamento fiscal exige log `SENT` por BM, mas e-mail fiscal é enfileirado só por lote | `20261025200000_measurement_close_requires_sent_email.sql` exige `measurement_sheet_id`; `queue-email/route.ts` grava `fiscal_batch_id` sem BM | Definir vínculo lote–BMs para comprovação de envio e fechamento, corrigir em migração nova e testar lote com vários BMs em banco restaurado | Aberto; impedimento documentado em `19_FILA_EMAIL_VALIDACAO_CONTEXT.md` |
 | A360-P1-11 | P1 | Transição `SENT_FOR_CONTESTATION` registra horário de envio antes de comprovação do provedor | `20261025200000_measurement_close_requires_sent_email.sql` grava `sent_to_customer_at` diretamente | Condicionar registro de envio à confirmação do worker e distinguir fila, aceite e entrega quando houver evidência | Aberto; sem migração neste ciclo |
 | A360-P1-04 | P1 | RLS/escopo por organização não validado em banco | regras existem no código/migrations; sem execução real | Testar matriz de acesso com duas organizações | Aberto |
-| A360-P1-12 | P1 | Técnico recém-cadastrado nascia `UNAVAILABLE` e não aparecia no despacho | `technicians.status` tinha default `UNAVAILABLE`; `resolveDispatchTechnicians` oferece apenas técnicos ativos e disponíveis | Criar novos técnicos com `AVAILABLE`, preservar o estado dos registros existentes e cobrir o contrato | Implementado no código e migration aditiva; 5 testes focados aprovados; banco remoto ainda não auditado |
+| A360-P1-12 | P1 | Técnico recém-cadastrado nascia `UNAVAILABLE` e não aparecia no despacho | `technicians.status` tinha default `UNAVAILABLE`; `resolveDispatchTechnicians` oferece apenas técnicos ativos e disponíveis | Criar novos técnicos com `AVAILABLE`, preservar o estado dos registros existentes e cobrir o contrato | Implementado no código e migration aditiva; recuperação segura de vínculos legados em `e13f4be`; testes focados e suíte completa aprovados; banco remoto ainda não auditado |
+| A360-P1-13 | P1 | Formulário permitia submeter chamado sem organização, serviço ou localidade, gerando erro genérico | `ticket-create-flow.tsx` habilitava o envio apenas por cliente; o backend rejeitava o restante pelo schema | Bloquear o envio até que as referências obrigatórias estejam selecionadas e informar o campo pendente | Implementado em `c5b2cad`; testes focados e suíte completa aprovados |
+| A360-P1-14 | P1 | Fila de validação podia contar a mesma OS no fluxo Field Service e no legado | `/portal/review` somava `field_service_review_queue` e `tickets.AWAITING_REVIEW` sem deduplicação | Priorizar a fila oficial de OS e separar o legado visualmente | Implementado em `d31fb9e`; teste de UI aprovado |
 | A360-P2-01 | P2 | Inventário visual de todas as rotas ainda incompleto | 221 rotas identificadas | Capturar telas por grupo e aplicar tokens por exceção | Aberto |
 | A360-P2-02 | P2 | Métricas e dashboards não têm catálogo formal de fórmulas | telas existem, mas fonte/fórmula não está centralizada | Criar catálogo de indicadores auditáveis | Aberto |
 | A360-P2-03 | P2 | Ausência de benchmark representativo | nenhum teste de carga executado | Definir volume e medir consultas críticas | Aberto |
@@ -28,6 +30,13 @@
 ## Critério de priorização
 
 Nenhum item deve ser marcado como concluído sem evidência executada, arquivos alterados e teste correspondente.
+
+## Evidência do ciclo de estabilização 2026-10-28
+
+- Suíte automatizada: **106 arquivos / 223 testes aprovados** (`npx vitest run tests`).
+- Typecheck: aprovado após os commits `c5b2cad`, `e13f4be` e `a812c59`.
+- Produção: `/api/version` confirmou `a812c59`; `/api/ready` retornou `status=ready` e `deploymentMode=supabase`.
+- Limitação: ainda não houve execução autenticada real do fluxo completo com registros no Supabase; portanto A360-P1-02 permanece aberto.
 
 ## Plano seguro para a migration duplicada A360-P0-06
 
