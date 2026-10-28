@@ -42,8 +42,8 @@ export async function createTechnician(formData: FormData) {
     .select("id").eq("organization_id", technician.organization_id).eq("operational_technician_id", technician.id).maybeSingle();
   if (fieldLookupError) redirect("/portal/technicians?message=Técnico criado, mas não foi possível confirmar o vínculo automático com o Field Service.");
   if (existingField) {
-    const { error: fieldUpdateError } = await supabase.from("field_service_technicians").update(fieldPayload).eq("id", existingField.id);
-    if (fieldUpdateError) redirect("/portal/technicians?message=Técnico criado, mas não foi possível atualizar o vínculo do Field Service.");
+    const { data: fieldUpdated, error: fieldUpdateError } = await supabase.from("field_service_technicians").update(fieldPayload).eq("id", existingField.id).select("id").maybeSingle();
+    if (fieldUpdateError || !fieldUpdated) redirect("/portal/technicians?message=Técnico criado, mas não foi possível atualizar o vínculo do Field Service.");
   } else {
     const { error: fieldInsertError } = await supabase.from("field_service_technicians").insert({
       organization_id: technician.organization_id, ...fieldPayload, operational_technician_id: technician.id,
@@ -70,10 +70,10 @@ export async function updateTechnician(formData: FormData) {
   if (error || !technician) redirect("/portal/technicians?message=Não foi possível atualizar o técnico.");
   const fieldEmail = (technician.email ?? `tecnico-${technician.id.slice(0, 8)}@oneit.local`).toLowerCase();
   const fieldType = /parceir|extern/i.test(technician.employment_type) ? "partner" : "internal";
-  const { error: fieldError } = await supabase.from("field_service_technicians").update({
+  const { data: fieldUpdated, error: fieldError } = await supabase.from("field_service_technicians").update({
     name: technician.full_name, email: fieldEmail, phone: technician.phone ?? null, technician_type: fieldType, active: technician.active,
-  }).eq("organization_id", technician.organization_id).eq("operational_technician_id", technician.id);
-  if (fieldError) redirect("/portal/technicians?message=Técnico atualizado, mas o vínculo do Field Service não foi atualizado.");
+  }).eq("organization_id", technician.organization_id).eq("operational_technician_id", technician.id).select("id").maybeSingle();
+  if (fieldError || !fieldUpdated) redirect("/portal/technicians?message=Técnico atualizado, mas o vínculo do Field Service não foi atualizado.");
   revalidatePath("/portal/technicians"); revalidatePath("/portal/field-service");
   redirect("/portal/technicians?message=Técnico+atualizado.");
 }
@@ -96,8 +96,8 @@ export async function syncFieldServiceTechnicians(formData: FormData) {
     const email = (technician.email ?? `tecnico-${technician.id.slice(0, 8)}@oneit.local`).toLowerCase();
     const existing = byEmail.get(email);
     if (existing) {
-      const { error } = await supabase.from("field_service_technicians").update({ operational_technician_id: existing.operational_technician_id ?? technician.id, name: technician.full_name, email, phone: technician.phone ?? null, active: technician.active }).eq("id", existing.id).is("operational_technician_id", null);
-      if (!error) linked += 1;
+      const { data: linkedRecord, error } = await supabase.from("field_service_technicians").update({ operational_technician_id: existing.operational_technician_id ?? technician.id, name: technician.full_name, email, phone: technician.phone ?? null, active: technician.active }).eq("id", existing.id).is("operational_technician_id", null).select("id").maybeSingle();
+      if (!error && linkedRecord) linked += 1;
       continue;
     }
     const { error } = await supabase.from("field_service_technicians").insert({
@@ -131,10 +131,10 @@ export async function linkFieldServiceTechnician(formData: FormData) {
     .select("id").eq("id", parsed.data.operationalTechnicianId).eq("organization_id", master.organization_id).maybeSingle();
   if (operationalError || !operational) redirect("/portal/technicians?message=O+técnico+operacional+deve+pertencer+à+mesma+organização.");
 
-  const { error } = await supabase.from("field_service_technicians")
+  const { data: linkedRecord, error } = await supabase.from("field_service_technicians")
     .update({ operational_technician_id: operational.id })
-    .eq("id", master.id).eq("organization_id", master.organization_id);
-  if (error) redirect(error.code === "23505" ? "/portal/technicians?message=Esse+técnico+operacional+já+está+vinculado+a+outro+cadastro." : "/portal/technicians?message=Não+foi+possível+salvar+o+vínculo.");
+    .eq("id", master.id).eq("organization_id", master.organization_id).select("id").maybeSingle();
+  if (error || !linkedRecord) redirect(error?.code === "23505" ? "/portal/technicians?message=Esse+técnico+operacional+já+está+vinculado+a+outro+cadastro." : "/portal/technicians?message=Não+foi+possível+salvar+o+vínculo.");
 
   revalidatePath("/portal/technicians");
   revalidatePath("/portal/field-service");

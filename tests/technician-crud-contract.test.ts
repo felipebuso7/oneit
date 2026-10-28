@@ -21,4 +21,11 @@ describe("technician CRUD integration contract", () => {
     expect(readFileSync("supabase/migrations/20261028110000_new_technicians_available.sql", "utf8"))
       .toContain("alter column status set default 'AVAILABLE'");
   });
+
+  it("does not report a Field Service link when no master row was updated", () => {
+    expect(source).toContain("const { data: fieldUpdated, error: fieldUpdateError }");
+    expect(source).toContain("const { data: fieldUpdated, error: fieldError }");
+    expect(source).toContain("const { data: linkedRecord, error }");
+    expect(source).toContain("!linkedRecord");
+  });
 });
