@@ -304,3 +304,11 @@ compacta de ícones, com `title` e `aria-label` para preservar a descoberta das 
 sem sobreposição. O menu expandido de desktop e suas rotas permanecem inalterados. ESLint direcionado, typecheck e `git diff
 --check` passaram.
 
+Na etapa seguinte, os módulos fora do escopo operacional atual foram ocultados da navegação: Inventário e Conhecimento
+deixaram de aparecer no hub de Configurações e o item Ativos foi removido do menu legado de demonstração. As rotas e os
+dados foram preservados; não houve exclusão de tabelas, APIs ou permissões. ESLint, typecheck e `git diff --check` passaram.
+
+O build de produção foi revalidado após corrigir atributos de somente leitura nos diretórios gerados e de código do ambiente
+Windows. `npm run build` concluiu com sucesso, compilando TypeScript e gerando 201 páginas. Essa evidência confirma a
+integridade do artefato local, mas não substitui a confirmação de deploy na Vercel.
+
