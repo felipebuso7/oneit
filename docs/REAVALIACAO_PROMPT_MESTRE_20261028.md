@@ -26,7 +26,7 @@ Não foram feitas alterações destrutivas, migrations ou alterações de dados 
 | LPU e composição | Parcial | `field_service_lpu_items` e `field_service_order_lpu_lines` persistem unidade, quantidade e preço congelado; o fluxo ainda não possui uma entidade de composição multi-item (mão de obra + materiais) | Validar o modelo atual com itens independentes; só criar composição após definir regra contratual e impacto no BM |
 | Segurança/RLS | Aberta | RBAC/RLS e migrations existem; teste de duas organizações em banco real ainda não foi concluído | Executar matriz owner/admin/dispatcher/financeiro/técnico/externo |
 | Integrações WhatsApp/e-mail | Não comprovada | abertura de conversa e contratos de fila existem; não há evidência de provedor oficial/entrega | Configurar sandbox autorizado e distinguir preparado, aceito, falho e entregue |
-| UI/UX e design system | Parcial | portal usa shell claro e telas RTO/revisão foram refinadas; inventário visual global continua aberto | Revisar fila de chamados, despacho, validação e BM com critérios de tarefa |
+| UI/UX e design system | Parcial | portal usa shell claro e telas RTO/revisão foram refinadas; inventário visual global continua aberto | Revisar fila de chamados, despacho, validação e BM com critérios de tarefa; reduzir densidade do dashboard |
 | Testes E2E e produção | Parcial | suíte contratual e typecheck/build tiveram ciclos aprovados; E2E autenticado completo e Linux/VPS ainda não comprovados | Criar roteiro repetível com dados fictícios e evidências de rede/banco |
 
 ## O que não foi iniciado ou ainda está sem evidência suficiente
@@ -221,4 +221,9 @@ Na tela de Rotas planejadas, cada técnico passou a receber um acento lateral di
 leitura de várias agendas no mesmo dia sem transformar os cartões em um painel multicolorido. Também foi removida uma
 variável sem uso da página e preservada a compatibilidade do movimento de descida de parada para versões antigas do
 formulário que não enviavam o campo `direction`.
+
+Na continuidade da auditoria visual, o dashboard autenticado deixou de apresentar quatorze KPIs no mesmo nível visual.
+Os seis indicadores de decisão operacional permanecem em destaque; SLA, pausas e inventário foram preservados em uma
+seção compacta de indicadores complementares. A alteração reduz carga cognitiva e espaço vertical sem remover dados ou
+mudar fórmulas, permissões e consultas. A validação local passou por ESLint direcionado e `npm run typecheck`.
 
