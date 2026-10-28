@@ -181,3 +181,9 @@ validação confirmou que o técnico conclui a `service_order` como `COMPLETED`,
 `service_orders_enqueue_review` com estado `PENDING`, e o chamado só é encerrado após revisão, PDF e fechamento transacional.
 O teste direcionado do fluxo passou com 5 testes aprovados.
 
+Na frente financeira, a geração produtiva do BM foi validada por contrato: a função considera somente fechamentos
+administrativos do Field Service dentro da competência, com OS `VALIDATED`, chamado `CLOSED`, linhas LPU persistidas,
+snapshot, versão e evento de criação. O conjunto direcionado de medição, PDF, totais e workflow fiscal passou com 10
+testes aprovados. Isso valida a estrutura do fluxo, mas não substitui uma execução contra um Supabase de homologação
+com dados reais de teste e storage configurado.
+
