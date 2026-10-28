@@ -8,5 +8,7 @@ describe("cabling BM PDF branding", () => {
     expect(source).toContain('readBrandLogo(pdf, "servicia-logo-rto.png")');
     expect(source).toContain("page.drawImage(oneitLogo");
     expect(source).toContain("page.drawImage(serviciaLogo");
+    expect(source).toContain('from("user_roles")');
+    expect(source).toContain("FISCAL_BATCH_NOT_AUTHORIZED");
   });
 });

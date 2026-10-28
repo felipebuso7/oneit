@@ -11,7 +11,10 @@ const money = (v: number) => `R$ ${Number(v || 0).toLocaleString("pt-BR", { mini
 export async function GET(_: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params; if (!z.string().uuid().safeParse(id).success) return Response.json({ code: "INVALID_BATCH_ID" }, { status: 400 });
   const supabase = await createClient(); const { data: auth } = await supabase.auth.getUser(); if (!auth.user) return Response.json({ code: "AUTH_REQUIRED" }, { status: 401 });
-  const { data: batch } = await supabase.from("fiscal_batches").select("id,batch_number,competence,total_amount,measurement_sheet_ids,status").eq("id", id).maybeSingle(); if (!batch) return Response.json({ code: "FISCAL_BATCH_NOT_FOUND" }, { status: 404 });
+  const { data: batch } = await supabase.from("fiscal_batches").select("id,organization_id,batch_number,competence,total_amount,measurement_sheet_ids,status").eq("id", id).maybeSingle(); if (!batch) return Response.json({ code: "FISCAL_BATCH_NOT_FOUND" }, { status: 404 });
+  const { data: role, error: roleError } = await supabase.from("user_roles").select("role").eq("user_id", auth.user.id).eq("organization_id", batch.organization_id).in("role", ["SUPER_ADMIN", "ORG_ADMIN", "MANAGER", "FINANCE"]).limit(1).maybeSingle();
+  if (roleError) return Response.json({ code: "FISCAL_BATCH_AUTHORIZATION_UNAVAILABLE" }, { status: 503 });
+  if (!role) return Response.json({ code: "FISCAL_BATCH_NOT_AUTHORIZED" }, { status: 403 });
   const { data: lines, error } = await supabase.from("measurement_sheet_lines").select("ticket_number,lpu_code,description,quantity,unit_price,total_price,line_kind,source_reference,service_date,service_location,order_reference").in("measurement_sheet_id", batch.measurement_sheet_ids ?? []).order("ticket_number"); if (error) return Response.json({ code: "MEASUREMENT_LINES_UNAVAILABLE" }, { status: 503 });
   const incomplete = (lines ?? []).map((line) => ({ ticket: line.ticket_number, missing: validateBillingLineReadiness(line).missing })).filter((line) => line.missing.length);
   if (incomplete.length) return Response.json({ code: "BILLING_DOCUMENT_INCOMPLETE", incomplete }, { status: 422 });
