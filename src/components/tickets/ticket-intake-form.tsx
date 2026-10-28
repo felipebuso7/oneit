@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { useFormStatus } from "react-dom";
 
 import { createTicket } from "@/app/(portal)/portal/tickets/actions";
 
@@ -45,6 +46,11 @@ export function TicketIntakeForm({ organizations, customers, contracts, location
     <select className="rounded border p-2" name="serviceOfferingId" defaultValue="" disabled={!organizationId}><option value="">Serviço do catálogo (opcional)</option>{organizationOfferings.map((offering) => { const subcategory = subcategoryById.get(offering.subcategory_id); const category = subcategory ? categoryById.get(subcategory.category_id) : undefined; return <option key={offering.id} value={offering.id}>{category?.name ?? "—"} / {subcategory?.name ?? "—"} / {offering.code} — {offering.name}</option>; })}</select>
     <input className="rounded border p-2 sm:col-span-2" name="title" placeholder="Título do chamado" required /><textarea className="min-h-28 rounded border p-2 sm:col-span-2" name="description" placeholder="Descrição e contexto" required />
     <select className="rounded border p-2" name="impact" defaultValue="LOW"><option value="LOW">Impacto baixo</option><option value="MEDIUM">Impacto médio</option><option value="HIGH">Impacto alto</option></select><select className="rounded border p-2" name="urgency" defaultValue="LOW"><option value="LOW">Urgência baixa</option><option value="MEDIUM">Urgência média</option><option value="HIGH">Urgência alta</option></select>
-    <button disabled={!customerId} className="rounded bg-slate-900 px-4 py-2 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:bg-slate-300" type="submit">Abrir chamado</button>
+    <div className="flex items-center gap-3"><span className="text-xs text-slate-500" aria-live="polite">{!customerId ? "Selecione o cliente para abrir" : ""}</span><SubmitButton disabled={!customerId} /></div>
   </form>;
+}
+
+function SubmitButton({ disabled }: { disabled: boolean }) {
+  const { pending } = useFormStatus();
+  return <button disabled={disabled || pending} className="rounded bg-slate-900 px-4 py-2 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:bg-slate-300" type="submit">{pending ? "Abrindo…" : "Abrir chamado"}</button>;
 }
