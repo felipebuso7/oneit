@@ -131,6 +131,14 @@ Entrega desta rodada: o dossiê autenticado agora exibe esse estado e a ação c
 - Validação: **125 arquivos / 257 testes aprovados**, typecheck aprovado; migration aplicada no Supabase sem alterar migrations anteriores.
 - Produção confirmada em `https://oneit-omega.vercel.app`: `/api/version` retornou commit `9cc0f48a0e19e545a96777d7d8052d620591db72`; `/api/ready` retornou `status=ready` e `deploymentMode=supabase`.
 
+### Atualização de execução — 28/10/2026 (identidade visual do PDF fiscal)
+
+- O PDF consolidado fiscal (`/api/field-service/fiscal/batch/[id]/pdf`) passou a exibir os logotipos OneIT e Servicia no cabeçalho da capa, utilizando os mesmos ativos institucionais do RTO e mantendo fallback seguro quando um ativo não estiver disponível.
+- A proteção de consistência do lote permanece ativa: o PDF não é gerado quando o total congelado diverge da soma das linhas, e a quantidade consolidada considera OS distintas.
+- Validação local antes da publicação: suíte completa com **132 arquivos / 267 testes aprovados** e typecheck aprovado. O teste específico de branding verifica a presença dos dois ativos e das chamadas de incorporação no endpoint.
+- Publicação confirmada: `/api/version` retornou commit `f428a9822d94f891c9b3ffd8449e2afd13e80f1a`; `/api/ready` retornou `status=ready` e `deploymentMode=supabase`.
+- Limitação: ainda não há evidência de homologação autenticada ponta a ponta nem de entrega real por WhatsApp/e-mail. O timestamp de fechamento administrativo do chamado pode permanecer como “Não calculado” no RTO quando o relatório é gerado antes da etapa final de fechamento, conforme o fluxo atual.
+
 ## 4. Critérios de avanço
 
 Uma tarefa só será marcada como concluída quando houver:
