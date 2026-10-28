@@ -9,6 +9,9 @@ const reply = (status: number, code: string) => Response.json({ code }, { status
 export async function GET(request: Request) {
   const organizationId = new URL(request.url).searchParams.get("organizationId"); if (!organizationId || !z.string().uuid().safeParse(organizationId).success) return reply(400, "ORGANIZATION_REQUIRED");
   const supabase = await createClient(); const { data: auth, error: authError } = await supabase.auth.getUser(); if (authError || !auth.user) return reply(401, "AUTH_REQUIRED");
+  const { data: role, error: roleError } = await supabase.from("user_roles").select("role").eq("user_id", auth.user.id).eq("organization_id", organizationId).in("role", ["SUPER_ADMIN", "ORG_ADMIN", "MANAGER", "FINANCE"]).limit(1).maybeSingle();
+  if (roleError) return reply(503, "RECIPIENT_AUTHORIZATION_UNAVAILABLE");
+  if (!role) return reply(403, "RECIPIENTS_NOT_AUTHORIZED");
   const { data, error } = await supabase.from("billing_recipients").select("id,recipient_type,email,display_name,active").eq("organization_id", organizationId).eq("active", true).order("recipient_type").order("display_name"); if (error) return reply(503, "RECIPIENTS_UNAVAILABLE");
   return Response.json({ recipients: data }, { headers: { "Cache-Control": "no-store" } });
 }
