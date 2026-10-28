@@ -66,6 +66,14 @@ Entrega desta rodada: o dossiê autenticado agora exibe esse estado e a ação c
 2. Padronizar fila, revisão, filtros, estados vazios e ações contextuais.
 3. Verificar menu, mapa e tabelas em desktop, notebook e mobile.
 
+### Atualização de execução — 28/10/2026 (cadastro e despacho)
+
+- O ciclo de técnicos foi reforçado no commit `341c990`: ao habilitar um técnico, o vínculo `field_service_technicians` é reativado; ao desativar, o status operacional passa a `UNAVAILABLE`; reativação de cadastro inativo retorna a `AVAILABLE`, enquanto edições sem mudança de ativação preservam estados como `BUSY`.
+- A correção foi coberta por contratos automatizados e publicada em `https://oneit-omega.vercel.app`.
+- Evidência de produção: `/api/version` retornou o commit `341c990c144dcc86525dfe2e406eb78c52031992`; `/api/ready` retornou `status=ready` e `deploymentMode=supabase`.
+- Validação local: typecheck aprovado, build de produção aprovado, suíte completa com **111 arquivos / 237 testes aprovados**.
+- Limitação: ainda não há homologação autenticada do ciclo completo com dados fictícios no Supabase nem teste real de provedor WhatsApp/e-mail; S2, S3 e S4 permanecem abertos.
+
 ## 4. Critérios de avanço
 
 Uma tarefa só será marcada como concluída quando houver:
