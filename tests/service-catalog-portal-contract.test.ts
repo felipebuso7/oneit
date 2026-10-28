@@ -7,6 +7,31 @@ const migration = readFileSync("supabase/migrations/20261001343000_service_catal
 const foundation = readFileSync("supabase/migrations/20261001220000_service_catalog.sql", "utf8");
 
 describe("catálogo autenticado", () => {
+  it("mantém a administração no portal autenticado e sem persistência local/demo", () => {
+    expect(actions).toContain('"use server"');
+    expect(actions).toContain("requireUser()");
+    expect(actions).toContain('from("service_categories")');
+    expect(actions).toContain('from("service_subcategories")');
+    expect(actions).toContain('from("service_offerings")');
+    expect(actions).not.toContain("localStorage");
+    expect(page).not.toContain("localStorage");
+    expect(page).not.toContain("@/app/demo");
+  });
+
+  it("restringe a listagem administrativa aos vínculos organizacionais do administrador", () => {
+    expect(page).toContain('from("user_roles")');
+    expect(page).toContain('["ORG_ADMIN", "SUPER_ADMIN"]');
+    expect(page).toContain('in("organization_id", ids)');
+    expect(page).toContain('eq("active", true)');
+  });
+
+  it("usa somente itens ativos nos seletores que alimentam a abertura do chamado", () => {
+    expect(page).toContain("activeCategories");
+    expect(page).toContain("activeSubcategories");
+    expect(page).toContain("item.active");
+    expect(actions).toContain('revalidatePath("/portal/tickets")');
+  });
+
   it("revalida abertura de chamados e SLA após criar ou editar", () => {
     expect(actions).toContain('revalidatePath("/portal/tickets")');
     expect(actions).toContain('revalidatePath("/portal/sla")');
