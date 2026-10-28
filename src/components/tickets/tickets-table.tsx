@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 
 import { OneitStatusBadge } from "@/components/oneit-status-badge";
 
-type Ticket = { id: string; ticket_number: string; servicenow_number: string | null; customer_name: string; location_name: string; title: string; ticket_type: string; priority: number; operational_status: string; created_at: string; category_code: string | null; service_type_code: string | null; resolution_due_at: string | null };
+type Ticket = { id: string; ticket_number: string; servicenow_number: string | null; customer_name: string; location_name: string; title: string; ticket_type: string; priority: number; operational_status: string; administrative_status: string; created_at: string; category_code: string | null; service_type_code: string | null; resolution_due_at: string | null };
 type SortKey = "ticket_number" | "created_at" | "title" | "priority" | "operational_status" | "resolution_due_at";
 
 const pendingStatuses = new Set(["PENDING_CUSTOMER", "PENDING_ACCESS", "PENDING_MATERIAL", "PENDING_THIRD_PARTY", "PENDING_CLIENT_IT", "WAITING_AUTHORIZATION"]);
@@ -12,8 +12,9 @@ const closedStatuses = new Set(["OUT_OF_SCOPE", "CANCELLED", "DUPLICATE", "INVAL
 const operationalStatusLabel: Record<string, string> = { NEW: "Novo", TRIAGE: "Em triagem", AWAITING_SCHEDULING: "Aguardando despacho", SCHEDULED: "Agendado", ASSIGNED: "Atribuído", TRAVEL_STARTED: "Em deslocamento", ON_SITE: "No local", WORK_STARTED: "Atendimento iniciado", IN_PROGRESS: "Em atendimento", TECHNICALLY_COMPLETED: "Concluído tecnicamente", PENDING_CUSTOMER: "Aguardando cliente", PENDING_ACCESS: "Aguardando acesso", PENDING_MATERIAL: "Aguardando material", PENDING_THIRD_PARTY: "Aguardando terceiro", PENDING_CLIENT_IT: "Aguardando TI do cliente", RESCHEDULED: "Reagendado", WAITING_AUTHORIZATION: "Aguardando autorização", OUT_OF_SCOPE: "Fora de escopo", CANCELLED: "Cancelado", DUPLICATE: "Duplicado", INVALID: "Inválido" };
 
 function statusFor(ticket: Ticket) {
-  if (!closedStatuses.has(ticket.operational_status) && ticket.resolution_due_at && Date.parse(ticket.resolution_due_at) < Date.now()) return { label: "SLA estourado", tone: "danger" as const };
+  if (ticket.administrative_status === "CLOSED") return { label: "Encerrado", tone: "neutral" as const };
   if (ticket.operational_status === "TECHNICALLY_COMPLETED") return { label: "Aguardando validação", tone: "warning" as const };
+  if (!closedStatuses.has(ticket.operational_status) && ticket.resolution_due_at && Date.parse(ticket.resolution_due_at) < Date.now()) return { label: "SLA estourado", tone: "danger" as const };
   if (pendingStatuses.has(ticket.operational_status)) return { label: "Pendente", tone: "warning" as const };
   if (closedStatuses.has(ticket.operational_status)) return { label: "Encerrado", tone: "neutral" as const };
   return { label: "Aberto", tone: "success" as const };
