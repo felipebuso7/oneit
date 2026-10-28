@@ -119,3 +119,13 @@ linhas de uma OS não elegível. A migration ainda precisa ser aplicada no Supab
 A transição do BM também passou a devolver o status efetivo de `billing_periods` após o RPC. Antes, a tela recebia apenas
 `measurement_sheets` e mantinha visualmente o status anterior, mesmo quando a transição havia sido persistida.
 
+## Correções financeiras adicionais registradas
+
+As rotas produtivas de BM e fiscal passaram a validar explicitamente os papéis `SUPER_ADMIN`, `ORG_ADMIN`,
+`MANAGER` e `FINANCE` antes de expor PDFs, linhas, totais, auditoria, contestações, histórico ou logs de e-mail.
+Essa autorização complementa o RLS e evita que um membro comum consulte dados financeiros por URL direta.
+
+O próximo risco estrutural ainda aberto é a sequência RTO → fechamento: o fechamento registra o horário definitivo
+de encerramento depois que o PDF já foi congelado. A correção exige uma decisão transacional sobre versão final do
+RTO e hash do documento; não foi alterada nesta etapa.
+
