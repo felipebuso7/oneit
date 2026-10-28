@@ -7,6 +7,8 @@ Registrar o avanço do ciclo de estabilização após a consolidação do portal
 ## Verificações executadas
 
 - `npm run audit:migrations:strict`: **aprovado** — 168 migrations encontradas e nenhum alerta estático.
+- `npm run typecheck`: **aprovado** — geração de tipos de rotas e TypeScript concluídos sem erros.
+- ESLint dos componentes centrais de readiness, revisão, elegibilidade de técnicos e RTO: **aprovado**.
 - Branch `prep/cloud-staging`: sincronizada com `origin/prep/cloud-staging` no commit `91cc610`.
 - Migration `20261027170000_field_service_ticket_closure.sql`: aplicada no Supabase `oneit-staging`.
 - Migration `20261027200000_field_service_rto_internal_completion.sql`: aplicada no Supabase `oneit-staging`.
