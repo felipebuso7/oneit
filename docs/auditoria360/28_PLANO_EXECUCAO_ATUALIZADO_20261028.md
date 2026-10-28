@@ -151,6 +151,13 @@ Entrega desta rodada: o dossiê autenticado agora exibe esse estado e a ação c
 - Auditoria estrita: **185 migrations, nenhum alerta estático**. Typecheck aprovado e testes focados de assinatura, proveniência do validador e duração do RTO: **3 arquivos / 5 testes aprovados**.
 - Produção confirmada no commit `3d948ff6d3cbda4905e074c3e762cee9cecefda3`; `/api/ready` retornou `status=ready` e `deploymentMode=supabase`.
 
+### Atualização de execução — 28/10/2026 (validação de release)
+
+- Suíte de regressão completa: **134 arquivos / 269 testes aprovados**.
+- Build de produção Next.js concluído com compilação, TypeScript, geração das 199 páginas estáticas e coleta de traces.
+- A validação cobre o guard de validador do RTO, layout de assinatura, duração do chamado e contratos existentes de Field Service/BM.
+- Nenhuma migration ou dado de produção foi alterado nesta etapa; o próximo bloqueio continua sendo a homologação autenticada ponta a ponta com dados fictícios.
+
 ## 4. Critérios de avanço
 
 Uma tarefa só será marcada como concluída quando houver:
