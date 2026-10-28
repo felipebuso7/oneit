@@ -208,6 +208,12 @@ Como refinamento, a ordenação pelos cabeçalhos da fila retorna à primeira p�
 coluna. Isso evita que uma ordenação com poucos resultados mantenha o gestor em uma página vazia; filtros continuam
 protegidos pelo `safePage` para nunca renderizar uma página inexistente.
 
+Na fila de chamados, busca, situação e ordenação agora também retornam explicitamente à primeira página. Isso evita
+que o gestor aplique um filtro estando na página 2 ou 3 e receba uma lista aparentemente vazia. O contador da fila
+passou a ser anunciado como região dinâmica (`aria-live`), mantendo retorno visual e acessível após cada filtro.
+ESLint e typecheck passaram; os dois testes direcionados da fila foram bloqueados antes da coleta pelo mesmo `EPERM`
+de rename temporário do Vitest no Windows, já registrado neste documento.
+
 Na fila de validação gerencial, os cartões de OS pendente receberam um destaque lateral âmbar (`border-l-4`) para
 separar visualmente itens que exigem decisão dos históricos aprovados/devolvidos. A alteração é exclusivamente visual:
 não muda consultas, status, ações, LPU ou persistência. O teste direcionado de revisão/fluxo (3 testes) e o typecheck
