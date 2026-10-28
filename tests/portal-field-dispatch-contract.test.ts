@@ -13,12 +13,15 @@ describe("despacho do portal", () => {
   it("exibe feedback de despacho e prepara WhatsApp com o contato do técnico", () => {
     expect(workspace).toContain("Despacho confirmado");
     expect(workspace).toContain("whatsappRecipient");
-    expect(workspace).toContain("Abrir WhatsApp com resumo");
+    expect(workspace).toContain("Agendar visita e encaminhar por WhatsApp");
+    expect(workspace).not.toContain("Abrir WhatsApp com resumo");
     expect(workspace).toContain("Atualizar fila");
     expect(workspace).toContain("recuperados automaticamente no primeiro despacho");
     expect(workspace).toContain("O OneIT não considera a mensagem enviada");
     expect(workspace).toContain("/api/field-service/partner/access");
     expect(workspace).toContain("/field-service/partner/access#token=");
+    expect(workspace).toContain("isShareableAccessLink");
+    expect(workspace).not.toContain("/portal/field-service`");
     expect(page).toContain("phone,mobile");
     expect(page).toContain("initialTicketId");
     expect(tickets).toContain("Atribuir visita");
