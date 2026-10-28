@@ -6,6 +6,7 @@ export const ticketTypeSchema = z.enum(["INCIDENT", "SERVICE_REQUEST", "ACCESS_R
 
 export const createTicketSchema = z.object({
   organizationId: z.uuid(),
+  servicenowNumber: z.string().trim().max(160).optional(),
   customerId: z.uuid(),
   contractId: z.uuid().optional(),
   serviceOfferingId: z.uuid().optional(),

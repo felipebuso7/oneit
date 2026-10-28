@@ -15,7 +15,7 @@ function ticketCreationMessage(message: string | undefined): string {
 
 export async function createTicket(formData: FormData) {
   const parsed = createTicketSchema.safeParse({
-    organizationId: formData.get("organizationId"), customerId: formData.get("customerId"),
+    organizationId: formData.get("organizationId"), servicenowNumber: formData.get("servicenowNumber") || undefined, customerId: formData.get("customerId"),
     contractId: formData.get("contractId") || undefined, serviceOfferingId: formData.get("serviceOfferingId") || undefined, requesterCollaboratorId: formData.get("requesterCollaboratorId") || undefined, departmentUnitId: formData.get("departmentUnitId") || undefined, ticketType: formData.get("ticketType"), locationId: formData.get("locationId"),
     title: formData.get("title"), description: formData.get("description"), impact: formData.get("impact"), urgency: formData.get("urgency"),
   });
@@ -23,7 +23,7 @@ export async function createTicket(formData: FormData) {
 
   const { supabase } = await requireUser();
   const { error } = await supabase.from("tickets").insert({
-    organization_id: parsed.data.organizationId, customer_id: parsed.data.customerId,
+    organization_id: parsed.data.organizationId, servicenow_number: parsed.data.servicenowNumber || null, customer_id: parsed.data.customerId,
     contract_id: parsed.data.contractId, service_offering_id: parsed.data.serviceOfferingId, requester_collaborator_id: parsed.data.requesterCollaboratorId, department_unit_id: parsed.data.departmentUnitId, location_id: parsed.data.locationId,
     title: parsed.data.title, description: parsed.data.description, impact: parsed.data.impact,
     urgency: parsed.data.urgency, ticket_type: parsed.data.ticketType,
