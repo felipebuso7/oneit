@@ -136,3 +136,10 @@ organizacional. A visualização continua registrada em `audit_logs`. A geraçã
 transacional `generate_field_service_rto`; a decisão pendente é como emitir uma versão final com o horário de
 fechamento definitivo sem alterar silenciosamente o PDF/hash aprovado.
 
+## Validação local desta etapa
+
+`npm run typecheck`, `lint:field-service`, `lint:finance` e `git diff --check` passaram. O `npm run build`
+alcançou o Next.js, mas foi bloqueado pelo Windows com `EPERM` ao remover `.next/server/app/portal/field-service`;
+isso é uma limitação do ambiente local e não evidência de falha de compilação da aplicação. O build deve ser repetido
+em CI/Linux ou após liberar o diretório `.next`.
+
