@@ -4,7 +4,7 @@ import { PointerEvent, ReactNode, useEffect, useRef, useState } from "react";
 import Image from "next/image";
 
 type Evidence = { name: string; storagePath?: string; mime?: "image/jpeg" | "image/png" | "image/webp"; size?: number; dataUrl?: string };
-type Access = { ticket: string; technician: string; expiresAt: string; title?: string; address?: string; status?: string; accepted?: boolean; travel_started_at?: string | null; checked_in_at?: string | null; checked_out_at?: string | null };
+type Access = { ticket: string; technician: string; expiresAt: string; title?: string; address?: string; status?: string; accepted?: boolean; travel_started_at?: string | null; checked_in_at?: string | null; checked_out_at?: string | null; draft?: { execution_report?: string | null; evidence?: unknown; customer_signature_name?: string | null; customer_signature_data_url?: string | null } | null };
 type ApiAccess = { token: string; code: string };
 type ExecutionStep = "ASSIGNED" | "ACCEPTED" | "TRAVELING" | "CHECKED_IN" | "SUBMITTED" | "DONE";
 type StepTimes = { travel?: string; arrival?: string; checkout?: string };
@@ -27,10 +27,10 @@ function stepFromOrderStatus(status?: string, accepted?: boolean): ExecutionStep
 
 export function PartnerExecutionFlow({ access, apiAccess, onLocalComplete }: { access: Access; apiAccess?: ApiAccess | null; onLocalComplete: () => void }) {
   const [step, setStep] = useState<ExecutionStep>(() => stepFromOrderStatus(access.status, access.accepted));
-  const [report, setReport] = useState("");
-  const [evidence, setEvidence] = useState<Evidence[]>([]);
-  const [name, setName] = useState("");
-  const [signature, setSignature] = useState("");
+  const [report, setReport] = useState(() => access.draft?.execution_report ?? "");
+  const [evidence, setEvidence] = useState<Evidence[]>(() => Array.isArray(access.draft?.evidence) ? access.draft.evidence.filter((item): item is Evidence => Boolean(item && typeof item === "object")) : []);
+  const [name, setName] = useState(() => access.draft?.customer_signature_name ?? "");
+  const [signature, setSignature] = useState(() => access.draft?.customer_signature_data_url ?? "");
   const [signatureOpen, setSignatureOpen] = useState(false);
   const [signatureReady, setSignatureReady] = useState(false);
   const [stepTimes, setStepTimes] = useState<StepTimes>(() => ({ travel: access.travel_started_at ?? undefined, arrival: access.checked_in_at ?? undefined, checkout: access.checked_out_at ?? undefined }));
