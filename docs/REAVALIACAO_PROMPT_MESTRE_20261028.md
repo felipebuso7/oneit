@@ -187,3 +187,8 @@ snapshot, versão e evento de criação. O conjunto direcionado de medição, PD
 testes aprovados. Isso valida a estrutura do fluxo, mas não substitui uma execução contra um Supabase de homologação
 com dados reais de teste e storage configurado.
 
+Também foi executada a bateria de proteção operacional e persistência: auditoria de integridade do banco, limites das
+filas de chamados, agendamento, OS e rotas, além dos gates de caminhos produtivos sem demo. Foram 5 arquivos e 10
+testes aprovados. Os limites atuais evitam carregamento ilimitado, mas ainda não substituem paginação interativa para
+grandes volumes; isso permanece como melhoria P2, sem bloquear uma homologação de baixo volume.
+
