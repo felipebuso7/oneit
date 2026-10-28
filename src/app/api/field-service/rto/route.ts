@@ -17,6 +17,9 @@ export async function GET(request: Request) {
   if (authError || !auth.user) return reply(401, "AUTH_REQUIRED");
   const { data: report, error } = await supabase.from("field_service_rto_reports").select("storage_path, organization_id, service_order_id").eq("id", reportId.data).single();
   if (error || !report?.storage_path) return reply(404, "RTO_NOT_FOUND");
+  const { data: role, error: roleError } = await supabase.from("user_roles").select("role").eq("user_id", auth.user.id).eq("organization_id", report.organization_id).in("role", ["SUPER_ADMIN", "ORG_ADMIN", "MANAGER", "FINANCE"]).limit(1).maybeSingle();
+  if (roleError) return reply(503, "RTO_AUTHORIZATION_UNAVAILABLE");
+  if (!role) return reply(403, "RTO_NOT_AUTHORIZED");
   if (!process.env.SUPABASE_SERVICE_ROLE_KEY) return reply(503, "RTO_STORAGE_UNAVAILABLE");
   try {
     const storage = createStorageAdmin("ticket-reports");

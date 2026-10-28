@@ -7,5 +7,7 @@ describe("field service RTO download audit", () => {
     expect(source).toContain('action: "FIELD_SERVICE_RTO_VIEWED"');
     expect(source).toContain("actor_id: auth.user.id");
     expect(source).toContain("entity_type: \"field_service_rto_report\"");
+    expect(source).toContain('from("user_roles")');
+    expect(source).toContain("RTO_NOT_AUTHORIZED");
   });
 });
