@@ -51,7 +51,10 @@ export async function storeFieldServiceRtoPdf(supabase: SupabaseClient, reportId
     target_storage_path: path,
     target_sha256: hash,
   });
-  if (registrationError) throw new Error("RTO_REGISTER_FAILED");
+  if (registrationError) {
+    if (registrationError.message?.includes("RTO_FILE_ALREADY_REGISTERED")) throw new Error("RTO_FILE_ALREADY_REGISTERED");
+    throw new Error("RTO_REGISTER_FAILED");
+  }
 
   const { data: signed } = await storage.createSignedUrl(path, 300);
   if (!signed?.signedUrl) throw new Error("RTO_DOWNLOAD_UNAVAILABLE");

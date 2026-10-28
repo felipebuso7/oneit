@@ -149,3 +149,8 @@ escopo organizacional e os quatro perfis autorizados. A execução direcionada n
 bloqueado pelo Windows ao renomear um artefato temporário (`EPERM`); portanto, o teste permanece não validado nesta
 máquina e deve ser executado em CI/Linux.
 
+O endpoint de geração de RTO agora diferencia `RTO_FILE_ALREADY_REGISTERED` de uma indisponibilidade de storage e
+responde `409` para uma tentativa de registrar outro arquivo sobre uma versão já persistida. Isso evita apresentar
+um conflito de imutabilidade como falha temporária do servidor. O teste de contrato foi criado, mas sua execução
+local também ficou bloqueada pelo `EPERM` do Vitest antes da coleta.
+
