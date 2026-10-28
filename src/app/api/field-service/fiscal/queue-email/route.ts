@@ -26,6 +26,10 @@ export async function POST(request: Request) {
   const { data: auth, error: authError } = await supabase.auth.getUser();
   if (authError || !auth.user) return reply(401, "AUTH_REQUIRED");
   const value = parsed.data;
+  // Os destinatários são cadastrados em minúsculas. Normalize também a entrada
+  // para que a validação não rejeite endereços equivalentes por capitalização
+  // diferente e para evitar duplicidade no mesmo disparo.
+  const recipients = [...new Set(value.recipients.map((email) => email.trim().toLowerCase()))];
   let measurementSheetVersionId: string | null = null;
   let idempotencyKey: string;
 
@@ -55,12 +59,12 @@ export async function POST(request: Request) {
   }
   if (value.idempotencyKey && value.idempotencyKey !== idempotencyKey) return reply(422, "INVALID_IDEMPOTENCY_KEY");
 
-  const { data: configured, error: recipientError } = await supabase.from("billing_recipients").select("email").eq("organization_id", value.organizationId).eq("recipient_type", value.emailType).eq("active", true).in("email", value.recipients);
+  const { data: configured, error: recipientError } = await supabase.from("billing_recipients").select("email").eq("organization_id", value.organizationId).eq("recipient_type", value.emailType).eq("active", true).in("email", recipients);
   if (recipientError) return reply(503, "RECIPIENTS_UNAVAILABLE");
   const allowed = new Set((configured ?? []).map((item) => item.email.toLowerCase()));
-  if (value.recipients.some((email) => !allowed.has(email.toLowerCase()))) return reply(422, "RECIPIENT_NOT_CONFIGURED");
+  if (recipients.some((email) => !allowed.has(email))) return reply(422, "RECIPIENT_NOT_CONFIGURED");
 
-  const { data, error } = await supabase.from("billing_email_log").insert({ organization_id: value.organizationId, email_type: value.emailType, fiscal_batch_id: value.emailType === "FISCAL" ? value.fiscalBatchId : null, measurement_sheet_id: value.emailType === "MEASUREMENT" ? value.measurementSheetId : null, idempotency_key: idempotencyKey, context: { spreadsheetUrl: value.spreadsheetUrl ?? null, emailType: value.emailType, measurementSheetId: value.emailType === "MEASUREMENT" ? value.measurementSheetId : null, measurementSheetVersionId, fiscalBatchId: value.emailType === "FISCAL" ? value.fiscalBatchId : null }, recipients: value.recipients, subject: value.subject, attachments: value.attachments, provider: "PENDING", status: "QUEUED", created_by: auth.user.id }).select("id,status,provider,created_at").single();
+  const { data, error } = await supabase.from("billing_email_log").insert({ organization_id: value.organizationId, email_type: value.emailType, fiscal_batch_id: value.emailType === "FISCAL" ? value.fiscalBatchId : null, measurement_sheet_id: value.emailType === "MEASUREMENT" ? value.measurementSheetId : null, idempotency_key: idempotencyKey, context: { spreadsheetUrl: value.spreadsheetUrl ?? null, emailType: value.emailType, measurementSheetId: value.emailType === "MEASUREMENT" ? value.measurementSheetId : null, measurementSheetVersionId, fiscalBatchId: value.emailType === "FISCAL" ? value.fiscalBatchId : null }, recipients, subject: value.subject, attachments: value.attachments, provider: "PENDING", status: "QUEUED", created_by: auth.user.id }).select("id,status,provider,created_at").single();
   if (error?.code === "23505") {
     const existing = await supabase.from("billing_email_log").select("id,status,provider,created_at").eq("organization_id", value.organizationId).eq("idempotency_key", idempotencyKey).maybeSingle();
     if (existing.data) return Response.json({ queued: false, duplicate: true, emailLog: existing.data }, { status: 200, headers: { "Cache-Control": "no-store" } });

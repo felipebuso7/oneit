@@ -127,4 +127,26 @@ describe("fila de e-mail do BM", () => {
       provider: "PENDING",
     }));
   });
+
+  it("normaliza destinatários antes de validar e enfileirar", async () => {
+    const inserted = vi.fn(() => ({
+      select: () => ({ single: async () => ({ data: { id: "log-2", status: "QUEUED", provider: "PENDING" }, error: null }) }),
+    }));
+    const from = vi.fn((table: string) => {
+      if (table === "measurement_sheets") return query({ data: { id: sheetId, organization_id: organizationId, billing_period_id: periodId }, error: null });
+      if (table === "billing_periods") return query({ data: { status: "READY_FOR_REVIEW" }, error: null });
+      if (table === "measurement_sheet_versions") return query({ data: { id: versionId, version: 2, status: "DRAFT" }, error: null });
+      if (table === "billing_recipients") return query({ data: [{ email: "financeiro@exemplo.com.br" }], error: null });
+      if (table === "billing_email_log") return { insert: inserted };
+      throw new Error(`consulta inesperada: ${table}`);
+    });
+    vi.mocked(createClient).mockResolvedValue({ auth: { getUser: async () => ({ data: { user: { id: "actor" } }, error: null }) }, from } as never);
+    const response = await POST(new Request("http://localhost/api/field-service/fiscal/queue-email", {
+      method: "POST",
+      headers: { origin: "http://localhost", "content-type": "application/json" },
+      body: JSON.stringify({ organizationId, recipients: ["Financeiro@Exemplo.com.br", "financeiro@exemplo.com.br"], subject: "BM de outubro", emailType: "MEASUREMENT", measurementSheetId: sheetId }),
+    }));
+    expect(response.status).toBe(202);
+    expect(inserted).toHaveBeenCalledWith(expect.objectContaining({ recipients: ["financeiro@exemplo.com.br"] }));
+  });
 });
