@@ -4,7 +4,7 @@ import { PointerEvent, ReactNode, useEffect, useRef, useState } from "react";
 import Image from "next/image";
 
 type Evidence = { name: string; storagePath?: string; mime?: "image/jpeg" | "image/png" | "image/webp"; size?: number; dataUrl?: string };
-type Access = { ticket: string; technician: string; expiresAt: string; title?: string; address?: string; status?: string; accepted?: boolean };
+type Access = { ticket: string; technician: string; expiresAt: string; title?: string; address?: string; status?: string; accepted?: boolean; travel_started_at?: string | null; checked_in_at?: string | null; checked_out_at?: string | null };
 type ApiAccess = { token: string; code: string };
 type ExecutionStep = "ASSIGNED" | "ACCEPTED" | "TRAVELING" | "CHECKED_IN" | "SUBMITTED" | "DONE";
 type StepTimes = { travel?: string; arrival?: string; checkout?: string };
@@ -33,7 +33,7 @@ export function PartnerExecutionFlow({ access, apiAccess, onLocalComplete }: { a
   const [signature, setSignature] = useState("");
   const [signatureOpen, setSignatureOpen] = useState(false);
   const [signatureReady, setSignatureReady] = useState(false);
-  const [stepTimes, setStepTimes] = useState<StepTimes>({});
+  const [stepTimes, setStepTimes] = useState<StepTimes>(() => ({ travel: access.travel_started_at ?? undefined, arrival: access.checked_in_at ?? undefined, checkout: access.checked_out_at ?? undefined }));
   const [busy, setBusy] = useState(false);
   const [online, setOnline] = useState(true);
   const [notice, setNotice] = useState(() => {

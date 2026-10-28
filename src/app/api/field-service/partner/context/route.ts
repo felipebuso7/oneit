@@ -29,5 +29,7 @@ export async function POST(request: Request) {
   }
   const { data: progress, error: progressError } = await supabase.rpc("get_partner_access_progress", { target_token: parsed.data.token, target_code: parsed.data.code });
   if (progressError || !progress?.[0]) return reply(503, "ACCESS_PROGRESS_UNAVAILABLE");
-  return Response.json({ context: { ...data[0], access_expires_at: progress[0].expires_at, partner_accepted: progress[0].accepted } }, { headers: { "Cache-Control": "no-store" } });
+  const { data: timeline, error: timelineError } = await supabase.rpc("get_partner_service_order_timeline", { target_token: parsed.data.token, target_code: parsed.data.code });
+  if (timelineError || !timeline?.[0]) return reply(503, "ACCESS_TIMELINE_UNAVAILABLE");
+  return Response.json({ context: { ...data[0], ...timeline[0], access_expires_at: progress[0].expires_at, partner_accepted: progress[0].accepted } }, { headers: { "Cache-Control": "no-store" } });
 }

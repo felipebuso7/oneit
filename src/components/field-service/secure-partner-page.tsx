@@ -15,6 +15,9 @@ type SecureAccess = {
   expiresAt: string;
   status?: string;
   accepted?: boolean;
+  travel_started_at?: string | null;
+  checked_in_at?: string | null;
+  checked_out_at?: string | null;
 };
 
 export function SecurePartnerPage() {
@@ -41,14 +44,14 @@ export function SecurePartnerPage() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(handoff),
     }).then(async (response) => {
-      const payload = await response.json().catch(() => ({})) as { context?: { ticket_number?: string; order_number?: string; service_order_id?: string; title?: string; access_expires_at?: string; location_address?: string; status?: string; partner_accepted?: boolean }; code?: string };
+      const payload = await response.json().catch(() => ({})) as { context?: { ticket_number?: string; order_number?: string; service_order_id?: string; title?: string; access_expires_at?: string; location_address?: string; status?: string; partner_accepted?: boolean; travel_started_at?: string | null; checked_in_at?: string | null; checked_out_at?: string | null }; code?: string };
       if (!response.ok || !payload.context?.access_expires_at) {
         setNotice(payload.code === "ACCESS_EXPIRED" ? "Este link expirou. Solicite um novo acesso ao gestor." : "Não foi possível validar este acesso. Solicite um novo link.");
         return;
       }
       const context = payload.context;
       const expiresAt = context.access_expires_at as string;
-      setAccess({ ticket: context.ticket_number ?? context.order_number ?? "OS", code: handoff.code as string, token: handoff.token as string, orderId: context.service_order_id, title: context.title, address: context.location_address, technician: "Técnico autorizado", expiresAt, status: context.status, accepted: context.partner_accepted });
+      setAccess({ ticket: context.ticket_number ?? context.order_number ?? "OS", code: handoff.code as string, token: handoff.token as string, orderId: context.service_order_id, title: context.title, address: context.location_address, technician: "Técnico autorizado", expiresAt, status: context.status, accepted: context.partner_accepted, travel_started_at: context.travel_started_at, checked_in_at: context.checked_in_at, checked_out_at: context.checked_out_at });
       setNotice("");
     }).catch(() => setNotice("Não foi possível conectar ao servidor. Verifique a conexão e tente novamente."));
   }, []);
