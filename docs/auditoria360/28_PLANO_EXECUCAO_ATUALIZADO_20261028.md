@@ -124,6 +124,13 @@ Entrega desta rodada: o dossiê autenticado agora exibe esse estado e a ação c
 - Publicação confirmada em `https://oneit-omega.vercel.app`: `/api/version` retornou commit `1ecf844bd0eb6a423026fb9e85b8c398cc0f3f2a`, `environment=production`; `/api/ready` retornou `status=ready` e `deploymentMode=supabase`.
 - Limitação mantida: ainda não há evidência de homologação autenticada ponta a ponta nem de entrega real por WhatsApp/e-mail; essa entrega melhora o dossiê do RTO, mas não encerra a Sprint S2.
 
+### Atualização de execução — 28/10/2026 (duração total do chamado no RTO)
+
+- A migration aditiva `20261028163000_field_service_rto_duration_snapshot.sql` passou a congelar `ticket_opened_at` e `ticket_closed_at` no RTO.
+- O PDF agora exibe abertura, agendamento, check-in, checkout, fechamento, tempo total do chamado e tempo em atendimento. Timestamps ausentes permanecem explicitamente como “Não calculado”, sem inferência.
+- Validação: **125 arquivos / 257 testes aprovados**, typecheck aprovado; migration aplicada no Supabase sem alterar migrations anteriores.
+- Produção confirmada em `https://oneit-omega.vercel.app`: `/api/version` retornou commit `9cc0f48a0e19e545a96777d7d8052d620591db72`; `/api/ready` retornou `status=ready` e `deploymentMode=supabase`.
+
 ## 4. Critérios de avanço
 
 Uma tarefa só será marcada como concluída quando houver:
