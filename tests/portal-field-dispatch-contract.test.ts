@@ -18,6 +18,7 @@ describe("despacho do portal", () => {
     expect(page).toContain("initialTicketId");
     expect(tickets).toContain("Atribuir visita");
     expect(tickets).toContain("/portal/field-service?ticket=");
+    expect(tickets).toContain("Validar OS");
     expect(caseFile).toContain("Atribuir visita");
     expect(caseFile).toContain("canDispatch");
   });
