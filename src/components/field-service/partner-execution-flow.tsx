@@ -9,6 +9,22 @@ type ApiAccess = { token: string; code: string };
 type ExecutionStep = "ASSIGNED" | "ACCEPTED" | "TRAVELING" | "CHECKED_IN" | "SUBMITTED" | "DONE";
 type StepTimes = { travel?: string; arrival?: string; checkout?: string };
 
+async function compressEvidence(file: File): Promise<File> {
+  const bitmap = await createImageBitmap(file);
+  const maxDimension = 1600;
+  const scale = Math.min(1, maxDimension / Math.max(bitmap.width, bitmap.height));
+  const canvas = document.createElement("canvas");
+  canvas.width = Math.max(1, Math.round(bitmap.width * scale));
+  canvas.height = Math.max(1, Math.round(bitmap.height * scale));
+  const context = canvas.getContext("2d");
+  if (!context) throw new Error("Não foi possível preparar a imagem.");
+  context.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+  bitmap.close();
+  const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, "image/jpeg", 0.78));
+  if (!blob) throw new Error("Não foi possível preparar a imagem.");
+  return new File([blob], file.name.replace(/\.[^.]+$/, "") + ".jpg", { type: "image/jpeg" });
+}
+
 const journeySteps = [
   ["travel", "Deslocamento"],
   ["arrival", "Chegada e início"],
@@ -85,20 +101,23 @@ export function PartnerExecutionFlow({ access, apiAccess, onLocalComplete }: { a
   };
   const addPhotos = async (files: FileList | null) => {
     if (!files?.length) return;
-    const selected = Array.from(files).filter((file) => ["image/jpeg", "image/png", "image/webp"].includes(file.type) && file.size <= 4 * 1024 * 1024).slice(0, 8 - evidence.length);
+    const selected = Array.from(files).filter((file) => file.type.startsWith("image/") && file.size <= 12 * 1024 * 1024).slice(0, 8 - evidence.length);
     if (!selected.length) { setNotice("Selecione uma imagem JPG, PNG ou WebP de até 4 MB."); return; }
-    if (selected.length < files.length) setNotice("Alguns arquivos foram ignorados: são aceitas até 8 imagens JPG, PNG ou WebP de até 4 MB.");
+    if (selected.length < files.length) setNotice("Alguns arquivos foram ignorados. São aceitas até 8 imagens de até 12 MB antes da compressão.");
+    let compressed: File[];
+    try { compressed = await Promise.all(selected.map(compressEvidence)); } catch { setNotice("Não foi possível preparar uma das imagens. Tente outra foto."); return; }
     if (!apiAccess) {
-      const local = await Promise.all(selected.map((file) => new Promise<Evidence>((resolve, reject) => { const reader = new FileReader(); reader.onload = () => resolve({ name: file.name, dataUrl: typeof reader.result === "string" ? reader.result : "" }); reader.onerror = () => reject(reader.error); reader.readAsDataURL(file); })));
+      const local = await Promise.all(compressed.map((file) => new Promise<Evidence>((resolve, reject) => { const reader = new FileReader(); reader.onload = () => resolve({ name: file.name, mime: "image/jpeg", size: file.size, dataUrl: typeof reader.result === "string" ? reader.result : "" }); reader.onerror = () => reject(reader.error); reader.readAsDataURL(file); })));
       setEvidence((current) => [...current, ...local.filter((item) => item.dataUrl)]);
       return;
     }
-    for (const file of selected) {
+    for (const file of compressed) {
       const form = new FormData(); form.set("token", apiAccess.token); form.set("code", apiAccess.code); form.set("file", file);
       const response = await fetch("/api/field-service/partner/upload", { method: "POST", body: form }).catch(() => null);
       const payload = await response?.json().catch(() => ({})) as { evidence?: Evidence; code?: string } | undefined;
       if (!response?.ok || !payload?.evidence?.storagePath) { setNotice(`Não foi possível enviar a foto: ${payload?.code ?? "erro de conexão"}.`); continue; }
-      setEvidence((current) => [...current, payload.evidence as Evidence]);
+      const preview = await new Promise<string>((resolve) => { const reader = new FileReader(); reader.onload = () => resolve(typeof reader.result === "string" ? reader.result : ""); reader.readAsDataURL(file); });
+      setEvidence((current) => [...current, { ...(payload.evidence as Evidence), dataUrl: preview }]);
     }
   };
   const point = (pointer: PointerEvent<HTMLCanvasElement>) => { const item = canvas.current; if (!item) return [0, 0] as const; const rect = item.getBoundingClientRect(); return [(pointer.clientX - rect.left) * (item.width / rect.width), (pointer.clientY - rect.top) * (item.height / rect.height)] as const; };
