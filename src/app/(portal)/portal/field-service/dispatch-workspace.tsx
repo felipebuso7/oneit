@@ -78,7 +78,15 @@ export function DispatchWorkspace({ tickets, orders, technicians, locations, loc
     try {
       const response = await fetch("/api/field-service/dispatch", {
         method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ticketId: selected.id, technicianId, locationId, plannedStartAt: plannedStartAt.toISOString(), plannedEndAt: plannedEndAt.toISOString() }),
+        body: JSON.stringify({
+          ticketId: selected.id,
+          technicianId,
+          locationId,
+          plannedStartAt: plannedStartAt.toISOString(),
+          plannedEndAt: plannedEndAt.toISOString(),
+          localContactName: contactsByLocationId.get(locationId)?.name,
+          localContactPhone: contactsByLocationId.get(locationId)?.mobile || contactsByLocationId.get(locationId)?.phone,
+        }),
       });
       if (!response.ok) {
         const result = await response.json() as { code?: string };
