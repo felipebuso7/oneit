@@ -18,8 +18,13 @@ export async function saveServiceLevelPolicy(formData: FormData) {
   existingQuery = value.serviceOfferingId ? existingQuery.eq("service_offering_id", value.serviceOfferingId) : existingQuery.is("service_offering_id", null);
   const { data: existing } = await existingQuery.maybeSingle();
   const policy = { organization_id: contract.organization_id, contract_id: value.contractId, service_offering_id: value.serviceOfferingId ?? null, calendar_id: value.calendarId ?? null, priority: value.priority, response_minutes: value.responseMinutes, resolution_minutes: value.resolutionMinutes, ola_minutes: value.olaMinutes, active: true };
-  const { error } = existing ? await supabase.from("service_level_policies").update(policy).eq("id", existing.id) : await supabase.from("service_level_policies").insert(policy);
-  if (error) redirect("/portal/sla?message=Não+foi+possível+salvar+a+política.");
+  if (existing) {
+    const { data: updated, error } = await supabase.from("service_level_policies").update(policy).eq("id", existing.id).select("id").maybeSingle();
+    if (error || !updated) redirect(`/portal/sla?message=${encodeURIComponent(error ? "Não foi possível atualizar a política." : "Política não encontrada ou sem permissão para edição.")}`);
+  } else {
+    const { error } = await supabase.from("service_level_policies").insert(policy);
+    if (error) redirect("/portal/sla?message=Não+foi+possível+salvar+a+política.");
+  }
   revalidatePath("/portal/sla"); redirect("/portal/sla?message=Política+salva.+Somente+novas+OS+recebem+este+snapshot.");
 }
 export async function pauseServiceLevel(formData: FormData) {

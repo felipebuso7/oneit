@@ -7,6 +7,7 @@ const technicians = readFileSync("src/app/(portal)/portal/technicians/actions.ts
 const customers = readFileSync("src/app/(portal)/portal/customers/actions.ts", "utf8");
 const locations = readFileSync("src/app/(portal)/portal/locations/actions.ts", "utf8");
 const organizations = readFileSync("src/app/(portal)/portal/organizations/actions.ts", "utf8");
+const sla = readFileSync("src/app/(portal)/portal/sla/actions.ts", "utf8");
 
 describe("atualizações do portal não mascaram falhas de persistência", () => {
   it("confirma que a atualização de ativo afetou uma linha visível ao usuário", () => {
@@ -32,5 +33,10 @@ describe("atualizações do portal não mascaram falhas de persistência", () =>
       expect(source).toContain('.select("id").maybeSingle()');
       expect(source).toContain("!updated");
     }
+  });
+
+  it("confirma que a edição de SLA valida a linha afetada", () => {
+    expect(sla).toContain('.select("id").maybeSingle()');
+    expect(sla).toContain("Política não encontrada ou sem permissão para edição.");
   });
 });
