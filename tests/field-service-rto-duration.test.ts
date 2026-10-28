@@ -21,4 +21,17 @@ describe("RTO operational durations", () => {
     const pdf = await renderFieldServiceRtoPdf(snapshot);
     expect(pdf.byteLength).toBeGreaterThan(0);
   });
+
+  it("renders technician-entered symbols without aborting PDF generation", async () => {
+    const snapshot = fieldServiceRtoSnapshotSchema.parse({
+      ...ids,
+      order_number: "OS-002",
+      status: "VALIDATED",
+      title: "Troca de RJ45 • sala técnica",
+      execution_report: "Concluído ✓ — sem material adicional.",
+      customer_signature_name: "João da Silva",
+    });
+    const pdf = await renderFieldServiceRtoPdf(snapshot);
+    expect(pdf.byteLength).toBeGreaterThan(0);
+  });
 });

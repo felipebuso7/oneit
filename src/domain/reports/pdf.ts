@@ -32,10 +32,16 @@ export async function renderFieldServiceRtoPdf(snapshot: FieldServiceRtoSnapshot
   const document = await PDFDocument.create();
   const font = await document.embedFont(StandardFonts.Helvetica); const bold = await document.embedFont(StandardFonts.HelveticaBold);
   const width = 595.28, height = 841.89, margin = 42; let page = document.addPage([width, height]); let y = height - 88;
+  // Standard PDF fonts use WinAnsi. Technician-entered text may contain
+  // symbols outside that encoding; replace only those characters so a single
+  // unsupported glyph cannot abort PDF generation after the RTO was created.
+  const safeText = (value: string) => Array.from(value.replace(/[\r\n\t]+/g, " ")).map((character) => {
+    try { font.encodeText(character); return character; } catch { return "?"; }
+  }).join("");
   const [oneitLogo, serviciaLogo] = await Promise.all([readBrandLogo(document, "oneit-logo-rto.png"), readBrandLogo(document, "servicia-logo-rto.png")]);
-  const header = () => { if (oneitLogo) page.drawImage(oneitLogo, { x: margin, y: height - 58, width: 70, height: 22 }); if (serviciaLogo) page.drawImage(serviciaLogo, { x: width - margin - 92, y: height - 58, width: 92, height: 22 }); page.drawText("RELATÓRIO TÉCNICO OPERACIONAL · FIELD SERVICE", { x: margin, y: height - 78, size: 10, font: bold, color: rgb(0.02, 0.17, 0.35) }); };
+  const header = () => { if (oneitLogo) page.drawImage(oneitLogo, { x: margin, y: height - 58, width: 70, height: 22 }); if (serviciaLogo) page.drawImage(serviciaLogo, { x: width - margin - 92, y: height - 58, width: 92, height: 22 }); page.drawText(safeText("RELATÓRIO TÉCNICO OPERACIONAL · FIELD SERVICE"), { x: margin, y: height - 78, size: 10, font: bold, color: rgb(0.02, 0.17, 0.35) }); };
   header();
-  const text = (value: string, size = 9, strong = false) => { if (y < 62) { page = document.addPage([width, height]); y = height - 88; header(); } page.drawText(value.slice(0, 140), { x: margin, y, size, font: strong ? bold : font, color: rgb(0.12, 0.15, 0.2) }); y -= size + 6; };
+  const text = (value: string, size = 9, strong = false) => { if (y < 62) { page = document.addPage([width, height]); y = height - 88; header(); } page.drawText(safeText(value).slice(0, 140), { x: margin, y, size, font: strong ? bold : font, color: rgb(0.12, 0.15, 0.2) }); y -= size + 6; };
   const money = (value: number) => `R$ ${value.toFixed(2).replace(".", ",")}`;
   const duration = (from: string | null | undefined, to: string | null | undefined) => {
     if (!from || !to) return "Não calculado";

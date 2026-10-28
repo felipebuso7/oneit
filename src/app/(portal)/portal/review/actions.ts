@@ -71,10 +71,21 @@ export async function generateFieldServiceRto(formData: FormData) {
   try {
     await storeFieldServiceRtoPdf(supabase, data);
   } catch (cause) {
-    if (cause instanceof Error && cause.message === "RTO_DOWNLOAD_UNAVAILABLE") {
+    const code = cause instanceof Error ? cause.message : "RTO_STORAGE_UNAVAILABLE";
+    // Keep the user-facing message actionable while preserving the internal
+    // code for Vercel diagnostics. Do not log snapshot contents or credentials.
+    console.error("[RTO] PDF persistence failed", { code, reportId: data });
+    if (code === "RTO_DOWNLOAD_UNAVAILABLE") {
       redirect("/portal/review?message=O+RTO+foi+gerado,+mas+o+download+não+ficou+disponível.+Verifique+o+armazenamento+antes+de+encerrar.");
     }
-    redirect("/portal/review?message=RTO+registrado,+mas+o+PDF+não+foi+salvo.+Tente+gerar+novamente.");
+    const message = code === "RTO_SNAPSHOT_UNAVAILABLE"
+      ? "O snapshot do RTO não pôde ser lido. Atualize a fila e tente novamente."
+      : code === "RTO_REVIEWER_UNAVAILABLE"
+        ? "O usuário validador não possui nome cadastrado. Atualize o perfil antes de gerar o RTO."
+        : code === "RTO_REGISTER_FAILED"
+          ? "O PDF foi enviado, mas não foi possível registrar o arquivo no RTO. Tente novamente."
+          : "O RTO foi registrado, mas o PDF não foi salvo. Tente novamente.";
+    redirect(`/portal/review?message=${encodeURIComponent(message)}`);
   }
   revalidatePath("/portal/review"); revalidatePath("/portal/field-service-reports"); revalidatePath("/portal/field-service");
   redirect(`/portal/review?message=RTO+e+PDF+gerados%3A+${data}`);
