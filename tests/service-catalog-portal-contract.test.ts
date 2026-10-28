@@ -40,6 +40,11 @@ describe("catálogo autenticado", () => {
     expect(actions).toContain("update_service_catalog_item");
   });
 
+  it("revalida o SLA também após manutenção de item existente", () => {
+    const updateAction = actions.slice(actions.indexOf("export async function updateServiceCatalogItem"));
+    expect(updateAction).toContain('revalidatePath("/portal/sla")');
+  });
+
   it("usa inativação para preservar histórico e impede filhos ativos órfãos", () => {
     expect(page).toContain("a exclusão física não é permitida");
     expect(migration).toContain("SERVICE_CATALOG_ACTIVE_CHILDREN");

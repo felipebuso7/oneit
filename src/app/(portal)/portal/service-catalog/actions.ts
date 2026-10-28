@@ -39,5 +39,6 @@ export async function updateServiceCatalogItem(formData: FormData) {
   if (error) redirect("/portal/service-catalog?message=Não+foi+possível+atualizar.+Inative+primeiro+os+itens+filhos+ativos,+se+houver.");
   revalidatePath("/portal/service-catalog");
   revalidatePath("/portal/tickets");
+  revalidatePath("/portal/sla");
   redirect("/portal/service-catalog?message=Catálogo+atualizado+com+auditoria.");
 }

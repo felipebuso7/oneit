@@ -204,3 +204,7 @@ separar visualmente itens que exigem decisão dos históricos aprovados/devolvid
 não muda consultas, status, ações, LPU ou persistência. O teste direcionado de revisão/fluxo (3 testes) e o typecheck
 foram executados com sucesso.
 
+Na manutenção do catálogo, a atualização/inativação de categorias, subcategorias e ofertas passou a invalidar também
+`/portal/sla`, assim como já ocorria na criação. Isso mantém os seletores de SLA coerentes imediatamente após editar ou
+inativar um item, sem exigir hard refresh. O contrato do catálogo foi ampliado e passou com 9 testes.
+
