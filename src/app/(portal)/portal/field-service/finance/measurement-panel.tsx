@@ -37,6 +37,8 @@ export function MeasurementPanel({ organizations, initialSheets, defaultCompeten
       }
       setSheets((current) => [body.measurementSheet!, ...current.filter((sheet) => sheet.id !== body.measurementSheet!.id)]);
       setNotice("Medição gerada a partir das OS fechadas. Confira os itens antes de enviar para validação.");
+    } catch {
+      setNotice("Não foi possível conectar ao serviço de medição. Verifique sua sessão e tente novamente.");
     } finally {
       setBusy(false);
     }
