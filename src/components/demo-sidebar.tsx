@@ -81,6 +81,11 @@ export function DemoSidebar({ active }: DemoSidebarProps) {
         const stored = JSON.parse(window.localStorage.getItem("oneit.demo.current-access.v1") ?? "[]") as unknown;
         if (Array.isArray(stored) && stored.length) {
           const allowed = stored.filter((item): item is ModuleKey => typeof item === "string" && activeProductModules.includes(item as ModuleKey));
+          // Gestores e administradores precisam enxergar o ciclo financeiro que
+          // fecha a operação (BM → fiscal). Versões anteriores gravavam esses
+          // perfis sem FISCAL; a compatibilidade evita que a seção desapareça
+          // até que o usuário revise seus privilégios novamente.
+          if (allowed.includes("ADMINISTRATION") && !allowed.includes("FISCAL")) allowed.push("FISCAL");
           setVisibleModules(allowed.length ? allowed : activeProductModules);
         }
       } catch { /* A navegação mantém todos os módulos se a preferência local estiver inválida. */ }
