@@ -8,6 +8,7 @@ import {
 } from "./actions";
 
 type PageProps = { searchParams: Promise<{ message?: string }> };
+const collaboratorStatusLabel: Record<string, string> = { ACTIVE: "Ativo", INACTIVE: "Inativo" };
 
 export default async function CollaboratorsPage({ searchParams }: PageProps) {
   const [{ supabase, user }, { message }] = await Promise.all([requireUser(), searchParams]);
@@ -115,7 +116,7 @@ export default async function CollaboratorsPage({ searchParams }: PageProps) {
 
       <section className="rounded-xl border border-slate-700 bg-slate-900/60 p-4">
         <h2 className="font-semibold text-white">Colaboradores cadastrados</h2>
-        <div className="mt-3 overflow-x-auto"><table className="w-full text-left text-sm"><thead className="text-slate-400"><tr><th className="p-2">Nome</th><th className="p-2">Matrícula</th><th className="p-2">E-mail principal</th><th className="p-2">Status</th></tr></thead><tbody>{(collaborators ?? []).map((collaborator) => <tr key={collaborator.id} className="border-t border-slate-800 text-slate-200"><td className="p-2">{collaborator.full_name}</td><td className="p-2">{collaborator.employee_number}</td><td className="p-2">{primaryEmail.get(collaborator.id) ?? "—"}</td><td className="p-2">{collaborator.status}</td></tr>)}</tbody></table></div>
+        <div className="mt-3 overflow-x-auto"><table className="w-full text-left text-sm"><thead className="text-slate-400"><tr><th className="p-2">Nome</th><th className="p-2">Matrícula</th><th className="p-2">E-mail principal</th><th className="p-2">Status</th></tr></thead><tbody>{(collaborators ?? []).map((collaborator) => <tr key={collaborator.id} className="border-t border-slate-800 text-slate-200"><td className="p-2">{collaborator.full_name}</td><td className="p-2">{collaborator.employee_number}</td><td className="p-2">{primaryEmail.get(collaborator.id) ?? "—"}</td><td className="p-2">{collaboratorStatusLabel[collaborator.status] ?? collaborator.status}</td></tr>)}</tbody></table></div>
       </section>
 
       {pendingAliases.length > 0 ? (
