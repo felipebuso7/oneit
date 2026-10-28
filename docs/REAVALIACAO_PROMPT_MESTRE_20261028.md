@@ -129,3 +129,10 @@ O próximo risco estrutural ainda aberto é a sequência RTO → fechamento: o f
 de encerramento depois que o PDF já foi congelado. A correção exige uma decisão transacional sobre versão final do
 RTO e hash do documento; não foi alterada nesta etapa.
 
+## RTO e proteção documental
+
+O download do RTO passou a exigir autorização explícita de gestão/financeiro, além da sessão e do escopo
+organizacional. A visualização continua registrada em `audit_logs`. A geração permanece protegida pela função
+transacional `generate_field_service_rto`; a decisão pendente é como emitir uma versão final com o horário de
+fechamento definitivo sem alterar silenciosamente o PDF/hash aprovado.
+
