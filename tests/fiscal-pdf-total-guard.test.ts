@@ -8,4 +8,10 @@ describe("fiscal BM PDF total guard", () => {
     expect(source).toContain('BILLING_TOTAL_MISMATCH');
     expect(source).toContain("const orderCount = new Set");
   });
+
+  it("blocks the standard PDF when a persisted line is incomplete", () => {
+    const source = readFileSync("src/app/api/field-service/fiscal/batch/[id]/pdf/route.ts", "utf8");
+    expect(source).toContain("validateBillingLineReadiness");
+    expect(source).toContain('BILLING_DOCUMENT_INCOMPLETE');
+  });
 });
