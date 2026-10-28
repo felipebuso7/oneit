@@ -21,9 +21,9 @@ export default async function FieldServicePage() {
       .in("organization_id", organizationIds).order("opened_at", { ascending: false }).limit(300),
     supabase.from("service_orders").select("id,organization_id,ticket_id,order_number,status,technician_id,scheduled_at")
       .in("organization_id", organizationIds).order("created_at", { ascending: false }).limit(300),
-    supabase.from("technicians").select("id,organization_id,full_name,status,base_city,active")
+    supabase.from("technicians").select("id,organization_id,full_name,phone,mobile,status,base_city,active")
       .in("organization_id", organizationIds).eq("active", true).order("full_name").limit(300),
-    supabase.from("field_service_technicians").select("organization_id,operational_technician_id,active")
+    supabase.from("field_service_technicians").select("organization_id,operational_technician_id,phone,mobile,active")
       .in("organization_id", organizationIds).eq("active", true).limit(300),
     supabase.from("customer_locations").select("id,organization_id,customer_id,name,street,street_number,city,state_code,active")
       .in("organization_id", organizationIds).eq("active", true).order("name").limit(500),
@@ -34,7 +34,10 @@ export default async function FieldServicePage() {
     throw new Error("Não foi possível carregar a central de Field Service.");
   }
 
-  const dispatchTechnicians = resolveDispatchTechnicians(fieldTechnicianResult.data ?? [], technicianResult.data ?? []);
+  const dispatchTechnicians = resolveDispatchTechnicians(fieldTechnicianResult.data ?? [], technicianResult.data ?? []).map((technician) => {
+    const mapping = (fieldTechnicianResult.data ?? []).find((item) => item.organization_id === technician.organization_id && item.operational_technician_id === technician.id);
+    return { ...technician, phone: mapping?.mobile || mapping?.phone || technician.mobile || technician.phone || null };
+  });
   const unlinkedTechnicians = countUnlinkedActiveTechnicians(fieldTechnicianResult.data ?? []);
 
   return <section className="mx-auto max-w-7xl p-5 sm:p-8">

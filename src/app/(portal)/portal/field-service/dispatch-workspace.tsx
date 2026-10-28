@@ -3,10 +3,11 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
+import { whatsappRecipient } from "@/lib/field-service/dispatch-sharing";
 
 type Ticket = { id: string; organization_id: string; customer_id: string; location_id: string; ticket_number: string; title: string; priority: number; operational_status: string; opened_at: string };
 type Order = { id: string; organization_id: string; ticket_id: string; order_number: string; status: string; technician_id: string | null; scheduled_at: string | null };
-type Technician = { id: string; organization_id: string; full_name: string; status: string; base_city: string | null; active: boolean };
+type Technician = { id: string; organization_id: string; full_name: string; phone?: string | null; mobile?: string | null; status: string; base_city: string | null; active: boolean };
 type Location = { id: string; organization_id: string; customer_id: string; name: string; street: string | null; street_number: string | null; city: string; state_code: string | null; active: boolean };
 type Review = { id: string; organization_id: string; service_order_id: string; status: string };
 type Props = { tickets: Ticket[]; orders: Order[]; technicians: Technician[]; locations: Location[]; pendingReviews: Review[]; unlinkedTechnicians: number };
@@ -33,6 +34,7 @@ export function DispatchWorkspace({ tickets, orders, technicians, locations, pen
   const [end, setEnd] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [message, setMessage] = useState("");
+  const [whatsappPhone, setWhatsappPhone] = useState("");
   const ordersByTicket = useMemo(() => new Map(orders.map((order) => [order.ticket_id, order])), [orders]);
   const locationsById = useMemo(() => new Map(locations.map((location) => [location.id, location])), [locations]);
   const techniciansById = useMemo(() => new Map(technicians.map((technician) => [technician.id, technician])), [technicians]);
@@ -52,6 +54,7 @@ export function DispatchWorkspace({ tickets, orders, technicians, locations, pen
     setStart("");
     setEnd("");
     setMessage("");
+    setWhatsappPhone("");
   }
 
   async function dispatch(event: React.FormEvent<HTMLFormElement>) {
@@ -75,6 +78,7 @@ export function DispatchWorkspace({ tickets, orders, technicians, locations, pen
         setMessage(dispatchErrors[result.code ?? ""] ?? "Despacho não concluído. Atualize a fila e tente novamente.");
         return;
       }
+      setMessage(`Despacho confirmado para ${selectedTechnician?.full_name ?? "o técnico"}.`);
       setSelectedId(null);
       router.refresh();
     } catch {
@@ -84,6 +88,35 @@ export function DispatchWorkspace({ tickets, orders, technicians, locations, pen
     }
   }
 
+  function openWhatsApp() {
+    if (!selected || !selectedTechnician) return;
+    const phone = whatsappPhone || selectedTechnician.mobile || selectedTechnician.phone || "";
+    const recipient = whatsappRecipient(phone);
+    if (!recipient) {
+      setMessage("Informe um celular com DDD do técnico para abrir o WhatsApp.");
+      return;
+    }
+    const location = locationsById.get(locationId || selected.location_id);
+    const address = location ? `${location.name} · ${location.street ?? ""} ${location.street_number ?? ""} · ${location.city}`.replace(/\s+/g, " ").trim() : "Localidade não informada";
+    const planned = start ? new Date(start).toLocaleString("pt-BR") : "a combinar";
+    const link = `${window.location.origin}/portal/field-service`;
+    const body = [
+      `ONEIT · OS ${selected.ticket_number}`,
+      `Serviço: ${selected.title}`,
+      `Local: ${address}`,
+      `Agendamento: ${planned}`,
+      `Acesso: ${link}`,
+      "Mensagem preparada pelo OneIT. Confirme o envio no WhatsApp.",
+    ].join("\n");
+    const opened = window.open(`https://wa.me/${recipient}?text=${encodeURIComponent(body)}`, "_blank", "noopener,noreferrer");
+    if (!opened) {
+      void navigator.clipboard?.writeText(body);
+      setMessage("O navegador bloqueou a nova aba. O resumo foi copiado para a área de transferência.");
+      return;
+    }
+    setMessage("WhatsApp aberto com o resumo preenchido. O OneIT não considera a mensagem enviada até você confirmar no WhatsApp.");
+  }
+
   return <div className="mt-6 space-y-5">
     {unlinkedTechnicians > 0 ? <div role="status" className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-950"><span><strong>{unlinkedTechnicians} técnico(s) aguardando vínculo operacional.</strong> Eles não podem receber OS até serem associados ao cadastro usado pelo despacho.</span><Link href="/portal/technicians" className="font-semibold underline">Ajustar cadastros</Link></div> : null}
     <div className="grid gap-3 sm:grid-cols-3" aria-label="Indicadores de Field Service">
@@ -91,6 +124,7 @@ export function DispatchWorkspace({ tickets, orders, technicians, locations, pen
       <Metric label="Em campo" count={active.length} />
       <Link href="/portal/review" className="rounded-xl border border-slate-200 bg-white p-4 hover:border-sky-300"><span className="block text-sm text-slate-600">Aguardando validação</span><strong className="mt-1 block text-2xl text-slate-900">{pendingReviews.length}</strong></Link>
     </div>
+    {message ? <p role="status" aria-live="polite" className="rounded-lg bg-sky-50 p-3 text-sm text-sky-950">{message}</p> : null}
     <div className="grid min-w-0 gap-5 xl:grid-cols-[minmax(0,1fr)_380px]">
       <section aria-label="Fila de despacho" className="min-w-0 rounded-xl border border-slate-200 bg-white">
         <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 p-4">
@@ -106,10 +140,9 @@ export function DispatchWorkspace({ tickets, orders, technicians, locations, pen
           <div><p className="text-sm font-semibold">{selected.ticket_number} · {selected.title}</p><p className="mt-1 text-sm text-slate-600">{locationsById.get(selected.location_id)?.city ?? "Local não definido"}</p></div>
           <label className="block text-sm font-medium">Polo<select required value={locationId} onChange={(event) => setLocationId(event.target.value)} className="mt-1 w-full rounded-lg border border-slate-300 p-2"><option value="">Selecione o polo</option>{locationOptions.map((location) => <option key={location.id} value={location.id}>{location.name} · {location.city}</option>)}</select></label>
           <label className="block text-sm font-medium">Técnico<select required value={technicianId} onChange={(event) => setTechnicianId(event.target.value)} className="mt-1 w-full rounded-lg border border-slate-300 p-2"><option value="">Selecione o técnico</option>{options.map((technician) => <option key={technician.id} value={technician.id}>{technician.full_name} · {technician.base_city ?? "base não informada"} · {technicianStatusLabel[technician.status] ?? technician.status}</option>)}</select></label>
-          {selectedTechnician ? <div className="rounded-lg bg-slate-50 p-3 text-xs text-slate-600"><strong className="text-slate-800">Agenda conhecida de {selectedTechnician.full_name}</strong>{nextOrders.length ? <ul className="mt-2 space-y-1">{nextOrders.slice(0, 5).map((order) => <li key={order.id}>{new Date(order.scheduled_at!).toLocaleString("pt-BR")} · {order.order_number}</li>)}</ul> : <p className="mt-1">Nenhuma OS ativa agendada nesta lista.</p>}<p className="mt-2">A disponibilidade final e o conflito de horário são verificados no despacho.</p></div> : null}
+          {selectedTechnician ? <div className="rounded-lg bg-slate-50 p-3 text-xs text-slate-600"><strong className="text-slate-800">Agenda conhecida de {selectedTechnician.full_name}</strong>{nextOrders.length ? <ul className="mt-2 space-y-1">{nextOrders.slice(0, 5).map((order) => <li key={order.id}>{new Date(order.scheduled_at!).toLocaleString("pt-BR")} · {order.order_number}</li>)}</ul> : <p className="mt-1">Nenhuma OS ativa agendada nesta lista.</p>}<p className="mt-2">A disponibilidade final e o conflito de horário são verificados no despacho.</p><label className="mt-3 block font-medium text-slate-700">Celular para WhatsApp{selectedTechnician.mobile || selectedTechnician.phone ? <span className="ml-1 font-normal text-slate-500">(cadastro: {selectedTechnician.mobile || selectedTechnician.phone})</span> : null}<input value={whatsappPhone} onChange={(event) => setWhatsappPhone(event.target.value)} placeholder="(11) 99999-9999" className="mt-1 w-full rounded-lg border border-slate-300 bg-white p-2 text-sm" /></label><button type="button" onClick={openWhatsApp} className="mt-3 w-full rounded-lg border border-emerald-300 px-3 py-2 text-sm font-semibold text-emerald-800 hover:bg-emerald-50">Abrir WhatsApp com resumo</button></div> : null}
           <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-1"><label className="block text-sm font-medium">Início<input required type="datetime-local" value={start} onChange={(event) => setStart(event.target.value)} className="mt-1 w-full rounded-lg border border-slate-300 p-2" /></label><label className="block text-sm font-medium">Término previsto<input required type="datetime-local" value={end} onChange={(event) => setEnd(event.target.value)} className="mt-1 w-full rounded-lg border border-slate-300 p-2" /></label></div>
           <p className="text-xs text-slate-500">Horários interpretados no fuso deste dispositivo. A confirmação grava a OS, a agenda e o histórico juntos.</p>
-          {message ? <p role="alert" className="rounded-lg bg-amber-50 p-3 text-sm text-amber-900">{message}</p> : null}
           <button disabled={submitting} className="w-full rounded-lg bg-sky-950 px-4 py-2.5 text-sm font-semibold text-white disabled:opacity-50">{submitting ? "Confirmando…" : "Confirmar despacho"}</button>
         </form>}
       </aside>

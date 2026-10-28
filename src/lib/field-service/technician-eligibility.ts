@@ -2,6 +2,8 @@ export type OperationalTechnician = {
   id: string;
   organization_id: string;
   full_name: string;
+  phone?: string | null;
+  mobile?: string | null;
   status: string;
   base_city: string | null;
   active: boolean;

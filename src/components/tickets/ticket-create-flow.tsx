@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
+import { useFormStatus } from "react-dom";
 import { createTicket } from "@/app/(portal)/portal/tickets/actions";
 
 type Props = {
@@ -56,9 +57,14 @@ export function TicketCreateFlow(props: Props) {
             {!collaborators.some((item) => item.organization_id === organizationId) && <p role="status" className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-950">Nenhum solicitante ativo nesta organização. <Link href="/portal/collaborators" className="font-semibold underline">Cadastrar solicitante</Link> para vinculá-lo ao chamado.</p>}
             <label className="block text-sm font-medium">Assunto *<input name="title" required defaultValue={selected?.offering.name} className={field} /></label><label className="block text-sm font-medium">Descrição *<textarea name="description" required rows={6} placeholder="Descreva o problema e as informações úteis ao atendimento." className={field} /></label>
             <div className="grid gap-4 sm:grid-cols-2"><label className="text-sm font-medium">Impacto<select name="impact" defaultValue="LOW" className={field}><option value="LOW">Baixo</option><option value="MEDIUM">Médio</option><option value="HIGH">Alto</option></select></label><label className="text-sm font-medium">Urgência<select name="urgency" defaultValue="LOW" className={field}><option value="LOW">Baixa</option><option value="MEDIUM">Média</option><option value="HIGH">Alta</option></select></label></div>
-          </div><footer className="flex items-center justify-between gap-3 border-t border-slate-200 px-5 py-4 sm:px-7"><button type="button" onClick={() => setStep("catalog")} className="text-sm font-semibold text-slate-700">← Voltar ao catálogo</button><button type="submit" disabled={!customerId} className="rounded-lg bg-sky-950 px-5 py-2.5 text-sm font-semibold text-white disabled:bg-slate-300">Salvar chamado</button></footer>
+          </div><footer className="flex items-center justify-between gap-3 border-t border-slate-200 px-5 py-4 sm:px-7"><button type="button" onClick={() => setStep("catalog")} className="text-sm font-semibold text-slate-700">← Voltar ao catálogo</button><div className="flex items-center gap-3"><span className="text-xs text-slate-500" aria-live="polite">{!customerId ? "Selecione o cliente para salvar" : ""}</span><SubmitButton disabled={!customerId} /></div></footer>
         </form>}
       </section>
     </div>}
   </>;
+}
+
+function SubmitButton({ disabled }: { disabled: boolean }) {
+  const { pending } = useFormStatus();
+  return <button type="submit" disabled={disabled || pending} className="rounded-lg bg-sky-950 px-5 py-2.5 text-sm font-semibold text-white disabled:bg-slate-300">{pending ? "Salvando…" : "Salvar chamado"}</button>;
 }
