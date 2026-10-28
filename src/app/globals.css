@@ -48,6 +48,22 @@ html[data-oneit-portal-sidebar="collapsed"] { --oneit-portal-sidebar-width: 4.5r
 html[data-oneit-portal-sidebar="expanded"] { --oneit-portal-sidebar-width: 16rem; }
 [data-oneit-portal-sidebar-offset] { margin-left: var(--oneit-portal-sidebar-width, 16rem) !important; transition: margin-left 200ms ease; }
 
+@media (max-width: 767px) {
+  :root { --oneit-portal-sidebar-width: 4.5rem; }
+  [data-oneit-portal-sidebar-offset] { margin-left: 4.5rem !important; }
+  .oneit-portal-sidebar-light { width: 4.5rem !important; padding-left: 0.5rem; padding-right: 0.5rem; }
+  .oneit-sidebar-logo { height: 4.5rem; }
+  .oneit-sidebar-logo img { height: 2.25rem; width: 3.25rem; }
+  .oneit-sidebar-group { justify-content: center; padding-left: 0.5rem; padding-right: 0.5rem; }
+  .oneit-sidebar-group span:first-child { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; }
+  .oneit-sidebar-group span:last-child { display: none; }
+  .oneit-sidebar-links { margin-left: 0; border-left: 0; padding-left: 0; }
+  .oneit-sidebar-links a { justify-content: center; padding-left: 0.5rem; padding-right: 0.5rem; }
+  .oneit-sidebar-links a span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; }
+  .oneit-sidebar-logout { justify-content: center; padding-left: 0.5rem; padding-right: 0.5rem; }
+  .oneit-sidebar-logout span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; }
+}
+
 [data-oneit-sidebar-offset] {
   margin-left: var(--oneit-sidebar-width) !important;
   transition: margin-left 200ms ease;

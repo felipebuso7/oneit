@@ -299,3 +299,8 @@ Na fila de validação gerencial, as mensagens de retorno passaram a ser regiõe
 superfície e contraste consistentes com o portal. A alteração não modifica a fila, a LPU, as decisões ou a geração do RTO.
 ESLint direcionado e typecheck passaram.
 
+O shell autenticado recebeu um comportamento responsivo para telas estreitas: a navegação lateral passa a ocupar uma coluna
+compacta de ícones, com `title` e `aria-label` para preservar a descoberta das rotas, enquanto o conteúdo recalcula a margem
+sem sobreposição. O menu expandido de desktop e suas rotas permanecem inalterados. ESLint direcionado, typecheck e `git diff
+--check` passaram.
+
