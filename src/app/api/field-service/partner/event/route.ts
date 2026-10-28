@@ -44,7 +44,17 @@ export async function POST(request: Request) {
     });
   if (error) {
     const message = error.message ?? "";
-    if (message.includes("INVALID_STATE")) return reply(409, "EVENT_INVALID_STATE");
+    if (message.includes("INVALID_STATE")) {
+      // Se a resposta foi perdida depois do commit, uma nova tentativa não
+      // deve obrigar o técnico a repetir a etapa. Só tratamos como sucesso
+      // quando o mesmo acesso já deixou a OS exatamente no estado esperado.
+      const expectedStatus = parsed.data.event === "TRAVEL_STARTED" ? "TRAVELING" : parsed.data.event === "CHECK_IN" ? "CHECKED_IN" : parsed.data.event === "SUBMIT" ? "IN_SERVICE" : parsed.data.event === "CHECK_OUT" ? "COMPLETED" : null;
+      if (expectedStatus) {
+        const { data: context } = await supabase.rpc("get_partner_service_order_context", { target_token: parsed.data.token, target_code: parsed.data.code });
+        if (context?.[0]?.status === expectedStatus) return Response.json({ ok: true, replayed: true }, { headers: { "Cache-Control": "no-store" } });
+      }
+      return reply(409, "EVENT_INVALID_STATE");
+    }
     if (message.includes("REPORT_INVALID") || message.includes("EVIDENCE_INVALID") || message.includes("EVIDENCE_REQUIRED") || message.includes("SIGNATURE_INVALID") || message.includes("SIGNATURE_REQUIRED") || message.includes("SUBMISSION_REQUIRED")) return reply(422, "EVENT_DATA_INVALID");
     if (message.includes("EXPIRED")) return reply(410, "ACCESS_EXPIRED");
     if (message.includes("LOCKED")) return reply(429, "ACCESS_LOCKED");
