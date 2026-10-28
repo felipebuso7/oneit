@@ -56,7 +56,9 @@ begin
 
   select count(*) into line_count
     from public.field_service_ticket_closures closure
-    join public.field_service_order_lpu_lines l on l.service_order_id = closure.service_order_id
+    join public.service_orders so on so.id = closure.service_order_id and so.status = 'VALIDATED'
+    join public.tickets t on t.id = closure.ticket_id and t.administrative_status = 'CLOSED'
+    join public.field_service_order_lpu_lines l on l.service_order_id = so.id
    where closure.organization_id = target_organization_id
      and closure.closed_at >= target_competence
      and closure.closed_at < period_end;

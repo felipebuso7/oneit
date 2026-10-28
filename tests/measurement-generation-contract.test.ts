@@ -9,6 +9,8 @@ describe("geração produtiva do BM a partir de Field Service", () => {
     expect(source).toContain("measurement_sheet_versions");
     expect(source).toContain("measurement_sheet_events");
     expect(source).toContain("on conflict (organization_id, competence) do nothing");
+    expect(source).toContain("join public.service_orders so on so.id = closure.service_order_id and so.status = 'VALIDATED'");
+    expect(source).toContain("join public.tickets t on t.id = closure.ticket_id and t.administrative_status = 'CLOSED'");
   });
 
   it("expõe endpoint autenticado com competência mensal", () => {

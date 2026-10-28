@@ -110,3 +110,9 @@ Critério: riscos P0/P1 fechados ou explicitamente aceitos pelo Owner com evidê
 ## Validação planejada
 
 Executar primeiro o teste direcionado do gate, depois typecheck/lint do escopo afetado. A suíte completa e a homologação remota continuam obrigatórias antes de qualquer conclusão de produção.
+## Correção aplicada nesta continuidade
+
+A geração do BM foi endurecida: a checagem de itens LPU agora usa os mesmos joins e estados da consolidação final
+(`service_orders.status = VALIDATED` e `tickets.administrative_status = CLOSED`), evitando criar BM vazio por contar
+linhas de uma OS não elegível. A migration ainda precisa ser aplicada no Supabase antes de ser considerada ativa.
+
