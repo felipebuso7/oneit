@@ -33,8 +33,8 @@ export async function POST(request: Request) {
       const created = await client.query<{ id: string }>(
         `insert into public.technicians (
            organization_id, user_id, full_name, email, phone, mobile, employee_identifier,
-           job_title, employment_type, hourly_cost, visibility_scope, external_partner_reference, active
-         ) values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13) returning id`,
+           job_title, employment_type, hourly_cost, visibility_scope, external_partner_reference, active, status
+         ) values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,'AVAILABLE') returning id`,
         [
           value.organizationId, value.userId ?? null, value.fullName, value.email ?? null, value.phone ?? null,
           value.mobile ?? null, value.employeeIdentifier ?? null, value.jobTitle ?? null,

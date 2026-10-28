@@ -37,4 +37,10 @@ describe("contrato da API de técnicos", () => {
     expect(resource).toContain("technician_type: value.technicianType");
     expect(resource).toContain("technician_type");
   });
+
+  it("mantém a rota administrativa self-hosted pronta para despacho", () => {
+    const source = readFileSync("src/app/api/administration/technicians/route.ts", "utf8");
+    expect(source).toContain("active, status");
+    expect(source).toContain("'AVAILABLE'");
+  });
 });
