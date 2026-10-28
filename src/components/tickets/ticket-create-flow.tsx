@@ -37,9 +37,18 @@ export function TicketCreateFlow(props: Props) {
   const orgCustomers = customers.filter((item) => item.organization_id === organizationId);
   const customerLocations = locations.filter((item) => item.organization_id === organizationId && item.customer_id === customerId);
   const customerContracts = contracts.filter((item) => item.organization_id === organizationId && item.customer_id === customerId);
+  const openNewTicket = () => {
+    setStep("catalog");
+    setSearch("");
+    setCategoryId("");
+    setOfferingId("");
+    setCustomerId("");
+    setLocationId("");
+    if (organizations.length !== 1) setOrganizationId("");
+  };
 
   return <>
-    <button type="button" onClick={() => setStep("catalog")} className="rounded-lg bg-sky-950 px-4 py-2.5 text-sm font-semibold text-white hover:bg-sky-900">+ Novo chamado</button>
+    <button type="button" onClick={openNewTicket} className="rounded-lg bg-sky-950 px-4 py-2.5 text-sm font-semibold text-white hover:bg-sky-900">+ Novo chamado</button>
     {step !== "closed" && <div className="fixed inset-0 z-50 flex justify-end bg-slate-950/45" onMouseDown={(event) => { if (event.target === event.currentTarget) setStep("closed"); }}>
       <section role="dialog" aria-modal="true" aria-label={step === "catalog" ? "Catálogo para novo chamado" : "Preenchimento do chamado"} className="flex h-full w-full max-w-2xl flex-col overflow-hidden bg-white shadow-2xl">
         <header className="flex items-center justify-between border-b border-slate-200 px-5 py-4 sm:px-7"><div><p className="text-xs font-semibold uppercase tracking-wider text-sky-800">Novo chamado · {step === "catalog" ? "1 de 2" : "2 de 2"}</p><h2 className="mt-1 text-xl font-semibold">{step === "catalog" ? "Escolha o serviço" : "Dados da solicitação"}</h2></div><button type="button" onClick={() => setStep("closed")} aria-label="Fechar" className="rounded-lg px-3 py-2 text-lg hover:bg-slate-100">×</button></header>
