@@ -36,6 +36,14 @@ export async function POST(request: Request) {
     .maybeSingle();
   if (ticketReferenceError || !ticketReference) return reply(409, "DISPATCH_STATE_CONFLICT");
 
+  const { data: operationalTechnician, error: operationalTechnicianError } = await supabase
+    .from("technicians")
+    .select("id, organization_id, full_name, email, phone, employment_type, active, status")
+    .eq("id", value.technicianId)
+    .eq("organization_id", ticketReference.organization_id)
+    .maybeSingle();
+  if (operationalTechnicianError || !operationalTechnician || !operationalTechnician.active || ["OFFLINE", "UNAVAILABLE", "VACATION"].includes(operationalTechnician.status)) return reply(422, "DISPATCH_REFERENCE_INVALID");
+
   const { data: technicianMapping, error: technicianMappingError } = await supabase
     .from("field_service_technicians")
     .select("id")
@@ -44,7 +52,20 @@ export async function POST(request: Request) {
     .eq("active", true)
     .maybeSingle();
   if (technicianMappingError) return reply(503, "DISPATCH_UNAVAILABLE");
-  if (!technicianMapping) return reply(422, "DISPATCH_REFERENCE_INVALID");
+  if (technicianMapping && !technicianMapping.id) return reply(422, "DISPATCH_REFERENCE_INVALID");
+  if (!technicianMapping) {
+    const email = (operationalTechnician.email ?? `tecnico-${operationalTechnician.id.slice(0, 8)}@oneit.local`).toLowerCase();
+    const { error: mappingInsertError } = await supabase.from("field_service_technicians").insert({
+      organization_id: operationalTechnician.organization_id,
+      name: operationalTechnician.full_name,
+      email,
+      technician_type: /parceir|extern/i.test(operationalTechnician.employment_type ?? "") ? "partner" : "internal",
+      phone: operationalTechnician.phone ?? null,
+      operational_technician_id: operationalTechnician.id,
+      active: true,
+    });
+    if (mappingInsertError && mappingInsertError.code !== "23505") return reply(503, "DISPATCH_UNAVAILABLE");
+  }
 
   const { data, error } = await supabase.rpc("dispatch_ticket_to_field", {
     target_ticket_id: value.ticketId,

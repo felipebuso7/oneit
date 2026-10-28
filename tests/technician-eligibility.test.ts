@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { countUnlinkedActiveTechnicians, resolveDispatchTechnicians } from "@/lib/field-service/technician-eligibility";
+import { countUnlinkedActiveTechnicians, resolveDispatchTechnicians, withMissingOperationalMappings } from "@/lib/field-service/technician-eligibility";
 
 describe("dispatch technician source of truth", () => {
   it("offers only active operational technicians explicitly linked to an active Field Service record", () => {
@@ -27,5 +27,21 @@ describe("dispatch technician source of truth", () => {
       { organization_id: "org-1", operational_technician_id: "tech-1", active: true },
       { organization_id: "org-1", operational_technician_id: null, active: false },
     ])).toBe(1);
+  });
+
+  it("recupera apenas técnicos sem qualquer vínculo, respeitando vínculo inativo", () => {
+    const result = withMissingOperationalMappings(
+      [
+        { organization_id: "org-1", operational_technician_id: "tech-1", active: false },
+        { organization_id: "org-1", operational_technician_id: null, active: true },
+      ],
+      [
+        { id: "tech-1", organization_id: "org-1", full_name: "Ana", status: "AVAILABLE", base_city: null, active: true },
+        { id: "tech-2", organization_id: "org-1", full_name: "Bruno", status: "AVAILABLE", base_city: null, active: true },
+      ],
+    );
+    expect(result).toContainEqual({ organization_id: "org-1", operational_technician_id: "tech-1", active: false });
+    expect(result).toContainEqual({ organization_id: "org-1", operational_technician_id: "tech-2", active: true });
+    expect(result.filter((item) => item.operational_technician_id === "tech-1")).toHaveLength(1);
   });
 });

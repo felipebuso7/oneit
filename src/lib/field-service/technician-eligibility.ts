@@ -16,6 +16,26 @@ export type FieldServiceTechnicianMapping = {
 };
 
 /**
+ * Keeps older operational records dispatchable while their master mapping is
+ * repaired. An explicit inactive mapping is respected; only a completely
+ * missing mapping is recovered in memory and persisted by the dispatch API.
+ */
+export function withMissingOperationalMappings(
+  mappings: FieldServiceTechnicianMapping[],
+  operational: OperationalTechnician[],
+): FieldServiceTechnicianMapping[] {
+  const knownKeys = new Set(
+    mappings
+      .filter((mapping) => mapping.operational_technician_id)
+      .map((mapping) => `${mapping.organization_id}:${mapping.operational_technician_id}`),
+  );
+  const recovered = operational
+    .filter((technician) => technician.active && !knownKeys.has(`${technician.organization_id}:${technician.id}`))
+    .map((technician) => ({ organization_id: technician.organization_id, operational_technician_id: technician.id, active: true }));
+  return [...mappings, ...recovered];
+}
+
+/**
  * Resolves the technicians that can be dispatched by the operational OS flow.
  *
  * `field_service_technicians` is the administrative/master record, while

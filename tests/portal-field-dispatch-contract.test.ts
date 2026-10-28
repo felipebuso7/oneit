@@ -7,6 +7,7 @@ const tickets = readFileSync("src/components/tickets/tickets-table.tsx", "utf8")
 const caseFile = readFileSync("src/app/(portal)/portal/tickets/[id]/page.tsx", "utf8");
 const publicPartner = readFileSync("src/app/field-service/partner/page.tsx", "utf8");
 const securePartner = readFileSync("src/components/field-service/secure-partner-page.tsx", "utf8");
+const dispatchApi = readFileSync("src/app/api/field-service/dispatch/route.ts", "utf8");
 
 describe("despacho do portal", () => {
   it("exibe feedback de despacho e prepara WhatsApp com o contato do técnico", () => {
@@ -33,5 +34,8 @@ describe("despacho do portal", () => {
     expect(securePartner).toContain("/api/field-service/partner/context");
     expect(securePartner).toContain("sessionStorage");
     expect(securePartner).toContain("PartnerExecutionFlow");
+    expect(dispatchApi).toContain("operationalTechnician");
+    expect(dispatchApi).toContain("field_service_technicians");
+    expect(dispatchApi).toContain("operational_technician_id: operationalTechnician.id");
   });
 });

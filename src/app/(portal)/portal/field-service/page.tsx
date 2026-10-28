@@ -1,6 +1,6 @@
 import { requireUser } from "@/lib/auth/current-user";
 import { OneitEmptyState, OneitPageHeader } from "@/components/oneit";
-import { countUnlinkedActiveTechnicians, resolveDispatchTechnicians } from "@/lib/field-service/technician-eligibility";
+import { countUnlinkedActiveTechnicians, resolveDispatchTechnicians, withMissingOperationalMappings } from "@/lib/field-service/technician-eligibility";
 import { DispatchWorkspace } from "./dispatch-workspace";
 
 type PageProps = { searchParams: Promise<{ ticket?: string }> };
@@ -42,12 +42,13 @@ export default async function FieldServicePage({ searchParams }: PageProps) {
     : { data: [], error: null };
   if (contactResult.error) throw new Error("Não foi possível carregar os contatos das localidades.");
 
-  const dispatchTechnicians = resolveDispatchTechnicians(fieldTechnicianResult.data ?? [], technicianResult.data ?? []).map((technician) => {
+  const dispatchMappings = withMissingOperationalMappings(fieldTechnicianResult.data ?? [], technicianResult.data ?? []);
+  const dispatchTechnicians = resolveDispatchTechnicians(dispatchMappings, technicianResult.data ?? []).map((technician) => {
     const mapping = (fieldTechnicianResult.data ?? []).find((item) => item.organization_id === technician.organization_id && item.operational_technician_id === technician.id);
     return { ...technician, phone: mapping?.mobile || mapping?.phone || technician.mobile || technician.phone || null };
   });
   const unlinkedTechnicians = countUnlinkedActiveTechnicians(fieldTechnicianResult.data ?? []);
-  const linkedOperationalIds = new Set((fieldTechnicianResult.data ?? []).filter((item) => item.active && item.operational_technician_id).map((item) => item.operational_technician_id));
+  const linkedOperationalIds = new Set(dispatchMappings.filter((item) => item.active && item.operational_technician_id).map((item) => item.operational_technician_id));
   const unavailableTechnicians = (technicianResult.data ?? []).filter((technician) => technician.active && linkedOperationalIds.has(technician.id) && ["UNAVAILABLE", "OFFLINE", "VACATION"].includes(technician.status)).length;
 
   return <section className="mx-auto max-w-7xl p-5 sm:p-8">
