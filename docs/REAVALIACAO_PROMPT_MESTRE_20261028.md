@@ -1,0 +1,103 @@
+# Reavaliação do Prompt Mestre e plano de execução — 2026-10-28
+
+## Escopo e método
+
+Este documento confronta os requisitos do `One_IT_Prompt_Mestre_Reconstrucao.md` com o estado versionado do repositório `servicia-fsm`, os testes existentes e os registros de auditoria anteriores. A classificação distingue evidência executada de inferência estática. A existência de uma rota ou componente não foi considerada prova de funcionamento ponta a ponta.
+
+Não foram feitas alterações destrutivas, migrations ou alterações de dados nesta reavaliação.
+
+## Parecer executivo
+
+**Direção recomendada:** continuar com o monólito modular Next.js + Supabase/PostgreSQL e consolidar o portal autenticado como fonte operacional. Não há evidência que justifique microsserviços ou uma reescrita total.
+
+**Situação atual:** a base de produção tem uma fronteira portal/demo, contratos de domínio e migrations para o fluxo de Field Service, RTO e BM. A prontidão operacional ainda é **parcial**, porque não foi comprovada neste ciclo uma jornada autenticada completa com dados persistidos, dois escopos organizacionais, provedor de WhatsApp/e-mail e geração de BM enviada.
+
+## Matriz de pendências do Prompt Mestre
+
+| Frente | Estado | Evidência atual | Próxima ação |
+|---|---|---|---|
+| Fonte de verdade portal vs. demo | Parcial, com gate | `src/app/page.tsx` direciona produção para `/portal`; `src/proxy.ts` bloqueia `/demo` em produção; páginas demo ainda usam `localStorage` | Manter demo somente para prévia explícita e executar smoke test no portal publicado |
+| Cadastros e relacionamentos | Parcial | APIs/migrations existem para clientes, localidades, técnicos, catálogo e LPU; a auditoria remota ainda não comprovou todos os seletores e edições em banco | Homologar CRUD + seleção dependente em sequência, começando por técnico |
+| Despacho Field Service | Parcial | `dispatch`, agenda, elegibilidade e testes contratuais existem; não houve E2E autenticado comprovado no ciclo registrado | Testar atribuição, conflito de agenda, status e histórico em banco real |
+| Link do técnico externo | Parcial | há `partner/access`, token/code gate e eventos; validade, revogação e upload dependem de homologação real | Testar token expirado/revogado, retomada e isolamento por OS |
+| Evidências e assinatura | Parcial | rotas de upload, storage e testes existem; provedor/storage real e limites de payload precisam de prova operacional | Executar upload de 3 fotos, assinatura, consulta e controle de acesso |
+| Validação, precificação e RTO | Parcial/implementada em código | `review`, LPU lines, geração RTO e fechamento têm funções e testes; fluxo autenticado real não foi completado | Validar pré-condições, devolução, versão do PDF e encerramento transacional |
+| BM por competência | Parcial | APIs, PDF, totais, congelamento e e-mail/fiscal possuem migrations/testes; worker e envio real ainda não comprovados | Homologar elegibilidade, idempotência, snapshot e fila de e-mail |
+| Segurança/RLS | Aberta | RBAC/RLS e migrations existem; teste de duas organizações em banco real ainda não foi concluído | Executar matriz owner/admin/dispatcher/financeiro/técnico/externo |
+| Integrações WhatsApp/e-mail | Não comprovada | abertura de conversa e contratos de fila existem; não há evidência de provedor oficial/entrega | Configurar sandbox autorizado e distinguir preparado, aceito, falho e entregue |
+| UI/UX e design system | Parcial | portal usa shell claro e telas RTO/revisão foram refinadas; inventário visual global continua aberto | Revisar fila de chamados, despacho, validação e BM com critérios de tarefa |
+| Testes E2E e produção | Parcial | suíte contratual e typecheck/build tiveram ciclos aprovados; E2E autenticado completo e Linux/VPS ainda não comprovados | Criar roteiro repetível com dados fictícios e evidências de rede/banco |
+
+## O que não foi iniciado ou ainda está sem evidência suficiente
+
+1. Homologação ponta a ponta autenticada na implantação exata publicada.
+2. Teste de segregação entre duas organizações diretamente no banco e nas APIs.
+3. Prova do worker financeiro processando e-mail, retry, idempotência e vínculo BM–log.
+4. Configuração e teste de provedor oficial de WhatsApp; abrir a janela do WhatsApp não equivale a envio confirmado.
+5. Backup/restauração e operação Linux/VPS com rollback testado.
+6. Benchmark com volume representativo e paginação validada nas listas operacionais.
+7. Inventário visual de todas as rotas administrativas; não é seguro declarar uniformidade global apenas por inspeção de algumas telas.
+
+## Plano de ação priorizado
+
+### Sprint A — Guardrails e fonte de verdade (iniciada)
+
+- [x] Reforçar teste que varre API, portal autenticado, portal do técnico e componentes Field Service contra `localStorage`.
+- [x] Reforçar teste contra importação de componentes/páginas demo pelos caminhos operacionais.
+- [ ] Manter `/demo` acessível somente em desenvolvimento ou prévia explicitamente configurada.
+- [ ] Registrar a URL/commit da implantação que será homologada.
+
+Critério de conclusão: os testes de fronteira passam e nenhuma página produtiva grava estado operacional no navegador.
+
+### Sprint B — Cadastros e fonte canônica
+
+- [ ] Executar CRUD de técnico interno e parceiro; verificar ativo/disponível, polos e seleção no despacho.
+- [ ] Executar empresa → departamento → solicitante → chamado com filtros dependentes.
+- [ ] Executar categoria → serviço → chamado.
+- [ ] Executar LPU → item/composição → quantidade → preço congelado na OS.
+
+Critério: cada registro criado aparece nos seletores corretos após recarregar e alterações não quebram históricos.
+
+### Sprint C — Jornada Field Service
+
+- [ ] Abrir chamado com referência externa e número OneIT.
+- [ ] Despachar com agenda/conflito/status e histórico.
+- [ ] Abrir link externo sem login, iniciar deslocamento, check-in, evidências e assinatura.
+- [ ] Submeter, validar/devolver, precificar, gerar RTO e encerrar.
+
+Critério: uma OS fictícia percorre todas as transições no Supabase, sem `localStorage`, com auditoria e documento consultável.
+
+### Sprint D — BM e integrações
+
+- [ ] Consolidar OS elegíveis por cliente/competência.
+- [ ] Gerar snapshot, PDF detalhado e total consolidado.
+- [ ] Processar fila de e-mail em sandbox, com idempotência/retry e log por BM.
+- [ ] Validar transição fiscal somente após evidência do worker.
+
+Critério: BM não duplica OS, congela valores, registra versão e não declara entrega sem evidência do provedor.
+
+### Sprint E — Segurança, desempenho e operação
+
+- [ ] Matriz de autorização multi-organização.
+- [ ] Limites/paginação nas filas e relatórios.
+- [ ] Backup/restauração e rollback em ambiente Linux.
+- [ ] Monitoramento, health/readiness e procedimento de suporte.
+
+Critério: riscos P0/P1 fechados ou explicitamente aceitos pelo Owner com evidência e plano de mitigação.
+
+## Decisões que continuam dependentes do Owner
+
+- Regra oficial de competência do BM (data do atendimento, aprovação, encerramento ou RTO).
+- Exceções às três fotos e à assinatura.
+- Provedor oficial de WhatsApp e política de retenção dos links externos.
+- Destinatários/modelos de e-mail e diferença entre aceite e entrega.
+- Política de backup e ambiente de produção definitivo.
+
+## Alterações iniciadas neste ciclo
+
+- `tests/production-persistence-boundary.test.ts`: o gate agora cobre também `src/app/(portal)`, `src/app/field-service` e rejeita importações de demo nos caminhos produtivos.
+- Este documento: baseline executável para o plano de reconstrução, sem alterar dados ou migrations.
+
+## Validação planejada
+
+Executar primeiro o teste direcionado do gate, depois typecheck/lint do escopo afetado. A suíte completa e a homologação remota continuam obrigatórias antes de qualquer conclusão de produção.
