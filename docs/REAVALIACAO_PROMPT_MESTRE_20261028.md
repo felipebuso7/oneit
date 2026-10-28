@@ -238,6 +238,11 @@ No painel de BM, o fluxo visual agora é apresentado em quatro etapas: fechar co
 e aguardar fiscal. Os status da tabela passaram a usar cores semânticas e bordas consistentes, mantendo a leitura rápida
 sem alterar o workflow, os cálculos ou as permissões. ESLint e typecheck passaram.
 
+No cadastro de técnicos, o formulário recebeu estrutura de seção, labels explícitos, mensagens de feedback acessíveis,
+campos com linguagem operacional e espaçamento alinhado ao Design System. A edição, habilitação/indisponibilização e o
+vínculo operacional permanecem iguais; a alteração reduz ambiguidade no cadastro que alimenta o despacho. ESLint e
+typecheck passaram.
+
 Na tela de Rotas planejadas, cada técnico passou a receber um acento lateral discreto e determinístico, facilitando a
 leitura de várias agendas no mesmo dia sem transformar os cartões em um painel multicolorido. Também foi removida uma
 variável sem uso da página e preservada a compatibilidade do movimento de descida de parada para versões antigas do
