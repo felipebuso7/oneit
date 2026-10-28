@@ -248,6 +248,11 @@ cancelar uma edição, os campos são limpos e o contexto retorna para novo cada
 de valores antigos. A persistência, desativação/reativação e contratos de API foram preservados. ESLint e typecheck
 passaram.
 
+O Catálogo de serviços também foi alinhado ao cabeçalho compartilhado do portal, com mensagem de feedback semântica e
+editor de itens com bordas explícitas. A hierarquia de categoria, subcategoria e oferta, os filtros por organização e as
+ações de criação, edição e inativação foram preservados; nenhuma regra de catálogo ou integração com a abertura de
+chamados foi alterada. ESLint direcionado e typecheck passaram.
+
 No cadastro de regiões, a tela foi alinhada ao shell do portal e movida visualmente para o contexto de Configurações ·
 Field Service. O formulário agora explicita organização, nome e UF, e a listagem explica que a região é reutilizada em
 polos, triagem e agenda. A alteração é visual e não muda o vínculo persistido da região. ESLint e typecheck passaram.

@@ -1,15 +1,16 @@
 import { requireUser } from "@/lib/auth/current-user";
+import { OneitPageHeader } from "@/components/oneit";
 import { createServiceCategory, createServiceOffering, createServiceSubcategory, updateServiceCatalogItem } from "./actions";
 
 type PageProps = { searchParams: Promise<{ message?: string }> };
 type CatalogItem = { id: string; code: string; name: string; active: boolean };
 
 function CatalogItemEditor({ item, kind, label }: { item: CatalogItem; kind: "category" | "subcategory" | "offering"; label: string }) {
-  return <form action={updateServiceCatalogItem} className="flex flex-wrap items-center gap-2 rounded-lg border bg-white p-2.5 shadow-sm">
+  return <form action={updateServiceCatalogItem} className="flex flex-wrap items-center gap-2 rounded-lg border border-slate-200 bg-white p-2.5 shadow-sm">
     <input type="hidden" name="id" value={item.id} /><input type="hidden" name="kind" value={kind} /><input type="hidden" name="active" value={String(item.active)} />
     <span className="w-24 text-xs font-semibold uppercase tracking-wide text-slate-500">{label}</span>
-    <input aria-label={`Código ${label}`} name="code" defaultValue={item.code} required className="w-28 rounded border p-1.5 font-mono text-xs" />
-    <input aria-label={`Nome ${label}`} name="name" defaultValue={item.name} required className="min-w-48 flex-1 rounded border p-1.5 text-sm" />
+    <input aria-label={`Código ${label}`} name="code" defaultValue={item.code} required className="w-28 rounded border border-slate-300 p-1.5 font-mono text-xs" />
+    <input aria-label={`Nome ${label}`} name="name" defaultValue={item.name} required className="min-w-48 flex-1 rounded border border-slate-300 p-1.5 text-sm" />
     <span className={`rounded-full px-2 py-1 text-xs font-semibold ${item.active ? "bg-emerald-50 text-emerald-700" : "bg-slate-100 text-slate-600"}`}>{item.active ? "Ativo" : "Inativo"}</span>
     <button className="text-sm font-semibold text-[#0b4a64]">Salvar</button>
   </form>;
@@ -44,9 +45,8 @@ export default async function ServiceCatalogPage({ searchParams }: PageProps) {
   const activeSubcategories = (subcategories ?? []).filter((item) => item.active && activeCategories.some((category) => category.id === item.category_id));
 
   return <section className="mx-auto max-w-6xl p-5 sm:p-8">
-    <p className="text-sm font-semibold tracking-[0.15em] text-cyan-700">ITSM · CATÁLOGO</p><h1 className="mt-2 text-3xl font-semibold">Catálogo de serviços</h1>
-    <p className="mt-2 max-w-3xl text-sm text-slate-600">Categorias → subcategorias → ofertas. O catálogo controla a classificação disponível no chamado e a associação das políticas de SLA/OLA.</p>
-    {message ? <p role="status" className="mt-4 rounded bg-sky-100 p-3 text-sm">{message}</p> : null}
+    <OneitPageHeader eyebrow="Configurações · Operação" title="Catálogo de serviços" description="Categorias → subcategorias → ofertas. O catálogo controla a classificação disponível no chamado e a associação das políticas de SLA/OLA." />
+    {message ? <p role="status" className="mt-4 rounded-lg border border-sky-200 bg-sky-50 p-3 text-sm text-sky-900">{message}</p> : null}
     <div className="mt-6 grid gap-4 lg:grid-cols-3">
       <form action={createServiceCategory} className="space-y-3 rounded-xl border bg-white p-4"><h2 className="font-semibold">Categoria</h2><select name="organizationId" required defaultValue="" className="w-full rounded border p-2"><option disabled value="">Organização</option>{(organizations ?? []).map((item) => <option key={item.id} value={item.id}>{item.display_name}</option>)}</select><input name="code" required placeholder="Código, ex.: NETWORK" className="w-full rounded border p-2" /><input name="name" required placeholder="Nome" className="w-full rounded border p-2" /><button className="rounded bg-slate-900 px-3 py-2 text-white">Adicionar</button></form>
       <form action={createServiceSubcategory} className="space-y-3 rounded-xl border bg-white p-4"><h2 className="font-semibold">Subcategoria</h2><select name="parentId" required defaultValue="" className="w-full rounded border p-2"><option disabled value="">Categoria</option>{activeCategories.map((item) => <option key={item.id} value={item.id}>{item.code} — {item.name}</option>)}</select><input name="code" required placeholder="Código" className="w-full rounded border p-2" /><input name="name" required placeholder="Nome" className="w-full rounded border p-2" /><button className="rounded bg-slate-900 px-3 py-2 text-white">Adicionar</button></form>
