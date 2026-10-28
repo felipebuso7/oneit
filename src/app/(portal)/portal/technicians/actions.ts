@@ -23,13 +23,54 @@ export async function createTechnician(formData: FormData) {
   if (!parsed.success) redirect("/portal/technicians?message=Dados+do+técnico+inválidos.");
 
   const { supabase } = await requireUser();
-  const { error } = await supabase.from("technicians").insert({
+  const { data: technician, error } = await supabase.from("technicians").insert({
     organization_id: parsed.data.organizationId, full_name: parsed.data.fullName, email: parsed.data.email,
     phone: parsed.data.phone, employment_type: parsed.data.employmentType, base_city: parsed.data.baseCity,
     primary_region_id: parsed.data.primaryRegionId,
-  });
+  }).select("id,full_name,email,phone,employment_type,organization_id").single();
   if (error) redirect("/portal/technicians?message=Não+foi+possível+criar+o+técnico.");
+  const fieldEmail = technician.email ?? `tecnico-${technician.id.slice(0, 8)}@oneit.local`;
+  const fieldType = /parceir|extern/i.test(technician.employment_type) ? "partner" : "internal";
+  const { error: fieldError } = await supabase.from("field_service_technicians").insert({
+    organization_id: technician.organization_id, name: technician.full_name, email: fieldEmail,
+    technician_type: fieldType, phone: technician.phone, operational_technician_id: technician.id,
+  });
+  if (fieldError) redirect("/portal/technicians?message=Técnico criado, mas não foi possível criar o vínculo automático com o Field Service. Use Sincronizar cadastros.");
   revalidatePath("/portal/technicians"); redirect("/portal/technicians?message=Técnico+cadastrado.");
+}
+
+export async function syncFieldServiceTechnicians(formData: FormData) {
+  const organizationId = String(formData.get("organizationId") ?? "");
+  if (!z.uuid().safeParse(organizationId).success) redirect("/portal/technicians?message=Organização inválida.");
+  const { supabase } = await requireUser();
+  const [{ data: operational, error: operationalError }, { data: masters, error: masterError }] = await Promise.all([
+    supabase.from("technicians").select("id,organization_id,full_name,email,phone,employment_type").eq("organization_id", organizationId).eq("active", true),
+    supabase.from("field_service_technicians").select("id,email,operational_technician_id").eq("organization_id", organizationId),
+  ]);
+  if (operationalError || masterError) redirect("/portal/technicians?message=Não foi possível ler os cadastros para sincronização.");
+  const byEmail = new Map((masters ?? []).map((master) => [master.email.toLowerCase(), master]));
+  const linkedIds = new Set((masters ?? []).map((master) => master.operational_technician_id).filter(Boolean));
+  let created = 0;
+  let linked = 0;
+  for (const technician of operational ?? []) {
+    if (linkedIds.has(technician.id)) continue;
+    const email = (technician.email ?? `tecnico-${technician.id.slice(0, 8)}@oneit.local`).toLowerCase();
+    const existing = byEmail.get(email);
+    if (existing) {
+      const { error } = await supabase.from("field_service_technicians").update({ operational_technician_id: technician.id, phone: technician.phone ?? undefined }).eq("id", existing.id).is("operational_technician_id", null);
+      if (!error) linked += 1;
+      continue;
+    }
+    const { error } = await supabase.from("field_service_technicians").insert({
+      organization_id: technician.organization_id, name: technician.full_name, email,
+      technician_type: /parceir|extern/i.test(technician.employment_type) ? "partner" : "internal",
+      phone: technician.phone, operational_technician_id: technician.id,
+    });
+    if (!error) created += 1;
+  }
+  revalidatePath("/portal/technicians");
+  revalidatePath("/portal/field-service");
+  redirect(`/portal/technicians?message=${encodeURIComponent(`Sincronização concluída: ${created} cadastro(s) criado(s) e ${linked} vínculo(s) recuperado(s).`)}`);
 }
 
 export async function linkFieldServiceTechnician(formData: FormData) {
