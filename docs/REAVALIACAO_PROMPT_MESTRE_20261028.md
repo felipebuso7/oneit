@@ -199,6 +199,11 @@ O contrato visual foi atualizado para a ação vigente “Agendar visita →”.
 (4 testes aprovados) e o typecheck; não houve alteração de dados, migration ou publicação em produção. A paginação
 interativa permanece uma melhoria P2 separada.
 
+A fila de chamados passou a paginar os registros recebidos no cliente em blocos de 25, com indicação de intervalo e
+controles acessíveis de página anterior/próxima. A paginação não substitui o limite server-side: ela reduz o volume
+renderizado por vez e mantém os filtros, ordenação e ações existentes. Testes da fila e dos limites server-side foram
+executados (4 testes aprovados) e o typecheck passou.
+
 Na fila de validação gerencial, os cartões de OS pendente receberam um destaque lateral âmbar (`border-l-4`) para
 separar visualmente itens que exigem decisão dos históricos aprovados/devolvidos. A alteração é exclusivamente visual:
 não muda consultas, status, ações, LPU ou persistência. O teste direcionado de revisão/fluxo (3 testes) e o typecheck
