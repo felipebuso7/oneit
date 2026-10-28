@@ -81,6 +81,13 @@ Entrega desta rodada: o dossiê autenticado agora exibe esse estado e a ação c
 - Validações: auditoria estrita de migrations (180 migrations, sem alertas), typecheck, build e testes focados aprovados.
 - Produção confirmada no commit `22fde44c0d61d08590ffea18bd09c67fcf91c001`; `/api/ready` retornou `status=ready` e `deploymentMode=supabase`.
 
+### Atualização de execução — 28/10/2026 (smoke de produção e regressão)
+
+- Smoke público repetido em `https://oneit-omega.vercel.app`: `/api/version` retornou `environment=production`, commit `22fde44c0d61d08590ffea18bd09c67fcf91c001` e deployment `oneit-5964cf4190-20261028055412`; `/api/ready` retornou `status=ready` e `deploymentMode=supabase`.
+- Suíte completa executada após a guarda de aprovação: **112 arquivos / 240 testes aprovados**.
+- A tela de login de produção respondeu e apresentou os campos de e-mail, senha, entrada e recuperação de senha. A jornada autenticada não foi marcada como aprovada nesta rodada porque não foi fornecida uma sessão de teste reutilizável para automação; portanto, abertura, despacho, checkout, aprovação, RTO e encerramento continuam pendentes de homologação autenticada.
+- Não foi registrado envio real de WhatsApp ou e-mail: o smoke confirma disponibilidade da aplicação, não entrega em provedor externo.
+
 ## 4. Critérios de avanço
 
 Uma tarefa só será marcada como concluída quando houver:
