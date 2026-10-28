@@ -34,5 +34,7 @@ describe("technician CRUD integration contract", () => {
     expect(source).toContain('from("field_service_technicians")');
     expect(source).toContain('.update({ active: true })');
     expect(source).toContain('.eq("operational_technician_id", parsed.data.technicianId)');
+    expect(source).toContain("mappingInsertError");
+    expect(source).toContain("operational_technician_id: updated.id");
   });
 });

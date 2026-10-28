@@ -156,7 +156,7 @@ export async function updateTechnicianStatus(formData: FormData) {
     .eq("id", parsed.data.technicianId)
     .eq("organization_id", parsed.data.organizationId)
     .eq("active", true)
-    .select("id,status")
+    .select("id,status,organization_id,full_name,email,phone,employment_type")
     .maybeSingle();
   if (error || !updated) redirect(`/portal/technicians?message=${encodeURIComponent(error ? "Não foi possível alterar a disponibilidade do técnico." : "Técnico não encontrado, inativo ou sem permissão para alteração.")}`);
 
@@ -164,11 +164,30 @@ export async function updateTechnicianStatus(formData: FormData) {
   // coerentes. Um vínculo que foi desativado não pode continuar bloqueando o
   // técnico depois que o gestor o habilita novamente.
   if (parsed.data.status === "AVAILABLE") {
-    const { error: mappingError } = await supabase.from("field_service_technicians")
+    const { data: mapping, error: mappingError } = await supabase.from("field_service_technicians")
       .update({ active: true })
       .eq("organization_id", parsed.data.organizationId)
-      .eq("operational_technician_id", parsed.data.technicianId);
+      .eq("operational_technician_id", parsed.data.technicianId)
+      .select("id");
     if (mappingError) redirect("/portal/technicians?message=Disponibilidade atualizada, mas não foi possível reativar o vínculo do Field Service.");
+
+    // Cadastros antigos podem ter o técnico operacional sem o registro mestre.
+    // Reativar o técnico deve reparar esse vínculo automaticamente, sem exigir
+    // que o gestor execute uma sincronização manual antes do despacho.
+    if (!mapping?.length) {
+      const fallbackEmail = (updated.email ?? `tecnico-${updated.id.slice(0, 8)}@oneit.local`).toLowerCase();
+      const technicianType = /parceir|extern/i.test(updated.employment_type) ? "partner" : "internal";
+      const { error: mappingInsertError } = await supabase.from("field_service_technicians").insert({
+        organization_id: updated.organization_id,
+        name: updated.full_name,
+        email: fallbackEmail,
+        technician_type: technicianType,
+        phone: updated.phone ?? null,
+        operational_technician_id: updated.id,
+        active: true,
+      });
+      if (mappingInsertError && mappingInsertError.code !== "23505") redirect("/portal/technicians?message=Disponibilidade atualizada, mas não foi possível criar o vínculo automático do Field Service.");
+    }
   }
 
   revalidatePath("/portal/technicians");
