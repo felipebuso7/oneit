@@ -26,6 +26,9 @@ export async function POST(request: Request) {
   const { data: auth, error: authError } = await supabase.auth.getUser();
   if (authError || !auth.user) return reply(401, "AUTH_REQUIRED");
   const value = parsed.data;
+  const { data: role, error: roleError } = await supabase.from("user_roles").select("role").eq("user_id", auth.user.id).eq("organization_id", value.organizationId).in("role", ["SUPER_ADMIN", "ORG_ADMIN", "MANAGER", "FINANCE"]).limit(1).maybeSingle();
+  if (roleError) return reply(503, "BILLING_EMAIL_AUTHORIZATION_UNAVAILABLE");
+  if (!role) return reply(403, "BILLING_EMAIL_NOT_AUTHORIZED");
   // Os destinatários são cadastrados em minúsculas. Normalize também a entrada
   // para que a validação não rejeite endereços equivalentes por capitalização
   // diferente e para evitar duplicidade no mesmo disparo.

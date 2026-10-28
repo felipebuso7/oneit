@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { readFileSync } from "node:fs";
 import { createClient } from "@/lib/supabase/server";
 import { POST } from "@/app/api/field-service/fiscal/queue-email/route";
 
@@ -34,6 +35,11 @@ function query(result: { data: unknown; error: null }) {
 beforeEach(() => vi.clearAllMocks());
 
 describe("fila de e-mail do BM", () => {
+  it("exige perfil financeiro antes de consultar ou enfileirar destinatários", async () => {
+    const source = readFileSync("src/app/api/field-service/fiscal/queue-email/route.ts", "utf8");
+    expect(source).toContain('from("user_roles")');
+    expect(source).toContain("BILLING_EMAIL_NOT_AUTHORIZED");
+  });
   it("recusa a tentativa do cliente de declarar envio pelo endpoint legado", async () => {
     const response = await POST(request({ emailType: "MEASUREMENT", measurementSheetId: sheetId, status: "SENT", provider: "manual" }));
     expect(response.status).toBe(400);
