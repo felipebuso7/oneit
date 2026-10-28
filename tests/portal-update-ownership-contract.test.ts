@@ -23,7 +23,7 @@ describe("atualizações do portal não mascaram falhas de persistência", () =>
   });
 
   it("confirma que a disponibilidade do técnico exige atualização real", () => {
-    expect(technicians).toContain('.select("id,status")');
+    expect(technicians).toContain('.select("id,status,organization_id,full_name,email,phone,employment_type")');
     expect(technicians).toContain("!updated");
     expect(technicians).toContain("Técnico não encontrado");
   });
