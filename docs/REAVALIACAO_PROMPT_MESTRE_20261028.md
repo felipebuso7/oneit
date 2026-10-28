@@ -217,3 +217,8 @@ Na manutenção do catálogo, a atualização/inativação de categorias, subcat
 `/portal/sla`, assim como já ocorria na criação. Isso mantém os seletores de SLA coerentes imediatamente após editar ou
 inativar um item, sem exigir hard refresh. O contrato do catálogo foi ampliado e passou com 9 testes.
 
+Na tela de Rotas planejadas, cada técnico passou a receber um acento lateral discreto e determinístico, facilitando a
+leitura de várias agendas no mesmo dia sem transformar os cartões em um painel multicolorido. Também foi removida uma
+variável sem uso da página e preservada a compatibilidade do movimento de descida de parada para versões antigas do
+formulário que não enviavam o campo `direction`.
+

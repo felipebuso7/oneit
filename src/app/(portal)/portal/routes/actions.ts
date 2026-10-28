@@ -36,7 +36,9 @@ export async function addRouteStop(formData: FormData) {
 export async function moveRouteStop(formData: FormData) {
   const routeId = formData.get("routeId");
   const stopId = formData.get("stopId");
-  const direction = formData.get("direction");
+  // O controle de descer mantém compatibilidade com versões antigas da tela
+  // que não enviavam o campo explícito; subir continua sempre explícito.
+  const direction = formData.get("direction") ?? "down";
   if (typeof routeId !== "string" || typeof stopId !== "string" || (direction !== "up" && direction !== "down")) {
     invalid("Movimentação de rota inválida.");
     return;
