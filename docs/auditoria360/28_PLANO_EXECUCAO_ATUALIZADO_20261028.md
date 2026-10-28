@@ -88,6 +88,13 @@ Entrega desta rodada: o dossiê autenticado agora exibe esse estado e a ação c
 - A tela de login de produção respondeu e apresentou os campos de e-mail, senha, entrada e recuperação de senha. A jornada autenticada não foi marcada como aprovada nesta rodada porque não foi fornecida uma sessão de teste reutilizável para automação; portanto, abertura, despacho, checkout, aprovação, RTO e encerramento continuam pendentes de homologação autenticada.
 - Não foi registrado envio real de WhatsApp ou e-mail: o smoke confirma disponibilidade da aplicação, não entrega em provedor externo.
 
+### Atualização de execução — 28/10/2026 (jornada visual do técnico)
+
+- A agenda autenticada `/portal/field` agora consulta `ticket_status_history` e exibe a jornada da OS em um componente único (`src/components/field/journey-timeline.tsx`): deslocamento, chegada, atendimento, evidências e checkout.
+- A etapa de evidências informa a contagem persistida de fotos e destaca `3` como requisito operacional; a linha do tempo não altera status nem substitui as validações do backend.
+- Validação: typecheck, build, teste focado e suíte completa aprovados (**113 arquivos / 241 testes**).
+- Publicação confirmada no commit `6934e2d076dfaa0181f1c203b616b54d280c3af4`; `/api/ready` retornou `ready` com `deploymentMode=supabase`.
+
 ## 4. Critérios de avanço
 
 Uma tarefa só será marcada como concluída quando houver:
