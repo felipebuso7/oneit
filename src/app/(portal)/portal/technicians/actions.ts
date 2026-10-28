@@ -7,6 +7,12 @@ import { requireUser } from "@/lib/auth/current-user";
 import { technicianSchema } from "@/lib/validation/organization";
 import { z } from "zod";
 
+const technicianStatusSchema = z.object({
+  technicianId: z.uuid(),
+  organizationId: z.uuid(),
+  status: z.enum(["AVAILABLE", "UNAVAILABLE", "BUSY", "OFFLINE", "VACATION"]),
+});
+
 export async function createTechnician(formData: FormData) {
   const parsed = technicianSchema.safeParse({
     organizationId: formData.get("organizationId"), fullName: formData.get("fullName"),
@@ -54,4 +60,25 @@ export async function linkFieldServiceTechnician(formData: FormData) {
   revalidatePath("/portal/field-service");
   revalidatePath("/portal/scheduling");
   redirect("/portal/technicians?message=Técnico+vinculado+ao+Field+Service.");
+}
+
+export async function updateTechnicianStatus(formData: FormData) {
+  const parsed = technicianStatusSchema.safeParse({
+    technicianId: formData.get("technicianId"),
+    organizationId: formData.get("organizationId"),
+    status: formData.get("status"),
+  });
+  if (!parsed.success) redirect("/portal/technicians?message=Status+de+técnico+inválido.");
+
+  const { supabase } = await requireUser();
+  const { error } = await supabase.from("technicians")
+    .update({ status: parsed.data.status })
+    .eq("id", parsed.data.technicianId)
+    .eq("organization_id", parsed.data.organizationId)
+    .eq("active", true);
+  if (error) redirect("/portal/technicians?message=Não+foi+possível+alterar+a+disponibilidade+do+técnico.");
+
+  revalidatePath("/portal/technicians");
+  revalidatePath("/portal/field-service");
+  redirect(`/portal/technicians?message=${parsed.data.status === "AVAILABLE" ? "Técnico+habilitado+para+despacho." : "Disponibilidade+do+técnico+atualizada."}`);
 }
