@@ -44,7 +44,7 @@ export async function syncFieldServiceTechnicians(formData: FormData) {
   if (!z.uuid().safeParse(organizationId).success) redirect("/portal/technicians?message=Organização inválida.");
   const { supabase } = await requireUser();
   const [{ data: operational, error: operationalError }, { data: masters, error: masterError }] = await Promise.all([
-    supabase.from("technicians").select("id,organization_id,full_name,email,phone,employment_type").eq("organization_id", organizationId).eq("active", true),
+    supabase.from("technicians").select("id,organization_id,full_name,email,phone,employment_type,active").eq("organization_id", organizationId).eq("active", true),
     supabase.from("field_service_technicians").select("id,email,operational_technician_id").eq("organization_id", organizationId),
   ]);
   if (operationalError || masterError) redirect("/portal/technicians?message=Não foi possível ler os cadastros para sincronização.");
@@ -57,7 +57,7 @@ export async function syncFieldServiceTechnicians(formData: FormData) {
     const email = (technician.email ?? `tecnico-${technician.id.slice(0, 8)}@oneit.local`).toLowerCase();
     const existing = byEmail.get(email);
     if (existing) {
-      const { error } = await supabase.from("field_service_technicians").update({ operational_technician_id: technician.id, phone: technician.phone ?? undefined }).eq("id", existing.id).is("operational_technician_id", null);
+      const { error } = await supabase.from("field_service_technicians").update({ operational_technician_id: existing.operational_technician_id ?? technician.id, name: technician.full_name, email, phone: technician.phone ?? null, active: technician.active }).eq("id", existing.id).is("operational_technician_id", null);
       if (!error) linked += 1;
       continue;
     }

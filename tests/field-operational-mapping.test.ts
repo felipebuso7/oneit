@@ -19,4 +19,12 @@ describe("convergência dos cadastros de Field", () => {
     expect(poloApi).toContain("operationalLocationId");
     expect(poloApi).toContain("operational_location_id");
   });
+
+  it("cria e mantém o vínculo automaticamente no cadastro operacional", () => {
+    const migration = readFileSync("supabase/migrations/20261027210000_auto_field_service_technician_mapping.sql", "utf8");
+    expect(migration).toContain("sync_field_service_technician_master");
+    expect(migration).toContain("technicians_field_service_master_sync");
+    expect(migration).toContain("after insert or update");
+    expect(migration).toContain("operational_technician_id = tech.id");
+  });
 });

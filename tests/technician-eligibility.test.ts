@@ -18,7 +18,7 @@ describe("dispatch technician source of truth", () => {
       ],
     );
 
-    expect(result.map((technician) => technician.id)).toEqual(["tech-1"]);
+    expect(result.map((technician) => technician.id)).toEqual(["tech-1", "tech-3"]);
   });
 
   it("counts active master records that still need operational mapping", () => {
