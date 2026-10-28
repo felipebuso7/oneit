@@ -34,4 +34,19 @@ describe("RTO operational durations", () => {
     const pdf = await renderFieldServiceRtoPdf(snapshot);
     expect(pdf.byteLength).toBeGreaterThan(0);
   });
+
+  it("accepts nullable contact fields returned by the database snapshot", async () => {
+    const snapshot = fieldServiceRtoSnapshotSchema.parse({
+      ...ids,
+      order_number: "OS-003",
+      status: "VALIDATED",
+      local_contact_name: null,
+      local_contact_phone: null,
+      location_name: null,
+      location_address: null,
+      technician_name: null,
+    });
+    const pdf = await renderFieldServiceRtoPdf(snapshot);
+    expect(pdf.byteLength).toBeGreaterThan(0);
+  });
 });
