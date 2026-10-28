@@ -49,11 +49,12 @@ export default async function TicketCaseFilePage({ params, searchParams }: PageP
     ...(ticket.first_response_at ? [{ at: ticket.first_response_at, title: "Primeiro atendimento iniciado", detail: "Analista responsável confirmou o início do atendimento." }] : []),
     ...(communications ?? []).map((communication) => ({ at: communication.created_at, title: communication.audience === "CUSTOMER" ? "Comunicação ao solicitante" : "Comunicação interna", detail: communication.message })),
   ].sort((first, second) => Date.parse(first.at) - Date.parse(second.at));
+  const canDispatch = ["NEW", "TRIAGE", "AWAITING_SCHEDULING", "SCHEDULED"].includes(ticket.operational_status);
 
   return <section className="mx-auto max-w-6xl p-5 sm:p-8">
     {shouldPromptFirstResponse ? <FirstResponsePrompt ticketId={ticket.id} /> : null}
     <Link href="/portal/tickets" className="text-sm font-medium text-[#0b4a64]">← Voltar aos chamados</Link>
-    <OneitPageHeader eyebrow="Dossiê auditável" title={`${ticket.ticket_number} — ${ticket.title}`} description={`${ticket.ticket_type} · P${ticket.priority} · impacto ${ticket.impact} · urgência ${ticket.urgency} · N${ticket.support_level}${group ? ` · ${group.code} — ${group.name}` : ""}`} />
+    <div className="flex flex-wrap items-start justify-between gap-4"><OneitPageHeader eyebrow="Dossiê auditável" title={`${ticket.ticket_number} — ${ticket.title}`} description={`${ticket.ticket_type} · P${ticket.priority} · impacto ${ticket.impact} · urgência ${ticket.urgency} · N${ticket.support_level}${group ? ` · ${group.code} — ${group.name}` : ""}`} />{canDispatch ? <Link href={`/portal/field-service?ticket=${encodeURIComponent(ticket.id)}`} className="shrink-0 rounded-lg bg-[#092f40] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#0b4a64]">Atribuir visita</Link> : null}</div>
     {message ? <p role="status" className="mt-4 rounded-lg bg-sky-50 p-3 text-sm text-sky-900">{message}</p> : null}
     <nav aria-label="Navegação do chamado" className="mt-5 flex gap-2 overflow-x-auto border-b pb-3 text-sm"><a href="#detalhes" className="shrink-0 rounded-lg bg-slate-900 px-3 py-2 font-semibold text-white">Detalhes</a><a href="#historico" className="shrink-0 rounded-lg border px-3 py-2 font-medium">Histórico</a></nav>
     <p id="detalhes" className="mt-4 scroll-mt-5 rounded-xl border bg-white p-4 text-sm whitespace-pre-wrap">{ticket.description}</p>

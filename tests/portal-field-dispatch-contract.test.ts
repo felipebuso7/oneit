@@ -4,6 +4,7 @@ import { describe, expect, it } from "vitest";
 const workspace = readFileSync("src/app/(portal)/portal/field-service/dispatch-workspace.tsx", "utf8");
 const page = readFileSync("src/app/(portal)/portal/field-service/page.tsx", "utf8");
 const tickets = readFileSync("src/components/tickets/tickets-table.tsx", "utf8");
+const caseFile = readFileSync("src/app/(portal)/portal/tickets/[id]/page.tsx", "utf8");
 
 describe("despacho do portal", () => {
   it("exibe feedback de despacho e prepara WhatsApp com o contato do técnico", () => {
@@ -17,5 +18,7 @@ describe("despacho do portal", () => {
     expect(page).toContain("initialTicketId");
     expect(tickets).toContain("Atribuir visita");
     expect(tickets).toContain("/portal/field-service?ticket=");
+    expect(caseFile).toContain("Atribuir visita");
+    expect(caseFile).toContain("canDispatch");
   });
 });
