@@ -13,11 +13,13 @@ export async function storeFieldServiceRtoPdf(supabase: SupabaseClient, reportId
 
   const { data: report, error } = await supabase
     .from("field_service_rto_reports")
-    .select("id, organization_id, service_order_id, ticket_id, snapshot, report_version")
+    .select("id, organization_id, service_order_id, ticket_id, snapshot, report_version, generated_by")
     .eq("id", reportId)
     .single();
   const snapshot = report ? fieldServiceRtoSnapshotSchema.safeParse(report.snapshot) : null;
   if (error || !report || !snapshot?.success) throw new Error("RTO_SNAPSHOT_UNAVAILABLE");
+  const { data: reviewer } = await supabase.from("user_profiles").select("full_name").eq("id", report.generated_by).maybeSingle();
+  const reportSnapshot = { ...snapshot.data, reviewer_name: reviewer?.full_name ?? undefined };
 
   const evidenceStorage = createStorageAdmin("ticket-evidences");
   const evidenceImages: ReportEvidenceImage[] = [];
@@ -36,7 +38,7 @@ export async function storeFieldServiceRtoPdf(supabase: SupabaseClient, reportId
       // Uma evidência corrompida não impede a emissão das demais fotos.
     }
   }
-  const pdf = await renderFieldServiceRtoPdf(snapshot.data, evidenceImages);
+  const pdf = await renderFieldServiceRtoPdf(reportSnapshot, evidenceImages);
   const hash = createHash("sha256").update(pdf).digest("hex");
   const path = `${report.organization_id}/field-service/${report.service_order_id}/rto-v${report.report_version}.pdf`;
   const storage = createStorageAdmin("ticket-reports");
