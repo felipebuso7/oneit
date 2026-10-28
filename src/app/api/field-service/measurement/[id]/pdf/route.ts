@@ -21,6 +21,16 @@ export async function GET(_: Request, { params }: { params: Promise<{ id: string
     .maybeSingle();
   if (sheetError) return Response.json({ code: "MEASUREMENT_UNAVAILABLE" }, { status: 503 });
   if (!sheet) return Response.json({ code: "MEASUREMENT_NOT_FOUND" }, { status: 404 });
+  const { data: role, error: roleError } = await supabase
+    .from("user_roles")
+    .select("role")
+    .eq("user_id", auth.user.id)
+    .eq("organization_id", sheet.organization_id)
+    .in("role", ["SUPER_ADMIN", "ORG_ADMIN", "MANAGER", "FINANCE"])
+    .limit(1)
+    .maybeSingle();
+  if (roleError) return Response.json({ code: "MEASUREMENT_AUTHORIZATION_UNAVAILABLE" }, { status: 503 });
+  if (!role) return Response.json({ code: "MEASUREMENT_NOT_AUTHORIZED" }, { status: 403 });
   const { data: lines, error: linesError } = await supabase
     .from("measurement_sheet_lines")
     .select("ticket_number,lpu_code,description,quantity,unit_price,total_price,line_kind,service_date,service_location,order_reference")
