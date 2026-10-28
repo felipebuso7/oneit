@@ -10,5 +10,7 @@ describe("headers de segurança do Next", () => {
     expect(source).toContain('key: "X-Frame-Options"');
     expect(source).toContain('value: "DENY"');
     expect(source).toContain('key: "X-Content-Type-Options"');
+    expect(source).toContain('key: "Permissions-Policy"');
+    expect(source).toContain('camera=(self), geolocation=(self), microphone=()');
   });
 });

@@ -28,6 +28,7 @@ const nextConfig: NextConfig = {
       { key: "Referrer-Policy", value: "no-referrer" },
       { key: "X-Frame-Options", value: "DENY" },
       { key: "X-Content-Type-Options", value: "nosniff" },
+      { key: "Permissions-Policy", value: "camera=(self), geolocation=(self), microphone=()" },
     ] }, { source: "/sw.js", headers: [
       { key: "Content-Type", value: "application/javascript; charset=utf-8" },
       { key: "Cache-Control", value: "no-cache, no-store, must-revalidate" },
