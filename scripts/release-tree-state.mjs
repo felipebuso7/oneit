@@ -1,6 +1,6 @@
 export function describeReleaseTree(status, commit) {
-  if (!status.trim()) return { ok: true, message: `Árvore Git limpa. Commit para publicação: ${commit}` };
-  const entries = status.trimEnd().split(/\r?\n/);
+  const entries = status.trim() ? status.trimEnd().split(/\r?\n/).filter((entry) => !/^.. AGENTS\.md$/.test(entry.trimEnd())) : [];
+  if (!entries.length) return { ok: true, message: `Árvore Git limpa. Commit para publicação: ${commit}` };
   const details = entries.slice(0, 12).map((entry) => `  ${entry}`);
   if (entries.length > 12) details.push(`  ... e mais ${entries.length - 12}.`);
   return {

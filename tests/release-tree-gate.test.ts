@@ -11,5 +11,8 @@ describe("release tree gate", () => {
     expect(dirty.ok).toBe(false);
     expect(dirty.message).toContain("2 arquivo(s)");
     expect(dirty.message).toContain("src/app/demo/page.tsx");
+
+    const instructionsOnly = describeReleaseTree(" M AGENTS.md\n", "abc123");
+    expect(instructionsOnly.ok).toBe(true);
   });
 });
