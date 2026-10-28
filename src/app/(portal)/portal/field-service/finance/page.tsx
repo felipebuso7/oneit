@@ -12,10 +12,11 @@ export default async function FieldServiceFinancePage() {
     : { data: [], error: null };
   if (organizationsError) throw new Error("Não foi possível carregar as organizações autorizadas.");
   const { data: sheets, error: sheetsError } = organizationIds.length
-    ? await supabase.from("measurement_sheets").select("id,organization_id,sheet_number,total_orders,total_amount,created_at,billing_period_id").in("organization_id", organizationIds).order("created_at", { ascending: false }).limit(100)
+    ? await supabase.from("measurement_sheets").select("id,organization_id,sheet_number,total_orders,total_amount,created_at,billing_period_id,billing_periods!inner(competence,status)").in("organization_id", organizationIds).order("created_at", { ascending: false }).limit(100)
     : { data: [], error: null };
   if (sheetsError) throw new Error("Não foi possível carregar os boletins de medição.");
   const now = new Date();
   const defaultCompetence = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
-  return <section className="mx-auto max-w-7xl p-5 sm:p-8"><OneitPageHeader eyebrow="Financeiro" title="Boletim de medição" description="Feche a competência com os serviços de Field Service aprovados e acompanhe o BM antes do envio ao cliente." /><MeasurementPanel organizations={organizations ?? []} initialSheets={sheets ?? []} defaultCompetence={defaultCompetence} /></section>;
+  const normalizedSheets = (sheets ?? []).map((sheet) => { const period = Array.isArray(sheet.billing_periods) ? sheet.billing_periods[0] : sheet.billing_periods; return { ...sheet, competence: period?.competence ?? "", status: period?.status ?? "DRAFT" }; });
+  return <section className="mx-auto max-w-7xl p-5 sm:p-8"><OneitPageHeader eyebrow="Financeiro" title="Boletim de medição" description="Feche a competência com os serviços de Field Service aprovados e acompanhe o BM antes do envio ao cliente." /><MeasurementPanel organizations={organizations ?? []} initialSheets={normalizedSheets} defaultCompetence={defaultCompetence} /></section>;
 }

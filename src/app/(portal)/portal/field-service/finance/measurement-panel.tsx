@@ -3,7 +3,7 @@
 import { FormEvent, useState } from "react";
 
 type Organization = { id: string; display_name: string };
-type Sheet = { id: string; organization_id: string; sheet_number: string; total_orders: number; total_amount: number; created_at: string; billing_period_id: string };
+type Sheet = { id: string; organization_id: string; sheet_number: string; total_orders: number; total_amount: number; created_at: string; billing_period_id: string; competence: string; status: string };
 
 const labels: Record<string, string> = {
   NO_CLOSED_FIELD_SERVICE_ORDERS: "Não há OS de Field Service elegíveis nessa competência.",
@@ -11,6 +11,7 @@ const labels: Record<string, string> = {
   MEASUREMENT_GENERATION_INVALID_STATE: "A competência já avançou no fluxo e não pode ser recalculada.",
   MEASUREMENT_GENERATION_FORBIDDEN: "Seu perfil não tem permissão para gerar o BM desta organização.",
 };
+const statusLabels: Record<string, string> = { DRAFT: "Rascunho", READY_FOR_REVIEW: "Em validação", SENT_FOR_CONTESTATION: "Enviado ao cliente", CONTESTED: "Contestado", APPROVED: "Aprovado", SENT_TO_TAX: "Aguardando fiscal", SENT_TO_BILLING: "Enviado para faturamento", CLOSED: "Fechado", RETURNED_FOR_CORRECTION: "Devolvido para correção" };
 
 export function MeasurementPanel({ organizations, initialSheets, defaultCompetence }: { organizations: Organization[]; initialSheets: Sheet[]; defaultCompetence: string }) {
   const [organizationId, setOrganizationId] = useState(organizations[0]?.id ?? "");
@@ -44,6 +45,19 @@ export function MeasurementPanel({ organizations, initialSheets, defaultCompeten
     }
   }
 
+  async function transition(sheet: Sheet, targetStatus: string) {
+    setBusy(true);
+    setNotice(null);
+    try {
+      const response = await fetch("/api/field-service/measurement/transition", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ sheetId: sheet.id, targetStatus }) });
+      const body = await response.json().catch(() => ({})) as { code?: string; measurementSheet?: Sheet };
+      if (!response.ok || !body.measurementSheet) { setNotice(body.code === "INVALID_MEASUREMENT_STATE" ? "Esse BM não pode avançar a partir do status atual." : "Não foi possível atualizar o status do BM."); return; }
+      const updated = body.measurementSheet;
+      setSheets((current) => current.map((item) => item.id === updated.id ? { ...item, ...updated } : item));
+      setNotice("BM enviado para validação.");
+    } catch { setNotice("Não foi possível conectar ao serviço de workflow financeiro."); } finally { setBusy(false); }
+  }
+
   const visibleSheets = sheets.filter((sheet) => sheet.organization_id === organizationId);
   return <div className="mt-6 grid gap-6 lg:grid-cols-[22rem_1fr]">
     <form onSubmit={generate} className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
@@ -57,7 +71,7 @@ export function MeasurementPanel({ organizations, initialSheets, defaultCompeten
     </form>
     <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
       <div className="flex flex-wrap items-start justify-between gap-3"><div><h2 className="text-lg font-semibold text-slate-950">Boletins de medição</h2><p className="mt-1 text-sm text-slate-500">Histórico real por organização e competência.</p></div><span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600">{visibleSheets.length} registro(s)</span></div>
-      {visibleSheets.length ? <div className="mt-4 overflow-x-auto"><table className="min-w-full text-left text-sm"><thead className="border-b border-slate-200 text-xs uppercase tracking-wide text-slate-500"><tr><th className="px-3 py-3">BM</th><th className="px-3 py-3">OS</th><th className="px-3 py-3">Valor</th><th className="px-3 py-3">Criado em</th></tr></thead><tbody>{visibleSheets.map((sheet) => <tr key={sheet.id} className="border-b border-slate-100 last:border-0"><td className="px-3 py-3 font-semibold text-slate-900">{sheet.sheet_number}</td><td className="px-3 py-3 text-slate-600">{sheet.total_orders}</td><td className="px-3 py-3 font-medium text-slate-900">R$ {Number(sheet.total_amount).toFixed(2).replace(".", ",")}</td><td className="px-3 py-3 text-slate-500">{new Date(sheet.created_at).toLocaleString("pt-BR")}</td></tr>)}</tbody></table></div> : <p className="mt-8 rounded-lg border border-dashed border-slate-300 p-8 text-center text-sm text-slate-500">Nenhum BM gerado para esta organização.</p>}
+      {visibleSheets.length ? <div className="mt-4 overflow-x-auto"><table className="min-w-full text-left text-sm"><thead className="border-b border-slate-200 text-xs uppercase tracking-wide text-slate-500"><tr><th className="px-3 py-3">BM</th><th className="px-3 py-3">Competência</th><th className="px-3 py-3">OS</th><th className="px-3 py-3">Valor</th><th className="px-3 py-3">Status</th><th className="px-3 py-3">Ação</th></tr></thead><tbody>{visibleSheets.map((sheet) => <tr key={sheet.id} className="border-b border-slate-100 last:border-0"><td className="px-3 py-3 font-semibold text-slate-900">{sheet.sheet_number}</td><td className="px-3 py-3 text-slate-600">{new Date(`${sheet.competence}T00:00:00`).toLocaleDateString("pt-BR", { month: "2-digit", year: "numeric" })}</td><td className="px-3 py-3 text-slate-600">{sheet.total_orders}</td><td className="px-3 py-3 font-medium text-slate-900">R$ {Number(sheet.total_amount).toFixed(2).replace(".", ",")}</td><td className="px-3 py-3"><span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-700">{statusLabels[sheet.status] ?? sheet.status}</span></td><td className="px-3 py-3">{sheet.status === "DRAFT" ? <button type="button" disabled={busy} onClick={() => void transition(sheet, "READY_FOR_REVIEW")} className="rounded-lg border border-[#062c59] px-3 py-1.5 text-xs font-semibold text-[#062c59] disabled:opacity-50">Enviar para validação</button> : <span className="text-xs text-slate-400">Sem ação</span>}</td></tr>)}</tbody></table></div> : <p className="mt-8 rounded-lg border border-dashed border-slate-300 p-8 text-center text-sm text-slate-500">Nenhum BM gerado para esta organização.</p>}
     </section>
   </div>;
 }
