@@ -18,13 +18,16 @@ export default async function TicketsPage({ searchParams }: PageProps) {
     organizationIds.length ? supabase.from("service_offerings").select("id, subcategory_id, code, name").eq("active", true).order("name") : Promise.resolve({ data: [] }),
     organizationIds.length ? supabase.from("collaborators").select("id, organization_id, full_name").in("organization_id", organizationIds).eq("status", "ACTIVE").order("full_name") : Promise.resolve({ data: [] }),
     organizationIds.length ? supabase.from("organization_units").select("id, organization_id, name").in("organization_id", organizationIds).eq("unit_type", "DEPARTMENT").eq("active", true).order("name") : Promise.resolve({ data: [] }),
-    organizationIds.length ? supabase.from("tickets").select("id, ticket_number, servicenow_number, title, ticket_type, priority, operational_status, administrative_status, created_at, category_code, service_type_code").in("organization_id", organizationIds).order("created_at", { ascending: false }).limit(500) : Promise.resolve({ data: [] }),
+    organizationIds.length ? supabase.from("tickets").select("id, ticket_number, servicenow_number, customer_id, location_id, title, ticket_type, priority, operational_status, administrative_status, created_at, category_code, service_type_code").in("organization_id", organizationIds).order("created_at", { ascending: false }).limit(500) : Promise.resolve({ data: [] }),
   ]);
   const ticketIds = (tickets ?? []).map((ticket) => ticket.id);
   const { data: serviceLevels } = ticketIds.length ? await supabase.from("ticket_service_levels").select("ticket_id,resolution_due_at").in("ticket_id", ticketIds) : { data: [] };
   const levelByTicketId = new Map((serviceLevels ?? []).map((level) => [level.ticket_id, level.resolution_due_at]));
 
+  const customerById = new Map(customers.map((customer) => [customer.id, customer.name]));
+  const locationById = new Map((locations ?? []).map((location) => [location.id, `${location.name} · ${location.city}`]));
+
   return <section className="mx-auto max-w-6xl p-5 sm:p-8"><div className="flex flex-wrap items-end justify-between gap-4"><OneitPageHeader eyebrow="Operação" title="Chamados" description="Acompanhe a fila e abra solicitações pelo catálogo de serviços." /><TicketCreateFlow organizations={organizations} customers={customers} contracts={contracts ?? []} locations={locations ?? []} categories={categories ?? []} subcategories={subcategories ?? []} offerings={offerings ?? []} collaborators={collaborators ?? []} departments={departments ?? []} /></div>{message ? <p role="status" className="mt-4 rounded-lg border border-sky-200 bg-sky-50 p-3 text-sm text-sky-900">{message}</p> : null}
-    <TicketsTable tickets={(tickets ?? []).map((ticket) => ({ ...ticket, resolution_due_at: levelByTicketId.get(ticket.id) ?? null }))} />
+    <TicketsTable tickets={(tickets ?? []).map((ticket) => ({ ...ticket, customer_name: customerById.get(ticket.customer_id) ?? "Cliente não identificado", location_name: locationById.get(ticket.location_id) ?? "Local não informado", resolution_due_at: levelByTicketId.get(ticket.id) ?? null }))} />
   </section>;
 }
