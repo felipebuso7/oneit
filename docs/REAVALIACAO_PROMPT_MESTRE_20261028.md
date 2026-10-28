@@ -141,5 +141,6 @@ fechamento definitivo sem alterar silenciosamente o PDF/hash aprovado.
 `npm run typecheck`, `lint:field-service`, `lint:finance` e `git diff --check` passaram. O `npm run build`
 alcançou o Next.js, mas foi bloqueado pelo Windows com `EPERM` ao remover `.next/server/app/portal/field-service`;
 isso é uma limitação do ambiente local e não evidência de falha de compilação da aplicação. O build deve ser repetido
-em CI/Linux ou após liberar o diretório `.next`.
+em CI/Linux ou após liberar o diretório `.next`. A repetição com `ONEIT_NEXT_DIST_DIR=.next-verify` reproduziu o
+mesmo `EPERM` em outra pasta de saída, reforçando que o bloqueio é ambiental e não específico de uma rota.
 
