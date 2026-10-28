@@ -95,6 +95,13 @@ Entrega desta rodada: o dossiê autenticado agora exibe esse estado e a ação c
 - Validação: typecheck, build, teste focado e suíte completa aprovados (**113 arquivos / 241 testes**).
 - Publicação confirmada no commit `6934e2d076dfaa0181f1c203b616b54d280c3af4`; `/api/ready` retornou `ready` com `deploymentMode=supabase`.
 
+### Atualização de execução — 28/10/2026 (diagnóstico de técnicos no despacho)
+
+- A central agora explica quando o seletor de técnicos está vazio e diferencia ausência de cadastro de indisponibilidade operacional, com atalho para o cadastro administrativo.
+- `npx supabase migration list --linked` confirmou as migrations locais e remotas alinhadas, incluindo `20261027210000_auto_field_service_technician_mapping` e `20261028154000_field_service_review_submission_guard`.
+- Regressão completa após a alteração: **114 arquivos / 242 testes aprovados**. Build e typecheck também aprovados.
+- A melhoria foi publicada em produção no commit `7a709d186580ede698220d0da650a03725a69e5b`; `/api/ready` retornou `ready` com Supabase.
+
 ## 4. Critérios de avanço
 
 Uma tarefa só será marcada como concluída quando houver:
