@@ -1,10 +1,17 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
+import { readFileSync } from "node:fs";
 import { NextRequest } from "next/server";
 import { proxy } from "@/proxy";
 
 afterEach(() => vi.unstubAllEnvs());
 
 describe("isolamento da demonstração", () => {
+  it("mantém a entrada de produção no portal persistente", () => {
+    const source = readFileSync("src/app/page.tsx", "utf8");
+    expect(source).toContain('redirect("/portal")');
+    expect(source).toContain('process.env.NODE_ENV === "production"');
+  });
+
   it.each(["/demo", "/demo/field-service/queue-v2", "/api/demo", "/api/demo/field-service/billing-pdf"])(
     "não publica %s no build de produção",
     async (path) => {

@@ -27,6 +27,8 @@
 | A360-UI-02 | P1 | Chamados tinha barra extensa, comandos demonstrativos, abertura dependente de duplo clique e tabela com rolagem horizontal no mobile | Inspeção visual de `/demo/tickets` e código da barra | Reduzir ações, fornecer abertura explícita e revisar o painel de detalhes | Parcial; barra, clique único e listagem estreita corrigidos; painel com nove abas segue aberto |
 | A360-UI-03 | P1 | Agenda, BM e detalhes de Chamados ainda priorizam blocos introdutórios ou múltiplas abas sobre a tarefa | Inspeção visual de `/demo/field-service/routes`, `/finance` e painel do chamado | Redesenhar por decisão operacional, com testes de regressão | Aberto |
 | A360-UI-04 | P2 | Login, Dashboard e Cadastros Field têm linguagens visuais distintas | Inspeção visual de `/login`, `/demo` e `/demo/settings/field-service` | Consolidar tokens/componentes e migrar por módulo | Aberto |
+| A360-UI-05 | P1 | Filtro de dia de Agenda/Rotas ignorava a data informada | Regex em `portal/routes` e `portal/scheduling` estava escapada como `\\\\d`, fazendo a tela voltar sempre ao dia atual | Corrigir a expressão, cobrir o contrato e validar a seleção de dias distintos | Implementado; teste focado 3/3 e suíte 235/235 aprovados |
+| A360-UI-06 | P1 | Horário das paradas de Rotas dependia do fuso do servidor | `toLocaleTimeString` não informava `timeZone`, enquanto o agrupamento já usava São Paulo | Fixar `America/Sao_Paulo` na apresentação e cobrir o contrato | Implementado; validação incluída no teste da agenda/rotas |
 
 ## Critério de priorização
 

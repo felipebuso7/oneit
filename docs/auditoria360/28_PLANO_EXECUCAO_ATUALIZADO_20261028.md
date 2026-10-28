@@ -43,6 +43,8 @@ Entrega desta rodada: o dossiê autenticado agora exibe esse estado e a ação c
 - Fronteira de persistência: auditoria estática confirmou que APIs, serviços de Field Service e componentes do parceiro não usam `localStorage`; a única persistência temporária do parceiro é o token de `sessionStorage`, removido após a leitura.
 - Suíte: 106 arquivos e 223 testes aprovados; typecheck aprovado.
 - A publicação foi confirmada em produção pelo endpoint `/api/version`, mas a homologação autenticada com dados reais de teste ainda não foi executada.
+- Agenda/rotas: corrigida a validação do parâmetro de data em `routes` e `scheduling`; a expressão anterior aceitava somente a sequência literal `\\d` e descartava qualquer dia informado. Regressão coberta por `tests/routes-agenda-ui-contract.test.ts`.
+- Agenda/rotas: horários das paradas agora são formatados explicitamente no fuso `America/Sao_Paulo`, evitando deslocamento visual quando o runtime da hospedagem opera em UTC.
 
 ### Sprint S3 — Segurança e integridade de dados (P0/P1)
 

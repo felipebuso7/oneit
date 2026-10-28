@@ -14,6 +14,13 @@ describe("deslocamento do técnico parceiro", () => {
     expect(component).toContain("pelo menos 10 caracteres");
     expect(component).toContain("if (event === \"SUBMIT\")");
     expect(component).toContain("payload?.context?.status === \"IN_SERVICE\"");
+    expect(component).toContain("Jornada do atendimento");
+    expect(component).toContain('"Deslocamento"');
+    expect(component).toContain('"Chegada e início"');
+    expect(component).toContain('"3 fotos"');
+    expect(component).toContain('evidence.length < 3');
+    expect(component).toContain('/oneit-logo-field.png');
+    expect(component).toContain('/servicia-logo.png');
   });
 
   it("impõe a sequência no banco", () => {
