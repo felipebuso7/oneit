@@ -5,6 +5,8 @@ const workspace = readFileSync("src/app/(portal)/portal/field-service/dispatch-w
 const page = readFileSync("src/app/(portal)/portal/field-service/page.tsx", "utf8");
 const tickets = readFileSync("src/components/tickets/tickets-table.tsx", "utf8");
 const caseFile = readFileSync("src/app/(portal)/portal/tickets/[id]/page.tsx", "utf8");
+const publicPartner = readFileSync("src/app/field-service/partner/page.tsx", "utf8");
+const securePartner = readFileSync("src/components/field-service/secure-partner-page.tsx", "utf8");
 
 describe("despacho do portal", () => {
   it("exibe feedback de despacho e prepara WhatsApp com o contato do técnico", () => {
@@ -26,5 +28,10 @@ describe("despacho do portal", () => {
     expect(caseFile).toContain("awaitingValidation");
     expect(caseFile).toContain("Validar OS");
     expect(caseFile).toContain("Aguardando validação");
+    expect(publicPartner).not.toContain("/demo/");
+    expect(publicPartner).toContain("SecurePartnerPage");
+    expect(securePartner).toContain("/api/field-service/partner/context");
+    expect(securePartner).toContain("sessionStorage");
+    expect(securePartner).toContain("PartnerExecutionFlow");
   });
 });

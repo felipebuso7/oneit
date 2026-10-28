@@ -1,1 +1,5 @@
-export { default } from "@/app/demo/field-service/partner/page";
+import { SecurePartnerPage } from "@/components/field-service/secure-partner-page";
+
+export default function PartnerPage() {
+  return <SecurePartnerPage />;
+}
