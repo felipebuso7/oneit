@@ -28,7 +28,7 @@ function PartnerCodeGate() {
         return;
       }
       sessionStorage.setItem("oneit.partner.access.v1", JSON.stringify({ token, code }));
-      router.replace("/demo/field-service/partner");
+      router.replace("/field-service/partner");
     } catch { setNotice("Não foi possível validar o código. Verifique sua conexão e tente novamente."); }
     finally { setLoading(false); }
   }

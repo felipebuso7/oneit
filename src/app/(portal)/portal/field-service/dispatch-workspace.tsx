@@ -11,6 +11,7 @@ type Technician = { id: string; organization_id: string; full_name: string; phon
 type Location = { id: string; organization_id: string; customer_id: string; name: string; street: string | null; street_number: string | null; city: string; state_code: string | null; active: boolean };
 type Review = { id: string; organization_id: string; service_order_id: string; status: string };
 type Props = { tickets: Ticket[]; orders: Order[]; technicians: Technician[]; locations: Location[]; pendingReviews: Review[]; unlinkedTechnicians: number };
+type DispatchSummary = { ticket: Ticket; technician: Technician; location: Location | undefined; start: string; accessUrl: string | null; accessCode: string | null };
 
 const dispatchable = new Set(["NEW", "TRIAGE", "AWAITING_SCHEDULING", "SCHEDULED", "ASSIGNED"]);
 const activeStatuses = new Set(["DISPATCHED", "TRAVELING", "CHECKED_IN", "IN_SERVICE"]);
@@ -35,6 +36,7 @@ export function DispatchWorkspace({ tickets, orders, technicians, locations, pen
   const [submitting, setSubmitting] = useState(false);
   const [message, setMessage] = useState("");
   const [whatsappPhone, setWhatsappPhone] = useState("");
+  const [lastDispatch, setLastDispatch] = useState<DispatchSummary | null>(null);
   const ordersByTicket = useMemo(() => new Map(orders.map((order) => [order.ticket_id, order])), [orders]);
   const locationsById = useMemo(() => new Map(locations.map((location) => [location.id, location])), [locations]);
   const techniciansById = useMemo(() => new Map(technicians.map((technician) => [technician.id, technician])), [technicians]);
@@ -59,7 +61,7 @@ export function DispatchWorkspace({ tickets, orders, technicians, locations, pen
 
   async function dispatch(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (!selected || !technicianId || !locationId || !start || !end) return;
+    if (!selected || !technicianId || !selectedTechnician || !locationId || !start || !end) return;
     const plannedStartAt = new Date(start);
     const plannedEndAt = new Date(end);
     if (!Number.isFinite(plannedStartAt.getTime()) || !Number.isFinite(plannedEndAt.getTime()) || plannedEndAt <= plannedStartAt) {
@@ -78,7 +80,24 @@ export function DispatchWorkspace({ tickets, orders, technicians, locations, pen
         setMessage(dispatchErrors[result.code ?? ""] ?? "Despacho não concluído. Atualize a fila e tente novamente.");
         return;
       }
-      setMessage(`Despacho confirmado para ${selectedTechnician?.full_name ?? "o técnico"}.`);
+      const result = await response.json() as { dispatch?: { service_order_id?: string } };
+      const dispatchedTicket = selected;
+      const dispatchedTechnician = selectedTechnician;
+      const dispatchedLocation = locationsById.get(locationId);
+      let accessUrl: string | null = null;
+      let accessCode: string | null = null;
+      if (result.dispatch?.service_order_id) {
+        try {
+          const accessResponse = await fetch("/api/field-service/partner/access", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ serviceOrderId: result.dispatch.service_order_id, validForMinutes: 480 }) });
+          const accessPayload = await accessResponse.json().catch(() => ({})) as { access?: { token?: string; code?: string } };
+          if (accessResponse.ok && accessPayload.access?.token && accessPayload.access.code) {
+            accessUrl = `${window.location.origin}/field-service/partner/access#token=${encodeURIComponent(accessPayload.access.token)}`;
+            accessCode = accessPayload.access.code;
+          }
+        } catch { /* O despacho já foi persistido; a geração do acesso pode ser refeita pelo gestor. */ }
+      }
+      setLastDispatch({ ticket: dispatchedTicket, technician: dispatchedTechnician, location: dispatchedLocation, start, accessUrl, accessCode });
+      setMessage(accessUrl ? `Despacho confirmado para ${dispatchedTechnician.full_name}. Link seguro gerado; envie-o pelo WhatsApp e informe o código separadamente.` : `Despacho confirmado para ${dispatchedTechnician.full_name}. O acesso seguro não foi gerado; tente novamente pelo painel de comunicação.`);
       setSelectedId(null);
       router.refresh();
     } catch {
@@ -89,23 +108,26 @@ export function DispatchWorkspace({ tickets, orders, technicians, locations, pen
   }
 
   function openWhatsApp() {
-    if (!selected || !selectedTechnician) return;
-    const phone = whatsappPhone || selectedTechnician.mobile || selectedTechnician.phone || "";
+    const targetTicket = lastDispatch?.ticket ?? selected;
+    const targetTechnician = lastDispatch?.technician ?? selectedTechnician;
+    if (!targetTicket || !targetTechnician) return;
+    const phone = whatsappPhone || targetTechnician.mobile || targetTechnician.phone || "";
     const recipient = whatsappRecipient(phone);
     if (!recipient) {
       setMessage("Informe um celular com DDD do técnico para abrir o WhatsApp.");
       return;
     }
-    const location = locationsById.get(locationId || selected.location_id);
+    const location = lastDispatch?.location ?? locationsById.get(locationId || targetTicket.location_id);
     const address = location ? `${location.name} · ${location.street ?? ""} ${location.street_number ?? ""} · ${location.city}`.replace(/\s+/g, " ").trim() : "Localidade não informada";
-    const planned = start ? new Date(start).toLocaleString("pt-BR") : "a combinar";
-    const link = `${window.location.origin}/portal/field-service`;
+    const planned = (lastDispatch?.start || start) ? new Date(lastDispatch?.start || start).toLocaleString("pt-BR") : "a combinar";
+    const link = lastDispatch?.accessUrl ?? `${window.location.origin}/portal/field-service`;
     const body = [
-      `ONEIT · OS ${selected.ticket_number}`,
-      `Serviço: ${selected.title}`,
+      `ONEIT · OS ${targetTicket.ticket_number}`,
+      `Serviço: ${targetTicket.title}`,
       `Local: ${address}`,
       `Agendamento: ${planned}`,
-      `Acesso: ${link}`,
+      `Acesso seguro: ${link}`,
+      ...(lastDispatch?.accessCode ? [`Código temporário: ${lastDispatch.accessCode}`] : []),
       "Mensagem preparada pelo OneIT. Confirme o envio no WhatsApp.",
     ].join("\n");
     const opened = window.open(`https://wa.me/${recipient}?text=${encodeURIComponent(body)}`, "_blank", "noopener,noreferrer");
@@ -125,6 +147,7 @@ export function DispatchWorkspace({ tickets, orders, technicians, locations, pen
       <Link href="/portal/review" className="rounded-xl border border-slate-200 bg-white p-4 hover:border-sky-300"><span className="block text-sm text-slate-600">Aguardando validação</span><strong className="mt-1 block text-2xl text-slate-900">{pendingReviews.length}</strong></Link>
     </div>
     {message ? <p role="status" aria-live="polite" className="rounded-lg bg-sky-50 p-3 text-sm text-sky-950">{message}</p> : null}
+    {lastDispatch ? <section className="rounded-xl border border-emerald-200 bg-emerald-50 p-4" aria-label="Despacho confirmado"><div className="flex flex-wrap items-start justify-between gap-3"><div><p className="text-xs font-semibold uppercase tracking-wide text-emerald-800">Despacho confirmado</p><h2 className="mt-1 font-semibold text-emerald-950">{lastDispatch.ticket.ticket_number} · {lastDispatch.technician.full_name}</h2><p className="mt-1 text-sm text-emerald-900">{lastDispatch.location?.city ?? "Local não informado"} · {new Date(lastDispatch.start).toLocaleString("pt-BR")}</p></div><button type="button" onClick={openWhatsApp} className="rounded-lg bg-emerald-700 px-3 py-2 text-sm font-semibold text-white hover:bg-emerald-800">Abrir WhatsApp</button></div><label className="mt-3 block max-w-sm text-sm font-medium text-emerald-950">Celular do técnico{lastDispatch.technician.mobile || lastDispatch.technician.phone ? <span className="ml-1 font-normal">({lastDispatch.technician.mobile || lastDispatch.technician.phone})</span> : null}<input value={whatsappPhone} onChange={(event) => setWhatsappPhone(event.target.value)} placeholder="(11) 99999-9999" className="mt-1 w-full rounded-lg border border-emerald-300 bg-white p-2 text-sm" /></label></section> : null}
     <div className="grid min-w-0 gap-5 xl:grid-cols-[minmax(0,1fr)_380px]">
       <section aria-label="Fila de despacho" className="min-w-0 rounded-xl border border-slate-200 bg-white">
         <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 p-4">

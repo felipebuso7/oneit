@@ -97,7 +97,7 @@ export default function DispatchConfirmedPage() {
         setNotice(`Não foi possível gerar o acesso seguro: ${payload.code ?? "erro de comunicação"}.`);
         return;
       }
-      const url = new URL("/demo/field-service/partner/access", window.location.origin);
+      const url = new URL("/field-service/partner/access", window.location.origin);
       // O token fica no fragmento: não é enviado em Referer nem para o servidor de páginas.
       url.hash = `token=${encodeURIComponent(payload.access.token)}`;
       setSecureLink(url.toString());
