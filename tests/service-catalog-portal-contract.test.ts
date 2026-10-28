@@ -4,6 +4,7 @@ import { describe, expect, it } from "vitest";
 const actions = readFileSync("src/app/(portal)/portal/service-catalog/actions.ts", "utf8");
 const page = readFileSync("src/app/(portal)/portal/service-catalog/page.tsx", "utf8");
 const ticketsPage = readFileSync("src/app/(portal)/portal/tickets/page.tsx", "utf8");
+const slaPage = readFileSync("src/app/(portal)/portal/sla/page.tsx", "utf8");
 const migration = readFileSync("supabase/migrations/20261001343000_service_catalog_administration.sql", "utf8");
 const foundation = readFileSync("supabase/migrations/20261001220000_service_catalog.sql", "utf8");
 
@@ -57,5 +58,12 @@ describe("catálogo autenticado", () => {
     expect(ticketsPage).toContain('eq("active", true)');
     expect(ticketsPage).not.toContain('from("service_subcategories").select("id, category_id, name").eq("active", true)');
     expect(ticketsPage).not.toContain('from("service_offerings").select("id, subcategory_id, code, name").eq("active", true)');
+  });
+
+  it("restringe administração e SLA aos descendentes do catálogo organizacional", () => {
+    expect(page).toContain('in("category_id", categoryIds)');
+    expect(page).toContain('in("subcategory_id", subcategoryIds)');
+    expect(slaPage).toContain('in("category_id", categoryIds)');
+    expect(slaPage).toContain('in("subcategory_id", subcategoryIds)');
   });
 });

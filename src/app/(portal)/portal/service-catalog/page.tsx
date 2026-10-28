@@ -28,12 +28,18 @@ export default async function ServiceCatalogPage({ searchParams }: PageProps) {
   const ids = [...new Set((roles ?? []).map((role) => role.organization_id))];
   if (!ids.length) return <section className="p-8"><h1 className="text-2xl font-semibold">Catálogo de serviços</h1><p className="mt-3">Somente administradores organizacionais mantêm o catálogo.</p></section>;
 
-  const [{ data: organizations }, { data: categories }, { data: subcategories }, { data: offerings }] = await Promise.all([
+  const [{ data: organizations }, { data: categories }] = await Promise.all([
     supabase.from("organizations").select("id, display_name").in("id", ids).eq("active", true).order("display_name"),
     supabase.from("service_categories").select("id, organization_id, code, name, active").in("organization_id", ids).order("name"),
-    supabase.from("service_subcategories").select("id, category_id, code, name, active").order("name"),
-    supabase.from("service_offerings").select("id, subcategory_id, code, name, active").order("name"),
   ]);
+  const categoryIds = (categories ?? []).map((item) => item.id);
+  const { data: subcategories } = categoryIds.length
+    ? await supabase.from("service_subcategories").select("id, category_id, code, name, active").in("category_id", categoryIds).order("name")
+    : { data: [] };
+  const subcategoryIds = (subcategories ?? []).map((item) => item.id);
+  const { data: offerings } = subcategoryIds.length
+    ? await supabase.from("service_offerings").select("id, subcategory_id, code, name, active").in("subcategory_id", subcategoryIds).order("name")
+    : { data: [] };
   const activeCategories = (categories ?? []).filter((item) => item.active);
   const activeSubcategories = (subcategories ?? []).filter((item) => item.active && activeCategories.some((category) => category.id === item.category_id));
 

@@ -171,3 +171,7 @@ passou a proteger essa cadeia de dependência.
 Validação desta alteração: `npm run typecheck`, ESLint direcionado, `git diff --check` e o teste direcionado do catálogo
 passaram localmente (7 testes). A suíte completa e o build continuam dependentes da validação CI/Linux registrada acima.
 
+Também foram alinhadas as consultas administrativas do catálogo e de SLA: ambas usam a mesma cadeia categoria →
+subcategoria → oferta e restringem os itens aos descendentes das organizações autorizadas. O teste direcionado passou a
+cobrir os dois consumidores adicionais (8 testes aprovados).
+
