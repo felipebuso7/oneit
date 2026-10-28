@@ -108,6 +108,13 @@ Entrega desta rodada: o dossiê autenticado agora exibe esse estado e a ação c
 - A rota `/demo` respondeu `404` na implantação de produção, confirmando que a área demonstrativa não está sendo oferecida como operação pública nesse deployment.
 - Esta verificação é de fronteira e segurança sem sessão; não substitui a homologação autenticada das transições operacionais.
 
+### Atualização de execução — 28/10/2026 (lint SQL remoto)
+
+- O `supabase db lint --linked --fail-on warning` encontrou erros reais em funções existentes: despacho com referência ambígua de sequência, claims do outbox com `id` ambíguo, geração de token parceiro sem qualificação da extensão, e chamadas SGSTI com enum tratado como escalar.
+- As migrations aditivas `20261028161000_fix_remote_function_lint_errors.sql` e `20261028161100_fix_remaining_remote_lint_error.sql` corrigiram esses erros sem alterar ou remover dados.
+- O lint remoto passou sem erros; permanecem apenas dois avisos legados não bloqueantes (nome de parâmetro reservado e parâmetro fiscal compatível mantido por contrato).
+- Auditoria estrita: **182 migrations, nenhum alerta estático**. Suíte completa: **115 arquivos / 244 testes aprovados**. Typecheck aprovado.
+
 ## 4. Critérios de avanço
 
 Uma tarefa só será marcada como concluída quando houver:
