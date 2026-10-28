@@ -20,6 +20,7 @@ describe("despacho do portal", () => {
     expect(tickets).toContain("Atribuir visita");
     expect(tickets).toContain("/portal/field-service?ticket=");
     expect(tickets).toContain("Validar OS");
+    expect(tickets).toContain("Aguardando validação");
     expect(caseFile).toContain("Atribuir visita");
     expect(caseFile).toContain("canDispatch");
   });
