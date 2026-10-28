@@ -1,4 +1,5 @@
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
+vi.mock("server-only", () => ({}));
 import { GET } from "@/app/api/ready/route";
 
 const original = { ...process.env };

@@ -9,7 +9,7 @@ describe("contexto congelado no RTO de Field Service", () => {
 
   it("permite ler os campos adicionais sem invalidar RTOs antigos", () => {
     const source = readFileSync("src/domain/reports/pdf.ts", "utf8");
-    expect(source).toContain("customer_name: z.string().optional()");
+    expect(source).toContain("customer_name: z.string().nullable().optional()");
     expect(source).toContain("snapshot.customer_name ??");
   });
 });

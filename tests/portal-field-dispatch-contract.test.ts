@@ -24,7 +24,7 @@ describe("despacho do portal", () => {
     expect(workspace).not.toContain("/portal/field-service`");
     expect(page).toContain("phone,mobile");
     expect(page).toContain("initialTicketId");
-    expect(tickets).toContain("Atribuir visita");
+    expect(tickets).toContain("Agendar visita");
     expect(tickets).toContain("/portal/field-service?ticket=");
     expect(tickets).toContain("Validar OS");
     expect(tickets).toContain("Aguardando validação");

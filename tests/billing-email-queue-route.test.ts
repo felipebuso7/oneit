@@ -26,8 +26,9 @@ function query(result: { data: unknown; error: null }) {
     eq: () => builder,
     order: () => builder,
     limit: () => builder,
-    in: async () => result,
+    in: () => builder,
     maybeSingle: async () => result,
+    then: (resolve: (value: { data: unknown; error: null }) => unknown) => Promise.resolve(result).then(resolve),
   };
   return builder;
 }
@@ -49,6 +50,7 @@ describe("fila de e-mail do BM", () => {
 
   it("recusa BM vinculado a outra organização antes de consultar destinatários", async () => {
     const from = vi.fn((table: string) => {
+      if (table === "user_roles") return query({ data: { role: "FINANCE" }, error: null });
       if (table === "measurement_sheets") return query({ data: { id: sheetId, organization_id: otherOrganizationId, billing_period_id: periodId }, error: null });
       throw new Error(`consulta inesperada: ${table}`);
     });
@@ -56,11 +58,12 @@ describe("fila de e-mail do BM", () => {
     const response = await POST(request({ emailType: "MEASUREMENT", measurementSheetId: sheetId }));
     expect(response.status).toBe(404);
     expect(await response.json()).toEqual({ code: "MEASUREMENT_NOT_FOUND" });
-    expect(from).toHaveBeenCalledTimes(1);
+    expect(from).toHaveBeenCalledTimes(2);
   });
 
   it("recusa lote fiscal encerrado sem criar log de envio", async () => {
     const from = vi.fn((table: string) => {
+      if (table === "user_roles") return query({ data: { role: "FINANCE" }, error: null });
       if (table === "fiscal_batches") return query({ data: { id: batchId, organization_id: organizationId, status: "CLOSED" }, error: null });
       throw new Error(`consulta inesperada: ${table}`);
     });
@@ -68,25 +71,13 @@ describe("fila de e-mail do BM", () => {
     const response = await POST(request({ emailType: "FISCAL", fiscalBatchId: batchId }));
     expect(response.status).toBe(409);
     expect(await response.json()).toEqual({ code: "FISCAL_BATCH_NOT_READY_FOR_EMAIL" });
-    expect(from).toHaveBeenCalledTimes(1);
+    expect(from).toHaveBeenCalledTimes(2);
   });
 
   it("recusa lote fiscal sem BMs vinculados", async () => {
     const from = vi.fn((table: string) => {
+      if (table === "user_roles") return query({ data: { role: "FINANCE" }, error: null });
       if (table === "fiscal_batches") return query({ data: { id: batchId, organization_id: organizationId, status: "READY", measurement_sheet_ids: [] }, error: null });
-      throw new Error(`consulta inesperada: ${table}`);
-    });
-    vi.mocked(createClient).mockResolvedValue({ auth: { getUser: async () => ({ data: { user: { id: "actor" } }, error: null }) }, from } as never);
-    const response = await POST(request({ emailType: "FISCAL", fiscalBatchId: batchId }));
-    expect(response.status).toBe(409);
-    expect(await response.json()).toEqual({ code: "FISCAL_BATCH_SHEETS_INVALID" });
-    expect(from).toHaveBeenCalledTimes(1);
-  });
-
-  it("recusa lote fiscal com BM fora da organização", async () => {
-    const from = vi.fn((table: string) => {
-      if (table === "fiscal_batches") return query({ data: { id: batchId, organization_id: organizationId, status: "READY", measurement_sheet_ids: [sheetId] }, error: null });
-      if (table === "measurement_sheets") return query({ data: [{ id: sheetId, organization_id: otherOrganizationId }], error: null });
       throw new Error(`consulta inesperada: ${table}`);
     });
     vi.mocked(createClient).mockResolvedValue({ auth: { getUser: async () => ({ data: { user: { id: "actor" } }, error: null }) }, from } as never);
@@ -96,8 +87,23 @@ describe("fila de e-mail do BM", () => {
     expect(from).toHaveBeenCalledTimes(2);
   });
 
+  it("recusa lote fiscal com BM fora da organização", async () => {
+    const from = vi.fn((table: string) => {
+      if (table === "user_roles") return query({ data: { role: "FINANCE" }, error: null });
+      if (table === "fiscal_batches") return query({ data: { id: batchId, organization_id: organizationId, status: "READY", measurement_sheet_ids: [sheetId] }, error: null });
+      if (table === "measurement_sheets") return query({ data: [{ id: sheetId, organization_id: otherOrganizationId }], error: null });
+      throw new Error(`consulta inesperada: ${table}`);
+    });
+    vi.mocked(createClient).mockResolvedValue({ auth: { getUser: async () => ({ data: { user: { id: "actor" } }, error: null }) }, from } as never);
+    const response = await POST(request({ emailType: "FISCAL", fiscalBatchId: batchId }));
+    expect(response.status).toBe(409);
+    expect(await response.json()).toEqual({ code: "FISCAL_BATCH_SHEETS_INVALID" });
+    expect(from).toHaveBeenCalledTimes(3);
+  });
+
   it("deriva a chave pela versão do BM e não aceita chave arbitrária do cliente", async () => {
     const from = vi.fn((table: string) => {
+      if (table === "user_roles") return query({ data: { role: "FINANCE" }, error: null });
       if (table === "measurement_sheets") return query({ data: { id: sheetId, organization_id: organizationId, billing_period_id: periodId }, error: null });
       if (table === "billing_periods") return query({ data: { status: "READY_FOR_REVIEW" }, error: null });
       if (table === "measurement_sheet_versions") return query({ data: { id: versionId, version: 2, status: "DRAFT" }, error: null });
@@ -107,7 +113,7 @@ describe("fila de e-mail do BM", () => {
     const response = await POST(request({ emailType: "MEASUREMENT", measurementSheetId: sheetId, idempotencyKey: "qualquer-chave" }));
     expect(response.status).toBe(422);
     expect(await response.json()).toEqual({ code: "INVALID_IDEMPOTENCY_KEY" });
-    expect(from).toHaveBeenCalledTimes(3);
+    expect(from).toHaveBeenCalledTimes(4);
   });
 
   it("registra o BM da versão atual como enfileirado, sem declarar envio", async () => {
@@ -115,6 +121,7 @@ describe("fila de e-mail do BM", () => {
       select: () => ({ single: async () => ({ data: { id: "log-1", status: "QUEUED", provider: "PENDING" }, error: null }) }),
     }));
     const from = vi.fn((table: string) => {
+      if (table === "user_roles") return query({ data: { role: "FINANCE" }, error: null });
       if (table === "measurement_sheets") return query({ data: { id: sheetId, organization_id: organizationId, billing_period_id: periodId }, error: null });
       if (table === "billing_periods") return query({ data: { status: "READY_FOR_REVIEW" }, error: null });
       if (table === "measurement_sheet_versions") return query({ data: { id: versionId, version: 2, status: "DRAFT" }, error: null });
@@ -139,6 +146,7 @@ describe("fila de e-mail do BM", () => {
       select: () => ({ single: async () => ({ data: { id: "log-2", status: "QUEUED", provider: "PENDING" }, error: null }) }),
     }));
     const from = vi.fn((table: string) => {
+      if (table === "user_roles") return query({ data: { role: "FINANCE" }, error: null });
       if (table === "measurement_sheets") return query({ data: { id: sheetId, organization_id: organizationId, billing_period_id: periodId }, error: null });
       if (table === "billing_periods") return query({ data: { status: "READY_FOR_REVIEW" }, error: null });
       if (table === "measurement_sheet_versions") return query({ data: { id: versionId, version: 2, status: "DRAFT" }, error: null });
