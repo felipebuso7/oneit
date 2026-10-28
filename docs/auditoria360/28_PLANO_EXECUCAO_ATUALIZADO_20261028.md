@@ -164,6 +164,12 @@ Entrega desta rodada: o dossiê autenticado agora exibe esse estado e a ação c
 - Nenhum erro de função, policy ou schema foi encontrado. Permanecem somente dois avisos legados: o parâmetro `current_role` usa nome reservado e `transition_measurement_sheet` mantém `target_actor` sem uso por compatibilidade de contrato.
 - Esses avisos não foram alterados nesta etapa para evitar quebra de chamadas existentes; qualquer renomeação futura deve ser acompanhada por migration e busca de consumidores.
 
+### Atualização de execução — 28/10/2026 (pré-condição de homologação autenticada)
+
+- A inspeção do desktop não encontrou uma janela autenticada do portal OneIT disponível para executar o roteiro S2 com dados fictícios.
+- Não foram criados registros, enviados WhatsApp/e-mails ou marcadas transições como aprovadas sem uma sessão autenticada verificável.
+- O roteiro permanece bloqueado somente por essa pré-condição operacional; contratos, testes automatizados, build e health checks continuam aprovados.
+
 ## 4. Critérios de avanço
 
 Uma tarefa só será marcada como concluída quando houver:
