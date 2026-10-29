@@ -45,29 +45,30 @@ export async function GET(_: Request, { params }: { params: Promise<{ id: string
   const pdf = await PDFDocument.create();
   const regular = await pdf.embedFont(StandardFonts.Helvetica);
   const bold = await pdf.embedFont(StandardFonts.HelveticaBold);
-  const navy = rgb(0.035, 0.184, 0.251);
+  const navy = rgb(0.02, 0.17, 0.35);
   const blue = rgb(0.08, 0.31, 0.58);
   const light = rgb(0.94, 0.96, 0.98);
   const size: [number, number] = [595, 842];
   const [oneitLogo, serviciaLogo] = await Promise.all([readLogo(pdf, "oneit-logo-rto.png"), readLogo(pdf, "servicia-logo-rto.png")]);
   const period = Array.isArray(sheet.billing_periods) ? sheet.billing_periods[0] : sheet.billing_periods;
   const header = (page: ReturnType<typeof pdf.addPage>, title: string) => {
-    page.drawRectangle({ x: 0, y: 800, width: 595, height: 42, color: navy });
-    if (oneitLogo) page.drawImage(oneitLogo, { x: 28, y: 808, width: 70, height: 22 });
-    if (serviciaLogo) page.drawImage(serviciaLogo, { x: 470, y: 808, width: 92, height: 22 });
-    page.drawText(title, { x: 32, y: 758, size: 19, font: bold, color: navy });
+    const top = size[1] - 24;
+    if (oneitLogo) { const image = oneitLogo.scaleToFit(112, 34); page.drawImage(oneitLogo, { x: 42, y: top - image.height, width: image.width, height: image.height }); }
+    if (serviciaLogo) { const image = serviciaLogo.scaleToFit(154, 34); page.drawImage(serviciaLogo, { x: size[0] - 42 - image.width, y: top - image.height, width: image.width, height: image.height }); }
+    page.drawLine({ start: { x: 42, y: size[1] - 70 }, end: { x: size[0] - 42, y: size[1] - 70 }, thickness: 1.4, color: navy });
+    page.drawText(title, { x: 42, y: size[1] - 96, size: 15, font: bold, color: navy });
   };
   const cover = pdf.addPage(size);
   header(cover, "BOLETIM DE MEDIÇÃO");
-  cover.drawText(sheet.sheet_number, { x: 32, y: 728, size: 11, font: regular, color: blue });
-  cover.drawText("COMPETÊNCIA", { x: 32, y: 682, size: 8, font: bold, color: blue });
+  cover.drawText(sheet.sheet_number, { x: 42, y: 728, size: 11, font: regular, color: blue });
+  cover.drawText("COMPETÊNCIA", { x: 42, y: 682, size: 8, font: bold, color: blue });
   cover.drawText(String(period?.competence ?? "Não informada"), { x: 150, y: 682, size: 11, font: regular, color: navy });
-  cover.drawText("OS CONSOLIDADAS", { x: 32, y: 654, size: 8, font: bold, color: blue });
+  cover.drawText("OS CONSOLIDADAS", { x: 42, y: 654, size: 8, font: bold, color: blue });
   cover.drawText(String(sheet.total_orders), { x: 150, y: 654, size: 11, font: regular, color: navy });
-  cover.drawText("STATUS", { x: 32, y: 626, size: 8, font: bold, color: blue });
+  cover.drawText("STATUS", { x: 42, y: 626, size: 8, font: bold, color: blue });
   cover.drawText(String(period?.status ?? "DRAFT"), { x: 150, y: 626, size: 11, font: regular, color: navy });
-  cover.drawRectangle({ x: 32, y: 540, width: 531, height: 28, color: navy });
-  cover.drawText("RESUMO CONSOLIDADO", { x: 44, y: 550, size: 9, font: bold, color: rgb(1, 1, 1) });
+  cover.drawRectangle({ x: 42, y: 540, width: 511, height: 28, color: navy });
+  cover.drawText("RESUMO CONSOLIDADO", { x: 50, y: 550, size: 10, font: bold, color: rgb(1, 1, 1) });
   const groups = new Map<string, { quantity: number; total: number }>();
   for (const line of lines ?? []) {
     const key = line.line_kind === "EXTRA" ? "EXTRAS" : line.lpu_code || line.description;
@@ -86,16 +87,16 @@ export async function GET(_: Request, { params }: { params: Promise<{ id: string
   cover.drawRectangle({ x: 340, y: 125, width: 223, height: 90, color: light });
   cover.drawText("VALOR TOTAL", { x: 355, y: 185, size: 9, font: bold, color: navy });
   cover.drawText(money(Number(sheet.total_amount)), { x: 400, y: 150, size: 15, font: bold, color: blue });
-  cover.drawText("Documento gerado a partir dos dados persistidos do BM.", { x: 32, y: 48, size: 8, font: regular, color: rgb(0.35, 0.4, 0.43) });
+  cover.drawText("Documento gerado a partir dos dados persistidos do BM.", { x: 42, y: 48, size: 8, font: regular, color: rgb(0.35, 0.4, 0.43) });
 
   let page = pdf.addPage(size);
   header(page, "DETALHAMENTO DAS OS");
   let y = 716;
   for (const line of lines ?? []) {
     if (y < 110) { page = pdf.addPage(size); header(page, "DETALHAMENTO DAS OS"); y = 716; }
-    page.drawRectangle({ x: 32, y: y - 7, width: 531, height: 21, color: light });
-    page.drawText(`OS / CHAMADO: ${line.ticket_number}`, { x: 42, y, size: 8, font: bold, color: navy });
-    page.drawText(money(Number(line.total_price)), { x: 480, y, size: 8, font: bold, color: navy });
+    page.drawRectangle({ x: 42, y: y - 7, width: 511, height: 21, color: navy });
+    page.drawText(`OS / CHAMADO: ${line.ticket_number}`, { x: 50, y, size: 8, font: bold, color: rgb(1, 1, 1) });
+    page.drawText(money(Number(line.total_price)), { x: 480, y, size: 8, font: bold, color: rgb(1, 1, 1) });
     y -= 18;
     page.drawText(`Data: ${line.service_date ?? "Não informada"} · Local: ${(line.service_location ?? "Não informado").slice(0, 76)}`, { x: 42, y, size: 7, font: regular, color: rgb(0.35, 0.4, 0.43) });
     y -= 18;
