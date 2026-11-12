@@ -17,12 +17,11 @@ Atualizado em 12/11/2026.
 ## Estado conhecido
 
 - O worktree possui alterações anteriores do projeto; não fazer limpeza destrutiva.
-- Produção não foi publicada nesta rodada.
-- Verificação dinâmica em `https://oneit-omega.vercel.app/portal` confirmou sessão autenticada e menu atualizado, mas o atalho da home ainda aparece publicado como “Abrir Central Field Service”; a correção local “Abrir Agendamento de OS” ainda não está refletida em produção.
-- Vercel confirmou que o deployment de produção e o preview `prep/cloud-staging` ainda são antigos; o projeto mostra recomendação “Connect Git”, portanto o push não disparou novo deployment automaticamente.
-- GitHub foi conectado ao projeto Vercel (`felipebuso7/oneit`). O commit `3cde5f6` disparou o deployment `oneit-i7hwc6xzy-okaa1.vercel.app`, ainda em estado `Building` na última verificação.
+- Os commits `d9674ab`, `3cde5f6` e `fdfed79` foram publicados no GitHub nas branches `prep/cloud-staging` e `main`.
+- O GitHub foi conectado ao projeto Vercel (`felipebuso7/oneit`). O deployment de preview do commit `fdfed79` ficou **Ready** em `oneit-btgduul66-okaa1.vercel.app`, mas o ambiente de preview não possui as variáveis de autenticação e redireciona para `error=environment`.
+- O push para `main` disparou o deployment de produção `oneit-rf8jbd9p6-okaa1.vercel.app`; na última consulta ele estava **Building**. O domínio oficial `https://oneit-omega.vercel.app` só deve ser considerado atualizado após esse deployment ficar Ready e os checks de runtime passarem.
 - Validações dinâmicas dependem de sessão autenticada e não substituem E2E completo.
 
 ## Próxima ação
 
-Executar validação dinâmica autenticada das rotas de chamados, agendamento, agenda, validação e RTO; depois tratar o primeiro P1 reproduzível.
+Após o deployment de `main` ficar Ready, validar dinamicamente as rotas de chamados, agendamento, agenda, validação e RTO no domínio oficial; depois tratar o primeiro P1 reproduzível.

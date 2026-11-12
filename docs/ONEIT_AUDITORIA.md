@@ -16,7 +16,7 @@
 
 - Não há evidência de E2E completo nesta rodada.
 - Não foram feitas alterações no banco, migrations ou produção.
-- Verificação dinâmica: a produção está acessível e autenticada, porém ainda serve o texto antigo “Abrir Central Field Service” na home; isso confirma que as correções locais ainda aguardam publicação.
-- Vercel: deployment de produção pronto, porém criado anteriormente; branch `prep/cloud-staging` também mostra preview antigo. O projeto ainda solicita conexão Git, então não há evidência de integração automática ativa.
-- Conexão Git concluída pelo painel Vercel. O novo build do commit `3cde5f6` foi criado e estava em andamento na última consulta; resultado final ainda não verificado.
+- Verificação dinâmica: o preview `oneit-btgduul66-okaa1.vercel.app` foi criado a partir de `fdfed79` e concluiu como Ready, mas sem variáveis de ambiente de autenticação para preview (`error=environment`).
+- O commit `fdfed79` foi enviado também para `main`, disparando o deployment de produção `oneit-rf8jbd9p6-okaa1.vercel.app`; na última consulta o build ainda estava em andamento, portanto o domínio oficial ainda não foi declarado atualizado.
+- Conexão Git concluída pelo painel Vercel e confirmada pelo disparo automático dos deployments das branches `prep/cloud-staging` e `main`.
 - Dados observados em produção devem ser confirmados antes de qualquer correção cadastral.
