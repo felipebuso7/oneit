@@ -175,6 +175,11 @@ textarea {
 .oneit-filter-bar input,
 .oneit-filter-bar select { min-height: 42px; }
 
+.oneit-bm-panel > form,
+.oneit-bm-panel > section { box-shadow: 0 1px 3px rgb(15 23 42 / 0.06); }
+.oneit-bm-panel [data-oneit-data-table] tbody tr { transition: background-color 140ms ease; }
+.oneit-bm-panel [data-oneit-data-table] tbody tr:hover { background: #f8fafc; }
+
 .oneit-card {
   border: 1px solid var(--oneit-line);
   border-radius: 12px;
