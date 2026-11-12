@@ -16,6 +16,7 @@ Atualizado em 12/11/2026.
 - Verificação dinâmica sem mutação no domínio oficial: `/portal/tickets` exibiu 6 registros persistidos e filtros operacionais; `/portal/field-service` exibiu a fila e 2 visitas agendadas; `/portal/review` exibiu a fila gerencial e RTOs disponíveis.
 - Revisão de LPU concluída: 5 arquivos e 14 testes aprovados cobrindo CRUD, unidades, preço, vigência, composição e aplicação na OS; nenhuma divergência de tipo foi confirmada.
 - Isolamento portal/demo protegido por teste estrutural: 2 testes aprovados, sem `localStorage`, `sessionStorage` ou chaves `oneit.demo` nas rotas autenticadas; a demonstração permanece restrita às rotas `/demo` e `/api/demo`.
+- Contrato responsivo do portal aprovado: 2 testes garantem rolagem horizontal controlada da fila, cabeçalho empilhável e liberação do conteúdo em viewport estreito; captura visual móvel real ainda pendente.
 
 ## Estado conhecido
 
