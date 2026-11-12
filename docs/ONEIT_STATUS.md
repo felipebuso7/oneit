@@ -17,6 +17,7 @@ Atualizado em 12/11/2026.
 - Revisão de LPU concluída: 5 arquivos e 14 testes aprovados cobrindo CRUD, unidades, preço, vigência, composição e aplicação na OS; nenhuma divergência de tipo foi confirmada.
 - Isolamento portal/demo protegido por teste estrutural: 2 testes aprovados, sem `localStorage`, `sessionStorage` ou chaves `oneit.demo` nas rotas autenticadas; a demonstração permanece restrita às rotas `/demo` e `/api/demo`.
 - Contrato responsivo do portal aprovado: 2 testes garantem rolagem horizontal controlada da fila, cabeçalho empilhável e liberação do conteúdo em viewport estreito; captura visual móvel real ainda pendente.
+- Contrato do Design System aprovado: 2 testes confirmam tokens centrais e uso dos componentes compartilhados de botão, cabeçalho, tabela, estado e badge.
 
 ## Estado conhecido
 

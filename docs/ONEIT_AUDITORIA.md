@@ -23,4 +23,5 @@
 - LPU: contrato entre UI, APIs e migrations confirmado (`kind`, `unit`, `unit_price`, vigência e `active`); testes de CRUD e composição aprovados.
 - Isolamento portal/demo: teste estrutural aprovado para impedir armazenamento local ou fallback demonstrativo nas rotas autenticadas; validação de tenant em duas contas ainda depende de sessão sintética separada.
 - Responsividade: contrato estrutural aprovado para tabela, sidebar e cabeçalho em telas estreitas; a evidência visual em viewport móvel ainda não foi executada.
+- Design System: tokens centrais e componentes compartilhados possuem contrato automatizado; telas legadas ainda precisam de migração visual completa.
 - Dados observados em produção devem ser confirmados antes de qualquer correção cadastral.
