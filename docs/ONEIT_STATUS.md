@@ -13,6 +13,7 @@ Atualizado em 12/11/2026.
 - Regressão adicional de evidências/storage: 5 arquivos e 9 testes aprovados, incluindo fotos, erros de RTO, fluxo do parceiro e integridade de banco.
 - Regressão completa executada: 161 arquivos e 384 testes aprovados.
 - Build de produção local iniciado, mas bloqueado por `EPERM` ao limpar `.next/server/app/portal/field-service`; não é falha de compilação confirmada.
+- Verificação dinâmica sem mutação no domínio oficial: `/portal/tickets` exibiu 6 registros persistidos e filtros operacionais; `/portal/field-service` exibiu a fila e 2 visitas agendadas; `/portal/review` exibiu a fila gerencial e RTOs disponíveis.
 
 ## Estado conhecido
 
@@ -21,6 +22,7 @@ Atualizado em 12/11/2026.
 - O GitHub foi conectado ao projeto Vercel (`felipebuso7/oneit`). O deployment de preview do commit `fdfed79` ficou **Ready** em `oneit-btgduul66-okaa1.vercel.app`, mas o ambiente de preview não possui as variáveis de autenticação e redireciona para `error=environment`.
 - O push para `main` disparou os deployments de produção `oneit-rf8jbd9p6-okaa1.vercel.app` e `oneit-lzcwvchao-okaa1.vercel.app`; ambos ficaram **Ready**. O domínio oficial `https://oneit-omega.vercel.app` foi recarregado e exibiu “Abrir Agendamento de OS”, “Agendamento de OS”, “Agenda Técnicos” e “RTO Encerrados”.
 - Validações dinâmicas dependem de sessão autenticada e não substituem E2E completo.
+- A validação dinâmica confirmou o portal autenticado e não acessou nenhuma rota `/demo`.
 
 ## Próxima ação
 
