@@ -16,7 +16,7 @@ export function PortalSidebarLight({ navigation }: { navigation: readonly Group[
   const activeHref = activeNavigationHref(pathname, navigation.flatMap((group) => group.links.map(([, href]) => href)));
   const [open, setOpen] = useState<Record<string, boolean>>({ Operação: true });
   return <aside aria-label="Navegação principal" className="oneit-portal-sidebar-light fixed inset-y-0 left-0 z-30 flex w-64 flex-col border-r border-slate-200 bg-white px-3 text-slate-800 shadow-sm">
-    <Link href="/portal" aria-label="OneIT · início" className="oneit-sidebar-logo flex h-24 items-center justify-center border-b border-slate-200"><Image src="/brand/oneit-color.png" alt="OneIT" width={200} height={64} priority className="h-16 w-[200px] object-contain" /></Link>
+    <Link href="/portal" aria-label="OneIT · início" className="oneit-sidebar-logo flex h-24 items-center justify-center border-b border-slate-200"><Image src="/oneit-logo-cropped.png" alt="OneIT" width={220} height={95} priority className="h-20 w-[220px] object-contain" /></Link>
     <nav className="mt-4 min-h-0 flex-1 space-y-2 overflow-y-auto pb-4">{navigation.map((group) => {
       const activeGroup = group.links.some(([, href]) => href === activeHref);
       const expanded = open[group.title] ?? activeGroup;
