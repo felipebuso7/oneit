@@ -12,7 +12,7 @@
 
 ## P2
 
-- Revisar visualmente todas as telas operacionais em viewport estreito.
+- Revisar visualmente todas as telas operacionais em viewport estreito. **Achado estático adicional:** há 40+ rotas administrativas legadas sem `OneitPageHeader`; a migração visual deve ser feita por ondas, começando pelas rotas de operação já priorizadas, sem alterar contratos de negócio.
 - Consolidar tokens e estados de tabelas, filtros, formulários e mensagens.
 - ~~Comparar dados cadastrais de LPU com o tipo exibido na interface.~~ **Verificado neste lote:** API, UI e migrations usam `kind`, `unit`, `unit_price`, vigência e `active` de forma consistente; 14 testes de CRUD/composição/validação aprovados.
 
