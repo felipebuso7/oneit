@@ -12,7 +12,7 @@
 
 ## P2
 
-- Revisar visualmente todas as telas operacionais em viewport estreito. **Primeira tela verificada:** captura renderizada autenticada da fila `/portal/tickets` confirmou em produção o redesign do commit `67b0719` (hierarquia, filtros, tabela e ações). **Achado estático adicional:** há 40+ rotas administrativas legadas sem `OneitPageHeader`; a migração visual deve ser feita por ondas, começando pelas rotas de operação já priorizadas, sem alterar contratos de negócio.
+- Revisar visualmente todas as telas operacionais em viewport estreito. **Telas priorizadas verificadas:** captura renderizada autenticada da fila `/portal/tickets` confirmou em produção o redesign do commit `67b0719`; a tela de Agendamento de OS recebeu refinamento estrutural no commit `9c96081` (cabeçalho, filtro de data e hierarquia do conteúdo). **Achado estático adicional:** há 40+ rotas administrativas legadas sem `OneitPageHeader`; a migração visual deve ser feita por ondas, começando pelas rotas de operação já priorizadas, sem alterar contratos de negócio.
 - Consolidar tokens e estados de tabelas, filtros, formulários e mensagens.
 - ~~Comparar dados cadastrais de LPU com o tipo exibido na interface.~~ **Verificado neste lote:** API, UI e migrations usam `kind`, `unit`, `unit_price`, vigência e `active` de forma consistente; 14 testes de CRUD/composição/validação aprovados.
 
@@ -23,3 +23,8 @@
 ## Regra de conclusão
 
 Item só passa a concluído com alteração identificável, teste/validação executado e evidência registrada.
+
+## Lote atual
+
+- Refinamento visual da tela de Agendamento de OS publicado em `main` (`9c96081`), com cabeçalho compartilhado e barra de filtro de data padronizada.
+- `git diff --check` limpo. A captura autenticada da fila foi comprovada; a captura visual autenticada do agendamento permanece como validação manual pendente.
