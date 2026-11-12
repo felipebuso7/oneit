@@ -28,3 +28,4 @@ Item só passa a concluído com alteração identificável, teste/validação ex
 
 - Refinamento visual da tela de Agendamento de OS publicado em `main` (`9c96081`), com cabeçalho compartilhado e barra de filtro de data padronizada.
 - `git diff --check` limpo. A captura autenticada da fila foi comprovada; a captura visual autenticada do agendamento permanece como validação manual pendente.
+- Refinamento visual do painel de BM publicado em `main` (`e777f54`) e conferido em produção: BM `BM-2026-10` persistido, status `Rascunho`, ação de validação e prévia PDF disponíveis.
