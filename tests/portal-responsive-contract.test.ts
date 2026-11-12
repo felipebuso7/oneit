@@ -14,7 +14,8 @@ describe("contratos responsivos do portal operacional", () => {
 
   it("empilha cabeçalhos e libera o conteúdo em viewport estreito", () => {
     expect(css).toContain("@media (max-width: 767px)");
-    expect(css).toContain(".oneit-page-header { align-items: flex-start; flex-direction: column; }");
+    expect(css).toContain(".oneit-page-header { align-items: stretch; flex-direction: column;");
+    expect(css).toContain(".oneit-page-heading-row { align-items: stretch; flex-direction: column; }");
     expect(css).toContain("[data-oneit-sidebar-offset] { margin-left: 0 !important;");
     expect(css).toContain(".oneit-portal-sidebar");
   });

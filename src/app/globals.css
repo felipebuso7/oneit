@@ -131,10 +131,15 @@ textarea {
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  border-bottom: 1px solid var(--oneit-line);
-  background: var(--oneit-surface);
-  padding: 12px 20px;
+  border: 1px solid var(--oneit-line);
+  border-radius: var(--oneit-radius-lg);
+  background: linear-gradient(135deg, #ffffff 0%, #f7fbfc 100%);
+  padding: 16px 20px;
+  box-shadow: var(--oneit-shadow-sm);
 }
+
+.oneit-page-header__content { flex: 1 1 auto; }
+.oneit-page-header__actions { align-self: center; }
 
 .oneit-page-header__eyebrow {
   color: var(--oneit-petrol-700);
@@ -147,10 +152,21 @@ textarea {
 .oneit-page-header__title {
   margin-top: 3px;
   color: var(--oneit-petrol-950);
-  font-size: 20px;
+  font-size: clamp(20px, 2vw, 26px);
   font-weight: 700;
   line-height: 1.2;
 }
+
+.oneit-page-header__content > p { line-height: 1.5; }
+
+.oneit-page-heading-row {
+  display: flex;
+  align-items: stretch;
+  gap: var(--oneit-space-4);
+}
+
+.oneit-page-heading-row > .oneit-page-header { flex: 1 1 auto; }
+.oneit-page-heading-row > :not(.oneit-page-header) { align-self: center; }
 
 .oneit-card {
   border: 1px solid var(--oneit-line);
@@ -254,8 +270,11 @@ img[alt="OneIT"] { height: 48px !important; width: auto !important; max-width: 4
   .oneit-portal-sidebar nav button,
   .oneit-requester-sidebar nav a { min-height: 40px; }
   [data-oneit-sidebar-offset] > header { padding-inline: 12px !important; }
-  .oneit-page-header { align-items: flex-start; flex-direction: column; }
-  .oneit-page-header > :last-child { width: 100%; }
+  .oneit-page-header { align-items: stretch; flex-direction: column; padding: 14px 16px; }
+  .oneit-page-header__actions { align-self: stretch; width: 100%; }
+  .oneit-page-header__actions > * { flex: 1 1 auto; }
+  .oneit-page-heading-row { align-items: stretch; flex-direction: column; }
+  .oneit-page-heading-row > :not(.oneit-page-header) { align-self: stretch; }
   [data-oneit-sidebar-offset] main,
   [data-oneit-sidebar-offset] section { max-width: 100%; }
   [data-oneit-sidebar-offset] table { min-width: 720px; }
