@@ -19,7 +19,7 @@ Atualizado em 12/11/2026.
 - O worktree possui alterações anteriores do projeto; não fazer limpeza destrutiva.
 - Os commits `d9674ab`, `3cde5f6` e `fdfed79` foram publicados no GitHub nas branches `prep/cloud-staging` e `main`.
 - O GitHub foi conectado ao projeto Vercel (`felipebuso7/oneit`). O deployment de preview do commit `fdfed79` ficou **Ready** em `oneit-btgduul66-okaa1.vercel.app`, mas o ambiente de preview não possui as variáveis de autenticação e redireciona para `error=environment`.
-- O push para `main` disparou o deployment de produção `oneit-rf8jbd9p6-okaa1.vercel.app`; na última consulta ele estava **Building**. O domínio oficial `https://oneit-omega.vercel.app` só deve ser considerado atualizado após esse deployment ficar Ready e os checks de runtime passarem.
+- O push para `main` disparou os deployments de produção `oneit-rf8jbd9p6-okaa1.vercel.app` e `oneit-lzcwvchao-okaa1.vercel.app`; ambos ficaram **Ready**. O domínio oficial `https://oneit-omega.vercel.app` foi recarregado e exibiu “Abrir Agendamento de OS”, “Agendamento de OS”, “Agenda Técnicos” e “RTO Encerrados”.
 - Validações dinâmicas dependem de sessão autenticada e não substituem E2E completo.
 
 ## Próxima ação

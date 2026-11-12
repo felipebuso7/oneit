@@ -17,6 +17,6 @@
 - Não há evidência de E2E completo nesta rodada.
 - Não foram feitas alterações no banco, migrations ou produção.
 - Verificação dinâmica: o preview `oneit-btgduul66-okaa1.vercel.app` foi criado a partir de `fdfed79` e concluiu como Ready, mas sem variáveis de ambiente de autenticação para preview (`error=environment`).
-- O commit `fdfed79` foi enviado também para `main`, disparando o deployment de produção `oneit-rf8jbd9p6-okaa1.vercel.app`; na última consulta o build ainda estava em andamento, portanto o domínio oficial ainda não foi declarado atualizado.
+- O commit `fdfed79` e o registro posterior `3aee6a3` foram enviados para `main`; os deployments de produção ficaram **Ready**. O domínio oficial foi recarregado e confirmou a nomenclatura atualizada no portal.
 - Conexão Git concluída pelo painel Vercel e confirmada pelo disparo automático dos deployments das branches `prep/cloud-staging` e `main`.
 - Dados observados em produção devem ser confirmados antes de qualquer correção cadastral.
