@@ -10,4 +10,18 @@ describe("RTO Field Service", () => {
     expect(document.getTitle()).toContain("OS-001");
     expect(document.getPages()[0].getWidth()).toBeCloseTo(595.28, 1);
   });
+
+  it("aceita materiais realmente utilizados no snapshot e gera o PDF", async () => {
+    const snapshot = fieldServiceRtoSnapshotSchema.parse({
+      service_order_id: "00000000-0000-4000-8000-000000000001",
+      ticket_id: "00000000-0000-4000-8000-000000000002",
+      order_number: "OS-002",
+      status: "VALIDATED",
+      evidence: [],
+      materials_used: [{ code: "CAT6", name: "Cabo CAT6", unit: "m", quantity: 12.5 }],
+    });
+    expect(snapshot.materials_used).toEqual([{ code: "CAT6", name: "Cabo CAT6", unit: "m", quantity: 12.5 }]);
+    const document = await PDFDocument.load(await renderFieldServiceRtoPdf(snapshot));
+    expect(document.getPages().length).toBeGreaterThan(0);
+  });
 });

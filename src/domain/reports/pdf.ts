@@ -24,6 +24,7 @@ export const fieldServiceRtoSnapshotSchema = z.object({
   scheduled_at: z.string().nullable().optional(), checked_in_at: z.string().nullable().optional(), checked_out_at: z.string().nullable().optional(),
   execution_report: z.string().nullable().optional(), customer_signature_name: z.string().nullable().optional(), customer_signature_data_url: z.string().nullable().optional(),
   evidence: z.array(z.unknown()).default([]),
+  materials_used: z.array(z.object({ code: z.string(), name: z.string(), unit: z.string(), quantity: z.number() })).default([]),
   lpu_lines: z.array(z.object({ code: z.string(), description: z.string(), unit: z.string(), quantity: z.number(), unit_price: z.number(), total: z.number() })).default([]),
 });
 export type FieldServiceRtoSnapshot = z.infer<typeof fieldServiceRtoSnapshotSchema>;
@@ -65,6 +66,10 @@ export async function renderFieldServiceRtoPdf(snapshot: FieldServiceRtoSnapshot
   section("DADOS DO ATENDIMENTO"); text(`Cliente: ${snapshot.customer_name ?? "Não informado"}`); text(`Local: ${snapshot.location_name ?? "Não informado"}`); text(`Endereço: ${snapshot.location_address ?? "Não informado"}`); text(`Técnico: ${snapshot.technician_name ?? "Não informado"}`); text(`Validador: ${snapshot.reviewer_name ?? "Não informado"}`); if (snapshot.local_contact_name || snapshot.local_contact_phone) text(`Contato local: ${snapshot.local_contact_name ?? "Não informado"}${snapshot.local_contact_phone ? ` · ${snapshot.local_contact_phone}` : ""}`); y -= 8;
   section("LINHA DO TEMPO"); text(`Abertura do chamado: ${snapshot.ticket_opened_at ?? "Não informado"}`); text(`Agendamento: ${snapshot.scheduled_at ?? "Não informado"}`); text(`Check-in: ${snapshot.checked_in_at ?? "Não informado"}`); text(`Checkout: ${snapshot.checked_out_at ?? "Não informado"}`); text(`Fechamento do chamado: ${snapshot.ticket_closed_at ?? "Não informado"}`); text(`Tempo total do chamado: ${duration(snapshot.ticket_opened_at, snapshot.ticket_closed_at)}`); text(`Tempo em atendimento: ${duration(snapshot.checked_in_at, snapshot.checked_out_at)}`); y -= 8;
   section("RELATO TÉCNICO"); text(snapshot.execution_report ?? "Não informado"); y -= 8;
+  section("MATERIAIS UTILIZADOS");
+  if (!snapshot.materials_used.length) text("Nenhum material registrado pelo técnico.");
+  for (const material of snapshot.materials_used) text(`${material.code} · ${material.name}: ${material.quantity} ${material.unit}`);
+  y -= 8;
   section("COMPOSIÇÃO LPU / PRECIFICAÇÃO");
   const contentWidth = width - (2 * margin);
   const tableColumns = [
@@ -138,8 +143,14 @@ export async function renderTicketPdf(snapshot: ReportSnapshot, evidenceImages: 
   ]);
   let page = document.addPage([width, height]), y = height - 105;
   function header() {
-    if (oneitLogo) page.drawImage(oneitLogo, { x: margin, y: height - 66, width: 92, height: 28 });
-    if (serviciaLogo) page.drawImage(serviciaLogo, { x: width - margin - 112, y: height - 66, width: 112, height: 28 });
+    if (oneitLogo) {
+      const scaled = oneitLogo.scaleToFit(92, 28);
+      page.drawImage(oneitLogo, { x: margin, y: height - 66 + (28 - scaled.height) / 2, width: scaled.width, height: scaled.height });
+    }
+    if (serviciaLogo) {
+      const scaled = serviciaLogo.scaleToFit(112, 28);
+      page.drawImage(serviciaLogo, { x: width - margin - scaled.width, y: height - 66 + (28 - scaled.height) / 2, width: scaled.width, height: scaled.height });
+    }
     page.drawText("RELATÓRIO TÉCNICO OPERACIONAL", { x: margin, y: height - 84, size: 11, font: bold, color: rgb(0.02, 0.17, 0.35) });
     page.drawText(`${snapshot.number} / v${snapshot.reportVersion}`, { x: margin, y: height - 72, size: 10, font });
   }

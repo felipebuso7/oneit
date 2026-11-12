@@ -1,5 +1,6 @@
 -- Additive context for the public technician view.
 -- The token/code validation remains delegated to assert_partner_access.
+-- audit:allow-drop-function-replacement (signature return shape changed; no data is removed)
 drop function if exists public.get_partner_service_order_context(text, text);
 
 create or replace function public.get_partner_service_order_context(target_token text, target_code text)

@@ -17,4 +17,8 @@ describe("tickets queue UI contract", () => {
     expect(source).toContain("Validar OS →");
     expect(source).toContain("Nenhum chamado corresponde aos filtros atuais.");
   });
+
+  it("prioritizes validation status before administrative closure", () => {
+    expect(source.indexOf('if (ticket.field_progress)')).toBeLessThan(source.indexOf('if (ticket.administrative_status === "CLOSED")'));
+  });
 });

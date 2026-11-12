@@ -13,11 +13,17 @@ export async function storeFieldServiceRtoPdf(supabase: SupabaseClient, reportId
 
   const { data: report, error } = await supabase
     .from("field_service_rto_reports")
-    .select("id, organization_id, service_order_id, ticket_id, snapshot, report_version, generated_by")
+    .select("id, organization_id, service_order_id, ticket_id, snapshot, report_version, generated_by, storage_path, sha256")
     .eq("id", reportId)
     .single();
   const snapshot = report ? fieldServiceRtoSnapshotSchema.safeParse(report.snapshot) : null;
   if (error || !report || !snapshot?.success) throw new Error("RTO_SNAPSHOT_UNAVAILABLE");
+  if (report.storage_path) {
+    const storage = createStorageAdmin("ticket-reports");
+    const { data: signed } = await storage.createSignedUrl(report.storage_path, 300);
+    if (!signed?.signedUrl) throw new Error("RTO_DOWNLOAD_UNAVAILABLE");
+    return { reportId: report.id, downloadUrl: signed.signedUrl };
+  }
   const { data: reviewer, error: reviewerError } = await supabase.from("user_profiles").select("full_name").eq("id", report.generated_by).maybeSingle();
   if (reviewerError || !reviewer?.full_name?.trim()) throw new Error("RTO_REVIEWER_UNAVAILABLE");
   const reportSnapshot = { ...snapshot.data, reviewer_name: reviewer.full_name.trim() };
@@ -43,8 +49,15 @@ export async function storeFieldServiceRtoPdf(supabase: SupabaseClient, reportId
   const hash = createHash("sha256").update(pdf).digest("hex");
   const path = `${report.organization_id}/field-service/${report.service_order_id}/rto-v${report.report_version}.pdf`;
   const storage = createStorageAdmin("ticket-reports");
-  const { error: uploadError } = await storage.upload(path, pdf, { contentType: "application/pdf", upsert: true });
-  if (uploadError) throw new Error("RTO_UPLOAD_FAILED");
+  const { error: uploadError } = await storage.upload(path, pdf, { contentType: "application/pdf", upsert: false });
+  if (uploadError) {
+    // Uma tentativa anterior pode ter enviado o PDF antes de falhar o registro.
+    // Reutilize somente se o conteúdo armazenado for exatamente o mesmo.
+    const { data: existing } = await storage.download(path);
+    if (!existing || createHash("sha256").update(new Uint8Array(await existing.arrayBuffer())).digest("hex") !== hash) {
+      throw new Error("RTO_UPLOAD_FAILED");
+    }
+  }
 
   const { error: registrationError } = await supabase.rpc("register_field_service_rto_file", {
     target_report_id: report.id,

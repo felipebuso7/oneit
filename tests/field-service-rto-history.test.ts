@@ -7,6 +7,8 @@ describe("histórico de RTO Field Service", () => {
     const api = readFileSync("src/app/api/field-service/rto/route.ts", "utf8");
     expect(page).toContain("Baixar PDF");
     expect(page).toContain("sha256");
+    expect(page).toContain('.eq("user_id", user.id)');
+    expect(page).toContain("Não foi possível validar o acesso aos RTOs.");
     expect(api).toContain('searchParams.get("redirect")');
     expect(readFileSync("src/app/(portal)/layout.tsx", "utf8")).toContain("/portal/field-service-reports");
   });

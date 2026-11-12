@@ -1,9 +1,12 @@
 "use client";
+/* eslint-disable @next/next/no-img-element -- prévia local de foto enviada usa data URL no navegador. */
 
 import { PointerEvent, ReactNode, useEffect, useRef, useState } from "react";
 import Image from "next/image";
 
 type Evidence = { name: string; storagePath?: string; mime?: "image/jpeg" | "image/png" | "image/webp"; size?: number; dataUrl?: string };
+type CatalogMaterial = { id: string; code: string; name: string; unit: string };
+type UsedMaterial = { lpuItemId: string; code: string; name: string; unit: string; quantity: number };
 type Access = { ticket: string; technician: string; expiresAt: string; title?: string; address?: string; scheduledAt?: string | null; contactName?: string | null; contactPhone?: string | null; materials?: Array<{ name: string; quantity: number | string; unit: string }> | null; status?: string; accepted?: boolean; travel_started_at?: string | null; checked_in_at?: string | null; checked_out_at?: string | null; draft?: { execution_report?: string | null; evidence?: unknown; customer_signature_name?: string | null; customer_signature_data_url?: string | null } | null };
 type ApiAccess = { token: string; code: string };
 type ExecutionStep = "ASSIGNED" | "ACCEPTED" | "TRAVELING" | "CHECKED_IN" | "SUBMITTED" | "DONE";
@@ -62,6 +65,15 @@ export function PartnerExecutionFlow({ access, apiAccess, onLocalComplete }: { a
   const [signature, setSignature] = useState(() => access.draft?.customer_signature_data_url ?? "");
   const [signatureOpen, setSignatureOpen] = useState(false);
   const [signatureReady, setSignatureReady] = useState(false);
+  const [materialCatalog, setMaterialCatalog] = useState<CatalogMaterial[]>([]);
+  const [usedMaterials, setUsedMaterials] = useState<UsedMaterial[]>([]);
+  const [selectedMaterialId, setSelectedMaterialId] = useState("");
+  const [materialQuantity, setMaterialQuantity] = useState("1");
+  const [materialsReady, setMaterialsReady] = useState(false);
+  const [materialsError, setMaterialsError] = useState(false);
+  const [materialReload, setMaterialReload] = useState(0);
+  const accessToken = apiAccess?.token;
+  const accessCode = apiAccess?.code;
   const [stepTimes, setStepTimes] = useState<StepTimes>(() => ({ travel: access.travel_started_at ?? undefined, arrival: access.checked_in_at ?? undefined, checkout: access.checked_out_at ?? undefined }));
   const [busy, setBusy] = useState(false);
   const [online, setOnline] = useState(true);
@@ -85,13 +97,33 @@ export function PartnerExecutionFlow({ access, apiAccess, onLocalComplete }: { a
     return () => { window.removeEventListener("online", update); window.removeEventListener("offline", update); };
   }, []);
 
+  useEffect(() => {
+    if (!accessToken || !accessCode) return;
+    let active = true;
+    void fetch("/api/field-service/partner/materials", {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ token: accessToken, code: accessCode, action: "LIST" }),
+    }).then(async (response) => {
+      if (!response.ok) throw new Error("MATERIAL_SERVICE_UNAVAILABLE");
+      return response.json() as Promise<{ catalog: CatalogMaterial[]; used: UsedMaterial[] }>;
+    }).then((payload) => {
+      if (!active) return;
+      setMaterialCatalog(payload.catalog);
+      setUsedMaterials(payload.used.map((item) => ({ ...item, quantity: Number(item.quantity) })));
+      setMaterialsReady(true);
+    }).catch(() => {
+      if (active) { setMaterialsError(true); setNotice("Não foi possível carregar os materiais. Tente novamente antes de salvar o atendimento."); }
+    });
+    return () => { active = false; };
+  }, [accessToken, accessCode, materialReload]);
+
   const submitEvent = async (event: "ACCEPT" | "TRAVEL_STARTED" | "CHECK_IN" | "SUBMIT" | "CHECK_OUT") => {
     if (!apiAccess) return true;
     if (busy) return false;
     if (!online) { setNotice("Sem conexão. Restabeleça a internet para registrar este evento."); return false; }
     setBusy(true);
     try {
-      const evidenceMetadata = evidence.map(({ dataUrl: _dataUrl, ...metadata }) => metadata);
+      const evidenceMetadata = evidence.map((item) => ({ name: item.name, storagePath: item.storagePath, mime: item.mime, size: item.size }));
       const response = await fetch("/api/field-service/partner/event", {
         method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ ...apiAccess, event, report: event === "SUBMIT" ? report.trim() : undefined, evidence: event === "SUBMIT" ? evidenceMetadata : undefined, signatureName: name.trim() || undefined, signatureDataUrl: signature || undefined }),
@@ -139,7 +171,48 @@ export function PartnerExecutionFlow({ access, apiAccess, onLocalComplete }: { a
   const draw = (pointer: PointerEvent<HTMLCanvasElement>) => { if (!drawing.current) return; const context = canvas.current?.getContext("2d"); if (!context) return; const [x, y] = point(pointer); context.lineWidth = 3; context.lineCap = "round"; context.strokeStyle = "#092f40"; context.lineTo(x, y); context.stroke(); setSignatureReady(true); };
   const clear = () => { const item = canvas.current; const context = item?.getContext("2d"); if (item && context) context.clearRect(0, 0, item.width, item.height); setSignatureReady(false); setSignature(""); };
   const confirmSignature = () => { if (!name.trim()) return setNotice("Informe o nome do responsável pelo aceite."); if (!signatureReady || !canvas.current) return setNotice("Desenhe a assinatura antes de confirmar."); setSignature(canvas.current.toDataURL("image/png")); setSignatureOpen(false); setNotice("Assinatura confirmada e pronta para o RTO."); };
-  const save = () => { if (report.trim().length < 10) return setNotice("Descreva o atendimento com pelo menos 10 caracteres antes de salvar."); if (evidence.length < 3) return setNotice(`Adicione 3 fotos de evidência antes de salvar. Faltam ${3 - evidence.length}.`); if (!name.trim() || !signature) return setNotice("Colete e confirme a assinatura do responsável."); void submitEvent("SUBMIT").then((ok) => { if (ok) { setStep("SUBMITTED"); setNotice("Atendimento registrado. Faça o checkout para enviar a OS ao gestor."); } }); };
+  const addUsedMaterial = () => {
+    const item = materialCatalog.find((material) => material.id === selectedMaterialId);
+    const quantity = Number(materialQuantity.replace(",", "."));
+    if (!item || !Number.isFinite(quantity) || quantity <= 0 || quantity > 100000 || Math.abs(quantity * 1000 - Math.round(quantity * 1000)) > 0.000001) {
+      setNotice("Selecione um material e informe uma quantidade válida com até 3 casas decimais.");
+      return;
+    }
+    if ((usedMaterials.find((material) => material.lpuItemId === item.id)?.quantity ?? 0) + quantity > 100000) {
+      setNotice("A quantidade total desse material excede o limite permitido.");
+      return;
+    }
+    setUsedMaterials((current) => {
+      const existing = current.find((material) => material.lpuItemId === item.id);
+      return existing
+        ? current.map((material) => material.lpuItemId === item.id ? { ...material, quantity: Number((material.quantity + quantity).toFixed(3)) } : material)
+        : [...current, { lpuItemId: item.id, code: item.code, name: item.name, unit: item.unit, quantity }];
+    });
+    setSelectedMaterialId("");
+    setMaterialQuantity("1");
+  };
+  const save = async () => {
+    if (report.trim().length < 10) return setNotice("Descreva o atendimento com pelo menos 10 caracteres antes de salvar.");
+    if (evidence.length < 3) return setNotice(`Adicione 3 fotos de evidência antes de salvar. Faltam ${3 - evidence.length}.`);
+    if (!name.trim() || !signature) return setNotice("Colete e confirme a assinatura do responsável.");
+    if (apiAccess) {
+      if (!materialsReady) return setNotice("Os materiais ainda não foram carregados. Atualize a página e tente novamente.");
+      setBusy(true);
+      try {
+        const response = await fetch("/api/field-service/partner/materials", {
+          method: "POST", headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ ...apiAccess, action: "SAVE", items: usedMaterials.map((item) => ({ lpuItemId: item.lpuItemId, quantity: item.quantity })) }),
+        }).catch(() => null);
+        if (!response?.ok) {
+          const payload = await response?.json().catch(() => ({})) as { code?: string } | undefined;
+          setNotice(`Não foi possível salvar os materiais: ${payload?.code ?? "erro de conexão"}.`);
+          return;
+        }
+      } finally { setBusy(false); }
+    }
+    const ok = await submitEvent("SUBMIT");
+    if (ok) { setStep("SUBMITTED"); setNotice("Atendimento registrado. Faça o checkout para enviar a OS ao gestor."); }
+  };
   const stage = step === "ASSIGNED" ? "Etapa 1 de 5 · aceitar visita" : step === "ACCEPTED" ? "Etapa 2 de 5 · iniciar deslocamento" : step === "TRAVELING" ? "Etapa 3 de 5 · confirmar chegada" : step === "CHECKED_IN" ? "Etapa 4 de 5 · registrar execução" : step === "SUBMITTED" ? "Etapa 5 de 5 · fazer checkout" : "OS enviada para validação do gestor";
   const completed = (key: typeof journeySteps[number][0]) => key === "travel" ? ["TRAVELING", "CHECKED_IN", "SUBMITTED", "DONE"].includes(step) : key === "arrival" ? ["CHECKED_IN", "SUBMITTED", "DONE"].includes(step) : key === "photos" ? evidence.length >= 3 : key === "signature" ? Boolean(signature) : step === "DONE";
   const timeline = <section aria-label="Jornada do atendimento" className="rounded-xl border border-slate-200 bg-white p-3"><p className="text-[11px] font-bold uppercase tracking-[.14em] text-slate-500">Jornada do atendimento</p><ol className="mt-3 grid grid-cols-5 gap-1">{journeySteps.map(([key, label], index) => { const done = completed(key); const time = key === "travel" ? stepTimes.travel : key === "arrival" ? stepTimes.arrival : key === "checkout" ? stepTimes.checkout : undefined; return <li key={key} className="relative text-center"><div className={`mx-auto grid h-7 w-7 place-items-center rounded-full text-xs font-bold ${done ? "bg-emerald-600 text-white" : "bg-slate-200 text-slate-500"}`} aria-label={done ? `${label} concluído` : `${label} pendente`}>{done ? "✓" : index + 1}</div><p className={`mt-1 text-[10px] font-semibold leading-tight ${done ? "text-emerald-800" : "text-slate-500"}`}>{label}</p>{time ? <p className="mt-0.5 text-[9px] text-slate-500">{new Date(time).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}</p> : null}</li>; })}</ol></section>;
@@ -160,8 +233,36 @@ export function PartnerExecutionFlow({ access, apiAccess, onLocalComplete }: { a
     {step === "CHECKED_IN" && <>
       <fieldset className="rounded-xl border border-slate-200 p-3"><legend className="px-1 text-sm font-semibold">Fotos da execução</legend><div className="grid grid-cols-2 gap-2"><label className="cursor-pointer rounded-lg border border-dashed border-slate-300 p-3 text-center text-sm font-semibold text-slate-700">Adicionar da galeria<input type="file" accept="image/jpeg,image/png,image/webp" multiple className="sr-only" onChange={(input) => { void addPhotos(input.target.files); input.target.value = ""; }} /></label><label className="cursor-pointer rounded-lg bg-[#092f40] p-3 text-center text-sm font-semibold text-white">Abrir câmera<input type="file" accept="image/jpeg,image/png,image/webp" capture="environment" className="sr-only" onChange={(input) => { void addPhotos(input.target.files); input.target.value = ""; }} /></label></div><p className="mt-2 text-xs text-slate-500">Obrigatório: 3 fotos · até 8 imagens JPG, PNG ou WebP de 4 MB cada.</p>{evidence.length > 0 && <p className="text-xs text-emerald-700">{evidence.length} foto(s) anexada(s).</p>}</fieldset>
       <label className="block text-sm font-semibold">Relatório do atendimento<textarea value={report} onChange={(input) => setReport(input.target.value)} className="mt-2 min-h-32 w-full rounded-xl border p-3 font-normal" placeholder="Diagnóstico, atividades e resultado..." /></label>
+      <section aria-labelledby="used-materials-title" className="rounded-xl border border-slate-200 p-4">
+        <h2 id="used-materials-title" className="text-sm font-semibold text-slate-950">Materiais utilizados</h2>
+        <p className="mt-1 text-xs text-slate-600">Informe as quantidades realmente usadas. O gestor fará a conferência e a precificação pela LPU.</p>
+        {!apiAccess ? <p className="mt-3 text-xs text-slate-600">O lançamento de materiais está disponível no atendimento seguro da OS.</p> : materialsReady ? <>
+          <div className="mt-3 grid grid-cols-[minmax(0,1fr)_96px] gap-2">
+            <label className="text-xs font-medium text-slate-700">Material
+              <select value={selectedMaterialId} onChange={(input) => setSelectedMaterialId(input.target.value)} className="mt-1 w-full rounded-lg border border-slate-300 bg-white px-2 py-2 text-sm">
+                <option value="">Selecione</option>
+                {materialCatalog.map((item) => <option key={item.id} value={item.id}>{item.name} ({item.unit})</option>)}
+              </select>
+            </label>
+            <label className="text-xs font-medium text-slate-700">Quantidade
+              <input value={materialQuantity} onChange={(input) => setMaterialQuantity(input.target.value)} type="number" min="0.001" max="100000" step="0.001" inputMode="decimal" className="mt-1 w-full rounded-lg border border-slate-300 px-2 py-2 text-sm" />
+            </label>
+          </div>
+          <button type="button" onClick={addUsedMaterial} disabled={!selectedMaterialId || usedMaterials.length >= 30} className="mt-2 rounded-lg border border-cyan-800 px-3 py-2 text-sm font-semibold text-cyan-900 disabled:opacity-50">Adicionar material</button>
+          {usedMaterials.length ? <ul className="mt-3 divide-y divide-slate-100 rounded-lg border border-slate-200">
+            {usedMaterials.map((item) => <li key={item.lpuItemId} className="flex items-center justify-between gap-2 px-3 py-2 text-sm">
+              <span>{item.name} · <strong>{item.quantity} {item.unit}</strong></span>
+              <button type="button" onClick={() => setUsedMaterials((current) => current.filter((material) => material.lpuItemId !== item.lpuItemId))} aria-label={`Remover ${item.name}`} className="text-xs font-semibold text-red-700">Remover</button>
+            </li>)}
+          </ul> : <p className="mt-3 text-xs text-slate-500">Nenhum material utilizado.</p>}
+          {!materialCatalog.length && <p className="mt-2 text-xs text-amber-800">Não há materiais vigentes na LPU desta organização. Solicite o cadastro ao gestor.</p>}
+        </> : materialsError ? <div className="mt-3 rounded-lg border border-amber-200 bg-amber-50 p-3">
+          <p className="text-xs text-amber-900">Não foi possível carregar os materiais.</p>
+          <button type="button" onClick={() => { setMaterialsError(false); setMaterialReload((value) => value + 1); }} className="mt-2 text-xs font-semibold text-cyan-900 underline">Tentar novamente</button>
+        </div> : <p className="mt-3 text-xs text-slate-500">Carregando materiais cadastrados…</p>}
+      </section>
       <div className="rounded-xl border border-cyan-200 bg-cyan-50 p-4"><p className="text-sm font-semibold text-cyan-950">Aceite do cliente</p><input value={name} onChange={(input) => { setName(input.target.value); setSignature(""); }} className="mt-3 w-full rounded-lg border bg-white px-3 py-2 text-sm" placeholder="Nome do responsável" /><button type="button" onClick={() => setSignatureOpen(true)} className="mt-2 w-full rounded-lg bg-cyan-700 px-3 py-2 text-sm font-semibold text-white">{signature ? "Assinatura confirmada ✓" : "Abrir assinatura"}</button></div>
-      <button type="button" disabled={busy} onClick={save} className="w-full rounded-xl bg-[#092f40] px-4 py-3 text-sm font-semibold text-white disabled:opacity-60">{busy ? "Salvando atendimento…" : "Salvar atendimento e liberar checkout"}</button>
+      <button type="button" disabled={busy} onClick={() => { void save(); }} className="w-full rounded-xl bg-[#092f40] px-4 py-3 text-sm font-semibold text-white disabled:opacity-60">{busy ? "Salvando atendimento…" : "Salvar atendimento e liberar checkout"}</button>
     </>}
     {step === "SUBMITTED" && <button type="button" disabled={busy} onClick={() => move("CHECK_OUT", "DONE", "Checkout realizado. A OS foi enviada para validação do gestor.")} className="w-full rounded-xl bg-orange-500 px-4 py-3 text-sm font-semibold text-white disabled:opacity-60">{busy ? "Enviando…" : "Fazer checkout e enviar OS"}</button>}
     {signatureOpen && <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 p-4"><div role="dialog" aria-modal="true" aria-labelledby="signature-title" className="w-full max-w-md rounded-2xl bg-white p-5 shadow-2xl"><h2 id="signature-title" className="text-lg font-semibold">Assinatura do responsável</h2><p className="mt-1 text-sm text-slate-600">Use o dedo no quadro abaixo.</p><canvas aria-label="Área para desenhar a assinatura" ref={canvas} width={720} height={320} onPointerDown={drawStart} onPointerMove={draw} onPointerUp={() => { drawing.current = false; }} onPointerCancel={() => { drawing.current = false; }} className="mt-4 h-48 w-full touch-none rounded-xl border-2 border-dashed border-slate-300 bg-white" /><div className="mt-4 flex justify-between gap-2"><button type="button" onClick={() => { setSignatureOpen(false); setSignatureReady(false); setSignature(""); }} className="rounded-lg border px-4 py-2 text-sm font-semibold">Cancelar</button><button type="button" onClick={clear} className="rounded-lg border px-4 py-2 text-sm font-semibold">Limpar</button><button type="button" onClick={confirmSignature} className="rounded-lg bg-cyan-700 px-4 py-2 text-sm font-semibold text-white">Confirmar assinatura</button></div></div></div>}

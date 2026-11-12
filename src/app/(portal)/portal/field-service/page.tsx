@@ -15,7 +15,7 @@ export default async function FieldServicePage({ searchParams }: PageProps) {
   if (roleError) throw new Error("Não foi possível validar o acesso ao Field Service.");
   const organizationIds = [...new Set((roles ?? []).map((role) => role.organization_id))];
   if (!organizationIds.length) return <section className="mx-auto max-w-6xl p-6 sm:p-8">
-    <OneitPageHeader eyebrow="Operação" title="Central Field Service" description="Despacho e acompanhamento dos atendimentos de campo." />
+    <OneitPageHeader eyebrow="Operação" title="Agendamento de OS" description="Despacho e acompanhamento dos atendimentos de campo." />
     <div className="mt-6"><OneitEmptyState title="Acesso restrito" description="Seu perfil não possui permissão de despacho nesta organização." /></div>
   </section>;
 
@@ -36,7 +36,7 @@ export default async function FieldServicePage({ searchParams }: PageProps) {
       .in("organization_id", organizationIds).eq("status", "PENDING").limit(300),
   ]);
   if (ticketResult.error || orderResult.error || technicianResult.error || fieldTechnicianResult.error || locationResult.error || reviewResult.error) {
-    throw new Error("Não foi possível carregar a central de Field Service.");
+    throw new Error("Não foi possível carregar o agendamento de OS.");
   }
   const locationIds = (locationResult.data ?? []).map((location) => location.id);
   const contactResult = locationIds.length
@@ -54,7 +54,7 @@ export default async function FieldServicePage({ searchParams }: PageProps) {
   const unavailableTechnicians = (technicianResult.data ?? []).filter((technician) => technician.active && linkedOperationalIds.has(technician.id) && ["UNAVAILABLE", "OFFLINE", "VACATION"].includes(technician.status)).length;
 
   return <section className="mx-auto max-w-7xl p-5 sm:p-8">
-    <OneitPageHeader eyebrow="Operação" title="Central Field Service" description="Selecione um chamado, confira o técnico e confirme o despacho em uma só tela." />
+    <OneitPageHeader eyebrow="Operação" title="Agendamento de OS" description="Selecione um chamado, defina o técnico e agende a visita em uma só tela." />
     <DispatchWorkspace tickets={ticketResult.data ?? []} orders={orderResult.data ?? []}
       technicians={dispatchTechnicians} locations={locationResult.data ?? []} locationContacts={contactResult.data ?? []}
       pendingReviews={reviewResult.data ?? []} unlinkedTechnicians={unlinkedTechnicians} unavailableTechnicians={unavailableTechnicians} initialTicketId={initialTicketId} />

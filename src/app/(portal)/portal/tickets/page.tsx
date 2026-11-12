@@ -1,4 +1,5 @@
 import { TicketCreateFlow } from "@/components/tickets/ticket-create-flow";
+import { loadTicketFieldProgress } from "@/lib/field-service/ticket-progress-query";
 import { TicketsTable } from "@/components/tickets/tickets-table";
 import { requireUser } from "@/lib/auth/current-user";
 import { listAvailableCustomers } from "@/lib/customers/queries";
@@ -30,6 +31,7 @@ export default async function TicketsPage({ searchParams }: PageProps) {
   const { data: offerings } = subcategoryIds.length
     ? await supabase.from("service_offerings").select("id, subcategory_id, code, name").in("subcategory_id", subcategoryIds).eq("active", true).order("name")
     : { data: [] };
+  const fieldProgressByTicket = await loadTicketFieldProgress(supabase, tickets ?? []);
   const ticketIds = (tickets ?? []).map((ticket) => ticket.id);
   const { data: serviceLevels } = ticketIds.length ? await supabase.from("ticket_service_levels").select("ticket_id,resolution_due_at").in("ticket_id", ticketIds) : { data: [] };
   const levelByTicketId = new Map((serviceLevels ?? []).map((level) => [level.ticket_id, level.resolution_due_at]));
@@ -38,6 +40,6 @@ export default async function TicketsPage({ searchParams }: PageProps) {
   const locationById = new Map((locations ?? []).map((location) => [location.id, `${location.name} · ${location.city}`]));
 
   return <section className="mx-auto max-w-6xl p-5 sm:p-8"><div className="flex flex-wrap items-end justify-between gap-4"><OneitPageHeader eyebrow="Operação" title="Chamados" description="Acompanhe a fila e abra solicitações pelo catálogo de serviços." /><TicketCreateFlow organizations={organizations} customers={customers} contracts={contracts ?? []} locations={locations ?? []} categories={categories ?? []} subcategories={subcategories ?? []} offerings={offerings ?? []} collaborators={collaborators ?? []} departments={departments ?? []} /></div>{message ? <p role="status" className="mt-4 rounded-lg border border-sky-200 bg-sky-50 p-3 text-sm text-sky-900">{message}</p> : null}{ticketsError ? <p role="alert" className="mt-4 rounded-lg border border-rose-200 bg-rose-50 p-3 text-sm text-rose-900">A fila não pôde ser carregada pelo banco de dados. Nenhum chamado foi descartado; atualize a tela ou verifique sua organização e permissão.</p> : null}
-    <TicketsTable tickets={(tickets ?? []).map((ticket) => ({ ...ticket, customer_name: customerById.get(ticket.customer_id) ?? "Cliente não identificado", location_name: locationById.get(ticket.location_id) ?? "Local não informado", resolution_due_at: levelByTicketId.get(ticket.id) ?? null }))} />
+    <TicketsTable tickets={(tickets ?? []).map((ticket) => ({ ...ticket, field_progress: fieldProgressByTicket.get(ticket.id) ?? null, customer_name: customerById.get(ticket.customer_id) ?? "Cliente não identificado", location_name: locationById.get(ticket.location_id) ?? "Local não informado", resolution_due_at: levelByTicketId.get(ticket.id) ?? null }))} />
   </section>;
 }

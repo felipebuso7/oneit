@@ -19,6 +19,10 @@ const actions = {
   ON_SITE: ["WORK_STARTED", "Iniciar atendimento"],
 } as const;
 const statusLabels: Record<string, string> = { ASSIGNED: "Atribuído", TRAVEL_STARTED: "Em deslocamento", ON_SITE: "No local", WORK_STARTED: "Atendimento iniciado", IN_PROGRESS: "Em execução" };
+const businessTimeZone = "America/Sao_Paulo";
+const formatScheduledAt = (value: string | null) => value
+  ? new Intl.DateTimeFormat("pt-BR", { dateStyle: "short", timeStyle: "short", timeZone: businessTimeZone }).format(new Date(value))
+  : "A definir";
 
 export default async function FieldPage({ searchParams }: PageProps) {
   const [{ supabase, user }, { message }] = await Promise.all([requireUser(), searchParams]);
@@ -52,7 +56,7 @@ export default async function FieldPage({ searchParams }: PageProps) {
   if (materialError || usageError || evidenceError) throw new Error("Não foi possível carregar materiais e evidências.");
 
   return <section className="mx-auto max-w-5xl p-5 sm:p-8">
-    <OneitPageHeader eyebrow="Campo" title="Minha agenda" description="Atendimentos atribuídos, deslocamento e execução da OS." />
+    <OneitPageHeader eyebrow="Campo" title="Agenda Técnicos" description="Atendimentos atribuídos, deslocamento e execução da OS." />
     <OfflineQueue ownerId={user.id} />
     <OfflineMaterialQueue ownerId={user.id} />
     <SaveOfflineAgenda agenda={agendaSchema.parse({ ownerId: user.id, fetchedAt: new Date().toISOString(), tickets: (tickets ?? []).map((ticket) => {
@@ -72,7 +76,7 @@ export default async function FieldPage({ searchParams }: PageProps) {
       const ticketEvidence = (evidences ?? []).filter((item) => item.ticket_id === ticket.id);
       return <article className={`rounded-xl border border-slate-200 border-l-4 bg-white p-5 shadow-sm ${ticket.operational_status === "IN_PROGRESS" ? "border-l-sky-700" : ticket.operational_status === "ON_SITE" ? "border-l-amber-500" : "border-l-slate-300"}`} key={ticket.id}>
         <div className="flex flex-wrap items-start justify-between gap-3"><div><p className="text-sm font-medium text-sky-900">{ticket.ticket_number}</p><h2 className="mt-1 text-lg font-semibold text-slate-950">{ticket.title}</h2></div><OneitStatusBadge tone={ticket.operational_status === "IN_PROGRESS" ? "info" : ticket.operational_status === "ON_SITE" ? "warning" : "neutral"}>{statusLabels[ticket.operational_status] ?? ticket.operational_status}</OneitStatusBadge></div>
-        <div className="mt-3 flex flex-wrap gap-x-5 gap-y-1 text-xs text-slate-500"><span>Agendado: <strong className="font-semibold text-slate-700">{ticket.scheduled_at ? new Date(ticket.scheduled_at).toLocaleString("pt-BR") : "A definir"}</strong></span><span>Próxima ação: <strong className="font-semibold text-slate-700">{action?.[1] ?? "Registrar execução"}</strong></span></div>
+        <div className="mt-3 flex flex-wrap gap-x-5 gap-y-1 text-xs text-slate-500"><span>Agendado: <strong className="font-semibold text-slate-700">{formatScheduledAt(ticket.scheduled_at)}</strong></span><span>Próxima ação: <strong className="font-semibold text-slate-700">{action?.[1] ?? "Registrar execução"}</strong></span></div>
         {ticket.administrative_status === "RETURNED_TO_TECHNICIAN" ? <p className="mt-3 rounded bg-amber-100 p-3 text-sm">Correção solicitada: {(reviews ?? []).find((review) => review.ticket_id === ticket.id)?.reason}</p> : null}
         <JourneyTimeline status={ticket.operational_status} history={ticketHistory} evidenceCount={ticketEvidence.length} />
         {action ? <CheckInForm ticketId={ticket.id} ownerId={user.id} version={ticket.version} eventType={action[0]} label={action[1]} /> :

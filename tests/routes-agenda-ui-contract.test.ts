@@ -14,7 +14,7 @@ describe("field service daily planning UI", () => {
     expect(routes).toContain("Tarde");
     expect(routes).toContain("Noite");
     expect(routes).toContain("timeZone: businessTimeZone");
-    expect(routes).toContain("/portal/tickets?ticket=");
+    expect(routes).not.toContain("/portal/tickets?ticket=");
   });
 
   it("renders scheduled appointments by technician and day with distinct colors", () => {
@@ -24,7 +24,7 @@ describe("field service daily planning UI", () => {
     expect(scheduling).toContain('from("service_orders")');
     expect(scheduling).toContain("agendaEntries");
     expect(scheduling).toContain("technicianColorById");
-    expect(scheduling).toContain("/portal/tickets?ticket=");
+    expect(scheduling).not.toContain("/portal/tickets?ticket=");
   });
 
   it("visually emphasizes pending dispatch statuses", () => {

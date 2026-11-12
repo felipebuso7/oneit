@@ -1,5 +1,7 @@
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 vi.mock("server-only", () => ({}));
+const storage = vi.hoisted(() => ({ list: vi.fn() }));
+vi.mock("@/lib/supabase/storage-admin", () => ({ createStorageAdmin: () => storage }));
 import { GET } from "@/app/api/ready/route";
 
 const original = { ...process.env };
@@ -12,12 +14,46 @@ afterEach(() => {
 });
 
 describe("endpoint de prontidão", () => {
+  beforeEach(() => { storage.list.mockReset(); });
+
+  describe("verificação de armazenamento Supabase", () => {
+    beforeEach(() => {
+      process.env.ONEIT_DEPLOYMENT_MODE = "supabase";
+      process.env.NEXT_PUBLIC_SUPABASE_URL = "https://example.supabase.co";
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = "anon";
+      process.env.SUPABASE_SERVICE_ROLE_KEY = "test-only";
+    });
+
+    it("confirma prontidão quando o provedor permite listar o bucket", async () => {
+      storage.list.mockResolvedValue({ data: [], error: null });
+      const response = await GET(new Request("https://oneit.test/api/ready?storage=1"));
+      expect(response.status).toBe(200);
+      expect(await response.json()).toEqual({ status: "ready", deploymentMode: "supabase", storage: "ready" });
+      expect(storage.list).toHaveBeenCalledWith("", { limit: 1 });
+    });
+
+    it.each(["provider", "exception"])("retorna 503 sem expor detalhes sensíveis: %s", async (failure) => {
+      const sensitive = "private-bucket provider credentials";
+      if (failure === "provider") storage.list.mockResolvedValue({ error: { message: sensitive } });
+      else storage.list.mockRejectedValue(new Error(sensitive));
+      const response = await GET(new Request("https://oneit.test/api/ready?storage=1"));
+      expect(response.status).toBe(503);
+      expect(response.headers.get("cache-control")).toBe("no-store");
+      expect(await response.json()).toEqual({ status: "not_ready", deploymentMode: "supabase", storage: "error" });
+    });
+
+    it("não consulta armazenamento sem pedido explícito", async () => {
+      expect((await GET(new Request("https://oneit.test/api/ready"))).status).toBe(200);
+      expect(storage.list).not.toHaveBeenCalled();
+    });
+  });
+
   it("retorna 503 sem as credenciais públicas mínimas", async () => {
     delete process.env.ONEIT_DEPLOYMENT_MODE;
     delete process.env.NEXT_PUBLIC_SUPABASE_URL;
     delete process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
-    const response = await GET();
+    const response = await GET(new Request("https://oneit.test/api/ready"));
     expect(response.status).toBe(503);
     const body = await response.json();
     expect(body).toMatchObject({ status: "not_ready", deploymentMode: "legacy" });
@@ -31,7 +67,7 @@ describe("endpoint de prontidão", () => {
     process.env.NEXT_PUBLIC_SUPABASE_URL = "https://example.supabase.co";
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = "anon";
 
-    const response = await GET();
+    const response = await GET(new Request("https://oneit.test/api/ready"));
     expect(response.status).toBe(200);
     expect(await response.json()).toMatchObject({ status: "ready", deploymentMode: "legacy" });
     expect(response.headers.get("cache-control")).toBe("no-store");
@@ -45,7 +81,7 @@ describe("endpoint de prontidão", () => {
     process.env.ONEIT_S3_ENDPOINT = "https://s3";
     delete process.env.ONEIT_S3_BUCKET;
 
-    const response = await GET();
+    const response = await GET(new Request("https://oneit.test/api/ready"));
     expect(response.status).toBe(503);
     const body = await response.json();
     expect(body).toMatchObject({ status: "not_ready", deploymentMode: "self_hosted" });
@@ -59,7 +95,7 @@ describe("endpoint de prontidão", () => {
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = "anon";
     delete process.env.SUPABASE_SERVICE_ROLE_KEY;
 
-    const response = await GET();
+    const response = await GET(new Request("https://oneit.test/api/ready"));
     expect(response.status).toBe(503);
     expect(await response.json()).toMatchObject({ status: "not_ready", deploymentMode: "supabase" });
   });

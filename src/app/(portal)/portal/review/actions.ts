@@ -1,6 +1,16 @@
 "use server";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { reviewOrderId } from "@/lib/field-service/review-navigation";
+
+// Navigation context only; authorization remains in the authenticated RPCs.
+function returnToReview(formData: FormData, href: string): never {
+  const value = formData.get("returnOrderId");
+  const orderId = reviewOrderId(typeof value === "string" ? value : undefined);
+  const query = new URLSearchParams(href.split("?")[1] ?? "");
+  if (orderId) query.set("order", orderId);
+  redirect(`/portal/review?${query.toString()}`);
+}
 import { requireUser } from "@/lib/auth/current-user";
 import { reviewSchema } from "@/lib/validation/completion";
 import { storeFieldServiceRtoPdf } from "@/lib/reports/store-field-service-rto";
@@ -39,13 +49,13 @@ export async function reviewFieldServiceOrder(formData: FormData) {
   const decision = String(formData.get("decision") ?? "");
   const reason = String(formData.get("reason") ?? "").trim();
   if (!/^[0-9a-f-]{36}$/i.test(queueId) || !["APPROVE", "RETURN"].includes(decision) || reason.length < 10 || reason.length > 2000) {
-    redirect("/portal/review?message=Informe+uma+decisão+e+uma+justificativa+de+ao+menos+10+caracteres.");
+    returnToReview(formData, "/portal/review?message=Informe+uma+decisão+e+uma+justificativa+de+ao+menos+10+caracteres.");
   }
   const { supabase } = await requireUser();
   const { error } = await supabase.rpc("review_field_service_order", { target_queue_id: queueId, target_decision: decision, target_reason: reason });
-  if (error) redirect(`/portal/review?message=${encodeURIComponent(reviewMessage(error.message))}`);
+  if (error) returnToReview(formData, `/portal/review?message=${encodeURIComponent(reviewMessage(error.message))}`);
   revalidatePath("/portal/review"); revalidatePath("/portal/service-orders"); revalidatePath("/portal/field-service"); revalidatePath("/portal/tickets");
-  redirect("/portal/review?message=Validação+da+OS+registrada.");
+  returnToReview(formData, "/portal/review?message=Validação+da+OS+registrada.");
 }
 
 export async function addFieldServiceOrderLpuLine(formData: FormData) {
@@ -53,21 +63,23 @@ export async function addFieldServiceOrderLpuLine(formData: FormData) {
   const lpuItemId = String(formData.get("lpuItemId") ?? "");
   const quantity = Number(formData.get("quantity"));
   if (!/^[0-9a-f-]{36}$/i.test(serviceOrderId) || !/^[0-9a-f-]{36}$/i.test(lpuItemId) || !Number.isFinite(quantity) || quantity <= 0) {
-    redirect("/portal/review?message=Informe+um+item+LPU+e+uma+quantidade+válida.");
+    returnToReview(formData, "/portal/review?message=Informe+um+item+LPU+e+uma+quantidade+válida.");
   }
   const { supabase } = await requireUser();
   const { error } = await supabase.rpc("add_field_service_order_lpu_line", { target_service_order_id: serviceOrderId, target_lpu_item_id: lpuItemId, target_quantity: quantity });
-  if (error) redirect(`/portal/review?message=${encodeURIComponent(error.message.includes("LPU") ? "Item LPU inválido ou incompatível com a organização." : "Não foi possível lançar o item LPU.")}`);
+  if (error) returnToReview(formData, `/portal/review?message=${encodeURIComponent(error.message.includes("LPU") ? "Item LPU inválido ou incompatível com a organização." : "Não foi possível lançar o item LPU.")}`);
   revalidatePath("/portal/review"); revalidatePath("/portal/field-service");
-  redirect("/portal/review?message=Item+LPU+lançado+na+OS.");
+  returnToReview(formData, "/portal/review?message=Item+LPU+lançado+na+OS.");
 }
 
 export async function addFieldServiceOrderLpuComposition(formData: FormData) {
   const serviceOrderId = String(formData.get("serviceOrderId") ?? "");
   const compositionId = String(formData.get("compositionId") ?? "");
   const quantity = Number(formData.get("quantity"));
-  if (!/^[0-9a-f-]{36}$/i.test(serviceOrderId) || !/^[0-9a-f-]{36}$/i.test(compositionId) || !Number.isFinite(quantity) || quantity <= 0) {
-    redirect("/portal/review?message=Informe+uma+composição+LPU+e+uma+quantidade+válida.");
+  if (!/^[0-9a-f-]{36}$/i.test(serviceOrderId) || !/^[0-9a-f-]{36}$/i.test(compositionId)
+    || !Number.isFinite(quantity) || quantity <= 0 || quantity > 100000
+    || Math.abs(quantity * 1000 - Math.round(quantity * 1000)) > 0.000001) {
+    returnToReview(formData, "/portal/review?message=Informe+uma+composição+LPU+e+uma+quantidade+válida.");
   }
   const { supabase } = await requireUser();
   const { error } = await supabase.rpc("add_field_service_order_lpu_composition", {
@@ -75,17 +87,24 @@ export async function addFieldServiceOrderLpuComposition(formData: FormData) {
     target_composition_id: compositionId,
     target_quantity: quantity,
   });
-  if (error) redirect(`/portal/review?message=${encodeURIComponent(error.message.includes("LPU") ? "Composição LPU inválida ou incompatível com a organização." : "Não foi possível lançar a composição LPU.")}`);
+  if (error) {
+    const message = error.message.includes("ALREADY_APPLIED") ? "Esta composição já foi aplicada à OS."
+      : error.message.includes("ITEM_ALREADY_PRICED") ? "Um item da composição já foi lançado na OS. Revise a LPU antes de continuar."
+        : error.message.includes("INVALID_QUANTITY") ? "A quantidade da composição é inválida ou excede o limite."
+          : error.message.includes("LPU") ? "Composição LPU inválida ou incompatível com a organização."
+            : "Não foi possível lançar a composição LPU.";
+    returnToReview(formData, `/portal/review?message=${encodeURIComponent(message)}`);
+  }
   revalidatePath("/portal/review"); revalidatePath("/portal/field-service");
-  redirect("/portal/review?message=Composição+LPU+lançada+na+OS.");
+  returnToReview(formData, "/portal/review?message=Composição+LPU+lançada+na+OS.");
 }
 
 export async function generateFieldServiceRto(formData: FormData) {
   const queueId = String(formData.get("queueId") ?? "");
-  if (!/^[0-9a-f-]{36}$/i.test(queueId)) redirect("/portal/review?message=Fila+de+RTO+inválida.");
+  if (!/^[0-9a-f-]{36}$/i.test(queueId)) returnToReview(formData, "/portal/review?message=Fila+de+RTO+inválida.");
   const { supabase } = await requireUser();
   const { data, error } = await supabase.rpc("generate_field_service_rto", { target_queue_id: queueId });
-  if (error) redirect(`/portal/review?message=${encodeURIComponent(error.message.includes("RTO_REVIEW_REQUIRED") ? "A OS precisa ser aprovada antes de gerar o RTO." : error.message.includes("RTO_DATA_INCOMPLETE") ? "Faltam dados do atendimento técnico para gerar o RTO." : "Não foi possível gerar o RTO.")}`);
+  if (error) returnToReview(formData, `/portal/review?message=${encodeURIComponent(error.message.includes("RTO_REVIEW_REQUIRED") ? "A OS precisa ser aprovada antes de gerar o RTO." : error.message.includes("RTO_DATA_INCOMPLETE") ? "Faltam dados do atendimento técnico para gerar o RTO." : "Não foi possível gerar o RTO.")}`);
   try {
     await storeFieldServiceRtoPdf(supabase, data);
   } catch (cause) {
@@ -94,7 +113,7 @@ export async function generateFieldServiceRto(formData: FormData) {
     // code for Vercel diagnostics. Do not log snapshot contents or credentials.
     console.error("[RTO] PDF persistence failed", { code, reportId: data });
     if (code === "RTO_DOWNLOAD_UNAVAILABLE") {
-      redirect("/portal/review?message=O+RTO+foi+gerado,+mas+o+download+não+ficou+disponível.+Verifique+o+armazenamento+antes+de+encerrar.");
+      returnToReview(formData, "/portal/review?message=O+RTO+foi+gerado,+mas+o+download+não+ficou+disponível.+Verifique+o+armazenamento+antes+de+encerrar.");
     }
     const message = code === "RTO_SNAPSHOT_UNAVAILABLE"
       ? "O snapshot do RTO não pôde ser lido. Atualize a fila e tente novamente."
@@ -105,10 +124,10 @@ export async function generateFieldServiceRto(formData: FormData) {
         : code === "RTO_REGISTER_FAILED"
           ? "O PDF foi enviado, mas não foi possível registrar o arquivo no RTO. Tente novamente."
           : "O RTO foi registrado, mas o PDF não foi salvo. Tente novamente.";
-    redirect(`/portal/review?message=${encodeURIComponent(message)}`);
+    returnToReview(formData, `/portal/review?message=${encodeURIComponent(message)}`);
   }
   revalidatePath("/portal/review"); revalidatePath("/portal/field-service-reports"); revalidatePath("/portal/field-service");
-  redirect(`/portal/review?message=RTO+e+PDF+gerados%3A+${data}`);
+  returnToReview(formData, `/portal/review?message=RTO+e+PDF+gerados%3A+${data}`);
 }
 
 export async function closeFieldServiceTicket(formData: FormData) {
@@ -121,7 +140,7 @@ export async function closeFieldServiceTicket(formData: FormData) {
   if (!/^[0-9a-f-]{36}$/i.test(ticketId) || !/^[0-9a-f-]{36}$/i.test(reportId)
     || !Number.isInteger(version) || version < 1 || reason.length < 10 || reason.length > 2000
     || exceptionReason.length < 10 || exceptionReason.length > 2000 || !exceptionAcknowledged) {
-    redirect("/portal/review?message=Informe+o+parecer+e+reconheça+a+pendência+de+sincronização+externa.");
+    returnToReview(formData, "/portal/review?message=Informe+o+parecer+e+reconheça+a+pendência+de+sincronização+externa.");
   }
   const { supabase } = await requireUser();
   const { error } = await supabase.rpc("close_field_service_ticket", {
@@ -132,7 +151,7 @@ export async function closeFieldServiceTicket(formData: FormData) {
     target_exception_reason: exceptionReason,
     exception_acknowledged: exceptionAcknowledged,
   });
-  if (error) redirect(`/portal/review?message=${encodeURIComponent(closureMessage(error.message))}`);
+  if (error) returnToReview(formData, `/portal/review?message=${encodeURIComponent(closureMessage(error.message))}`);
   revalidatePath("/portal/review"); revalidatePath("/portal/tickets"); revalidatePath("/portal/field"); revalidatePath("/portal/field-service");
-  redirect("/portal/review?message=RTO+validado+e+chamado+encerrado.");
+  returnToReview(formData, "/portal/review?message=RTO+validado+e+chamado+encerrado.");
 }

@@ -54,3 +54,6 @@ next-env.d.ts
 # Local browser profiles and named build-validation outputs
 /.edge-*/
 /.next-*/
+
+.vercel
+.env*

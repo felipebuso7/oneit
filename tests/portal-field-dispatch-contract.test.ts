@@ -8,6 +8,8 @@ const caseFile = readFileSync("src/app/(portal)/portal/tickets/[id]/page.tsx", "
 const publicPartner = readFileSync("src/app/field-service/partner/page.tsx", "utf8");
 const securePartner = readFileSync("src/components/field-service/secure-partner-page.tsx", "utf8");
 const dispatchApi = readFileSync("src/app/api/field-service/dispatch/route.ts", "utf8");
+const portalHome = readFileSync("src/app/(portal)/portal/page.tsx", "utf8");
+const fieldAgenda = readFileSync("src/app/(portal)/portal/field/page.tsx", "utf8");
 
 describe("despacho do portal", () => {
   it("exibe feedback de despacho e prepara WhatsApp com o contato do técnico", () => {
@@ -24,6 +26,12 @@ describe("despacho do portal", () => {
     expect(workspace).not.toContain("/portal/field-service`");
     expect(page).toContain("phone,mobile");
     expect(page).toContain("initialTicketId");
+    expect(page).toContain('title="Agendamento de OS"');
+    expect(page).not.toContain('title="Central Field Service"');
+    expect(page).toContain("Não foi possível carregar o agendamento de OS.");
+    expect(portalHome).toContain("Abrir Agendamento de OS");
+    expect(fieldAgenda).toContain('title="Agenda Técnicos"');
+    expect(fieldAgenda).toContain('timeZone: businessTimeZone');
     expect(tickets).toContain("Agendar visita");
     expect(tickets).toContain("/portal/field-service?ticket=");
     expect(tickets).toContain("Validar OS");
@@ -33,6 +41,7 @@ describe("despacho do portal", () => {
     expect(caseFile).toContain("awaitingValidation");
     expect(caseFile).toContain("Validar OS");
     expect(caseFile).toContain("Aguardando validação");
+    expect(caseFile).toContain("administrativeLabel");
     expect(publicPartner).not.toContain("/demo/");
     expect(publicPartner).toContain("SecurePartnerPage");
     expect(securePartner).toContain("/api/field-service/partner/context");

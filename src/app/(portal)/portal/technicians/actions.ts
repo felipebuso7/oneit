@@ -63,8 +63,8 @@ export async function updateTechnician(formData: FormData) {
   if (!parsed.success) redirect("/portal/technicians?message=Dados do técnico inválidos.");
   const { supabase } = await requireUser();
   const { data: technician, error } = await supabase.from("technicians").update({
-    full_name: parsed.data.fullName, email: parsed.data.email, phone: parsed.data.phone,
-    employment_type: parsed.data.employmentType, base_city: parsed.data.baseCity, primary_region_id: parsed.data.primaryRegionId,
+    full_name: parsed.data.fullName, email: parsed.data.email ?? null, phone: parsed.data.phone ?? null,
+    employment_type: parsed.data.employmentType, base_city: parsed.data.baseCity ?? null, primary_region_id: parsed.data.primaryRegionId ?? null,
   }).eq("id", parsed.data.technicianId).eq("organization_id", parsed.data.organizationId)
     .select("id,full_name,email,phone,employment_type,organization_id,active").single();
   if (error || !technician) redirect("/portal/technicians?message=Não foi possível atualizar o técnico.");

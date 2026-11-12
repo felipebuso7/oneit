@@ -3,8 +3,7 @@ import { createStorageAdmin } from "@/lib/supabase/storage-admin";
 
 export const dynamic = "force-dynamic";
 
-export async function GET() {
-  const request = arguments[0] as Request | undefined;
+export async function GET(request: Request) {
   const selfHosted = process.env.ONEIT_DEPLOYMENT_MODE === "self_hosted";
   const supabase = process.env.ONEIT_DEPLOYMENT_MODE === "supabase";
   const deploymentMode = selfHosted ? "self_hosted" : supabase ? "supabase" : "legacy";
@@ -34,18 +33,18 @@ export async function GET() {
     );
   }
 
-  const storageCheck = new URL(request?.url ?? "http://localhost").searchParams.get("storage") === "1";
+  const storageCheck = new URL(request.url).searchParams.get("storage") === "1";
   if (storageCheck && supabase) {
     try {
       const { error } = await createStorageAdmin("ticket-evidences").list("", { limit: 1 });
       return Response.json(
-        { status: "ready", deploymentMode, storage: error ? "error" : "ready" },
-        { headers: { "Cache-Control": "no-store" } },
+        { status: error ? "not_ready" : "ready", deploymentMode, storage: error ? "error" : "ready" },
+        { status: error ? 503 : 200, headers: { "Cache-Control": "no-store" } },
       );
     } catch {
       return Response.json(
-        { status: "ready", deploymentMode, storage: "error" },
-        { headers: { "Cache-Control": "no-store" } },
+        { status: "not_ready", deploymentMode, storage: "error" },
+        { status: 503, headers: { "Cache-Control": "no-store" } },
       );
     }
   }

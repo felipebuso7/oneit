@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { fieldStage, isInField } from "@/domain/dashboard/field-stage";
 import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 import { isShareableAccessLink, whatsappRecipient } from "@/lib/field-service/dispatch-sharing";
@@ -140,9 +141,10 @@ export function DispatchWorkspace({ tickets, orders, technicians, locations, loc
   return <div className="mt-6 space-y-5">
     {unlinkedTechnicians > 0 ? <div role="status" className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-950"><span><strong>{unlinkedTechnicians} vínculo(s) legado(s) precisam ser regularizados.</strong> O despacho pode usar o técnico operacional ativo, mas revise o cadastro para completar a fonte administrativa.</span><Link href="/portal/technicians" className="font-semibold underline">Revisar cadastros</Link></div> : null}
     {waiting.length > 0 && !technicians.length && unavailableTechnicians > 0 ? <div role="alert" className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-950"><span><strong>Nenhum técnico está disponível para despacho.</strong> Existem {unavailableTechnicians} técnico(s) vinculado(s), mas com status indisponível. Habilite o despacho no cadastro antes de agendar.</span><Link href="/portal/technicians" className="font-semibold underline">Abrir técnicos</Link></div> : null}
-    <div className="grid gap-3 sm:grid-cols-3" aria-label="Indicadores de Field Service">
+    <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4" aria-label="Indicadores de Field Service">
       <Metric label="Aguardando despacho" count={waiting.length} />
-      <Metric label="Em campo" count={active.length} />
+      <Metric label="Agendadas" count={active.filter((order) => fieldStage(order.status, "order") === "scheduled").length} />
+      <Metric label="Em campo" count={active.filter((order) => isInField(order.status, "order")).length} />
       <Link href="/portal/review" className="rounded-xl border border-slate-200 bg-white p-4 hover:border-sky-300"><span className="block text-sm text-slate-600">Aguardando validação</span><strong className="mt-1 block text-2xl text-slate-900">{pendingReviews.length}</strong></Link>
     </div>
     {message ? <p role="status" aria-live="polite" className="rounded-lg bg-sky-50 p-3 text-sm text-sky-950">{message}</p> : null}
@@ -172,7 +174,7 @@ export function DispatchWorkspace({ tickets, orders, technicians, locations, loc
         </form>}
       </aside>
     </div>
-    <section className="rounded-xl border border-slate-200 bg-white p-4"><div className="flex flex-wrap items-center justify-between gap-2"><h2 className="font-semibold">Atendimentos em campo</h2><Link href="/portal/routes" className="text-sm font-semibold text-sky-900 hover:underline">Ver rotas</Link></div>{active.length ? <ul className="mt-3 divide-y divide-slate-100">{active.slice(0, 30).map((order) => { const ticket = tickets.find((item) => item.id === order.ticket_id); return <li key={order.id} className="flex flex-wrap items-center justify-between gap-2 py-3 text-sm"><span><strong>{order.order_number}</strong> · {ticket?.title ?? "Chamado associado"}<span className="ml-2 text-slate-500">{techniciansById.get(order.technician_id ?? "")?.full_name ?? "Técnico não identificado"}</span></span><span className="text-slate-600">{statusLabel[order.status] ?? order.status}</span></li>; })}</ul> : <p className="mt-3 text-sm text-slate-600">Nenhuma OS em campo agora.</p>}</section>
+    <section className="rounded-xl border border-slate-200 bg-white p-4"><div className="flex flex-wrap items-center justify-between gap-2"><h2 className="font-semibold">Visitas agendadas e em campo</h2><Link href="/portal/routes" className="text-sm font-semibold text-sky-900 hover:underline">Ver rotas</Link></div>{active.length ? <ul className="mt-3 divide-y divide-slate-100">{active.slice(0, 30).map((order) => { const ticket = tickets.find((item) => item.id === order.ticket_id); return <li key={order.id} className="flex flex-wrap items-center justify-between gap-2 py-3 text-sm"><span><strong>{order.order_number}</strong> · {ticket?.title ?? "Chamado associado"}<span className="ml-2 text-slate-500">{techniciansById.get(order.technician_id ?? "")?.full_name ?? "Técnico não identificado"}</span></span><span className="text-slate-600">{statusLabel[order.status] ?? order.status}</span></li>; })}</ul> : <p className="mt-3 text-sm text-slate-600">Nenhuma visita agendada ou em campo agora.</p>}</section>
   </div>;
 }
 

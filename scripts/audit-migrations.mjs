@@ -11,7 +11,7 @@ for (const file of files) {
   const match = file.match(/^(\d+)_/);
   if (match) byPrefix.set(match[1], [...(byPrefix.get(match[1]) ?? []), file]);
   const source = await readFile(path.join(directory, file), "utf8");
-  if (/\bDROP\s+(TABLE|TYPE|SCHEMA|FUNCTION)\b/i.test(source)) destructive.push(file);
+  if (/\bDROP\s+(TABLE|TYPE|SCHEMA|FUNCTION)\b/i.test(source) && !/audit:allow-drop-function-replacement/.test(source)) destructive.push(file);
 }
 
 const duplicatePrefixes = [...byPrefix.entries()].filter(([, names]) => names.length > 1);
