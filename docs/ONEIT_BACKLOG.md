@@ -8,7 +8,7 @@
 
 - Executar E2E autenticado do ciclo chamado → agendamento → técnico → validação → RTO/BM. Contratos automatizados aprovados; validação dinâmica ainda pendente. **Smoke autenticado em produção confirmado em 12/11/2026:** `/portal/review` carregou 2 OS aprovadas, uma com RTO pendente e outra com RTO baixável/encerramento disponível; isso não substitui o ciclo completo.
 - Confirmar em ambiente autenticado que os filtros de organização não expõem dados entre tenants.
-- Validar tecnicamente upload de evidências e armazenamento do RTO com dados sintéticos. Contratos automatizados aprovados; teste real de storage ainda pendente.
+- Validar tecnicamente upload de evidências e armazenamento do RTO com dados sintéticos. Contratos automatizados aprovados; endpoint de prontidão de produção respondeu `200 {status:"ready", deploymentMode:"supabase"}` em 12/11/2026, mas ainda falta um upload sintético real autenticado.
 
 ## P2
 
