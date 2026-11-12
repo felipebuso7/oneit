@@ -25,4 +25,10 @@ describe("contratos do Design System OneIT", () => {
     expect(components[4]).toContain("OneitStatusBadge");
     expect(components.join("\n")).toMatch(/var\(--oneit-|oneit-(btn|card|page-header|data-table)/);
   });
+
+  it("mantém a composição profissional da fila de chamados", () => {
+    expect(css).toContain('[aria-label="Fila de chamados"] > div:first-child');
+    expect(css).toContain('[aria-label="Fila de chamados"] [data-oneit-data-table] thead');
+    expect(css).toContain("box-shadow: inset 3px 0 0 var(--oneit-petrol-700)");
+  });
 });

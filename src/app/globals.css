@@ -208,6 +208,40 @@ textarea {
 [data-oneit-data-table] tbody tr:focus-within { background: #eef8fa; }
 [data-oneit-data-table] td { vertical-align: middle; }
 
+/* Redesign estrutural da fila: a barra de contexto e os filtros funcionam como
+   uma única ferramenta de trabalho, enquanto a tabela mantém densidade sem
+   aparência de formulário empilhado. */
+[aria-label="Fila de chamados"] > div:first-child {
+  background: linear-gradient(120deg, #ffffff 0%, #f7fbfd 100%);
+}
+[aria-label="Fila de chamados"] > div:first-child h2 {
+  font-size: 18px;
+  letter-spacing: -0.02em;
+}
+[aria-label="Fila de chamados"] > div:first-child input,
+[aria-label="Fila de chamados"] > div:first-child select {
+  min-height: 42px;
+  border-color: #cbd8df;
+  background: #fff;
+  box-shadow: 0 1px 2px rgb(15 23 42 / 0.04);
+}
+[aria-label="Fila de chamados"] [data-oneit-data-table] thead {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  box-shadow: 0 1px 0 var(--oneit-line);
+}
+[aria-label="Fila de chamados"] [data-oneit-data-table] tbody tr {
+  border-bottom: 1px solid #edf1f3;
+}
+[aria-label="Fila de chamados"] [data-oneit-data-table] tbody tr:hover {
+  background: #f2f8fa;
+  box-shadow: inset 3px 0 0 var(--oneit-petrol-700);
+}
+[aria-label="Fila de chamados"] [data-oneit-data-table] td:first-child {
+  padding-left: 16px;
+}
+
 /* Acesso externo do técnico: as marcas precisam ser reconhecíveis em telas móveis. */
 img[alt="Servicia Facilities Services"] { height: 40px !important; width: auto !important; max-width: 52% !important; object-fit: contain; object-position: right center; }
 img[alt="OneIT"] { height: 48px !important; width: auto !important; max-width: 48% !important; object-fit: contain; }
