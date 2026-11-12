@@ -14,7 +14,7 @@
 
 - Revisar visualmente todas as telas operacionais em viewport estreito.
 - Consolidar tokens e estados de tabelas, filtros, formulários e mensagens.
-- Comparar dados cadastrais de LPU com o tipo exibido na interface.
+- ~~Comparar dados cadastrais de LPU com o tipo exibido na interface.~~ **Verificado neste lote:** API, UI e migrations usam `kind`, `unit`, `unit_price`, vigência e `active` de forma consistente; 14 testes de CRUD/composição/validação aprovados.
 
 ## P3
 

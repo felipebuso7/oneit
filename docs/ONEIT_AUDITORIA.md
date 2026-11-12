@@ -20,4 +20,5 @@
 - O commit `fdfed79` e o registro posterior `3aee6a3` foram enviados para `main`; os deployments de produção ficaram **Ready**. O domínio oficial foi recarregado e confirmou a nomenclatura atualizada no portal.
 - Conexão Git concluída pelo painel Vercel e confirmada pelo disparo automático dos deployments das branches `prep/cloud-staging` e `main`.
 - Verificação dinâmica sem mutação no domínio oficial: fila de chamados com 6 registros, agendamento com 2 visitas e revisão com RTO pendente/disponível foram renderizados no portal autenticado; nenhuma rota `/demo` foi usada.
+- LPU: contrato entre UI, APIs e migrations confirmado (`kind`, `unit`, `unit_price`, vigência e `active`); testes de CRUD e composição aprovados.
 - Dados observados em produção devem ser confirmados antes de qualquer correção cadastral.
