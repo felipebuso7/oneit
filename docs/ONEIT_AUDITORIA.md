@@ -17,4 +17,6 @@
 - Não há evidência de E2E completo nesta rodada.
 - Não foram feitas alterações no banco, migrations ou produção.
 - Verificação dinâmica: a produção está acessível e autenticada, porém ainda serve o texto antigo “Abrir Central Field Service” na home; isso confirma que as correções locais ainda aguardam publicação.
+- Vercel: deployment de produção pronto, porém criado anteriormente; branch `prep/cloud-staging` também mostra preview antigo. O projeto ainda solicita conexão Git, então não há evidência de integração automática ativa.
+- Conexão Git concluída pelo painel Vercel. O novo build do commit `3cde5f6` foi criado e estava em andamento na última consulta; resultado final ainda não verificado.
 - Dados observados em produção devem ser confirmados antes de qualquer correção cadastral.

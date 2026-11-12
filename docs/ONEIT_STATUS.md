@@ -19,6 +19,8 @@ Atualizado em 12/11/2026.
 - O worktree possui alterações anteriores do projeto; não fazer limpeza destrutiva.
 - Produção não foi publicada nesta rodada.
 - Verificação dinâmica em `https://oneit-omega.vercel.app/portal` confirmou sessão autenticada e menu atualizado, mas o atalho da home ainda aparece publicado como “Abrir Central Field Service”; a correção local “Abrir Agendamento de OS” ainda não está refletida em produção.
+- Vercel confirmou que o deployment de produção e o preview `prep/cloud-staging` ainda são antigos; o projeto mostra recomendação “Connect Git”, portanto o push não disparou novo deployment automaticamente.
+- GitHub foi conectado ao projeto Vercel (`felipebuso7/oneit`). O commit `3cde5f6` disparou o deployment `oneit-i7hwc6xzy-okaa1.vercel.app`, ainda em estado `Building` na última verificação.
 - Validações dinâmicas dependem de sessão autenticada e não substituem E2E completo.
 
 ## Próxima ação
