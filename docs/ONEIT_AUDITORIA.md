@@ -21,4 +21,5 @@
 - Conexão Git concluída pelo painel Vercel e confirmada pelo disparo automático dos deployments das branches `prep/cloud-staging` e `main`.
 - Verificação dinâmica sem mutação no domínio oficial: fila de chamados com 6 registros, agendamento com 2 visitas e revisão com RTO pendente/disponível foram renderizados no portal autenticado; nenhuma rota `/demo` foi usada.
 - LPU: contrato entre UI, APIs e migrations confirmado (`kind`, `unit`, `unit_price`, vigência e `active`); testes de CRUD e composição aprovados.
+- Isolamento portal/demo: teste estrutural aprovado para impedir armazenamento local ou fallback demonstrativo nas rotas autenticadas; validação de tenant em duas contas ainda depende de sessão sintética separada.
 - Dados observados em produção devem ser confirmados antes de qualquer correção cadastral.
