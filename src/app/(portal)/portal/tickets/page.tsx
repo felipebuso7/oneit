@@ -17,7 +17,7 @@ export default async function TicketsPage({ searchParams }: PageProps) {
     organizationIds.length ? supabase.from("service_categories").select("id, organization_id, name").in("organization_id", organizationIds).eq("active", true).order("name") : Promise.resolve({ data: [] }),
     organizationIds.length ? supabase.from("collaborators").select("id, organization_id, full_name").in("organization_id", organizationIds).eq("status", "ACTIVE").order("full_name") : Promise.resolve({ data: [] }),
     organizationIds.length ? supabase.from("organization_units").select("id, organization_id, name").in("organization_id", organizationIds).eq("unit_type", "DEPARTMENT").eq("active", true).order("name") : Promise.resolve({ data: [] }),
-    organizationIds.length ? supabase.from("tickets").select("id, ticket_number, servicenow_number, customer_id, location_id, title, ticket_type, priority, operational_status, administrative_status, created_at, category_code, service_type_code, version").in("organization_id", organizationIds).order("created_at", { ascending: false }).limit(500) : Promise.resolve({ data: [], error: null }),
+    organizationIds.length ? supabase.from("tickets").select("id, ticket_number, servicenow_number, customer_id, location_id, assigned_technician_id, scheduled_at, title, ticket_type, priority, operational_status, administrative_status, created_at, category_code, service_type_code, version").in("organization_id", organizationIds).order("created_at", { ascending: false }).limit(500) : Promise.resolve({ data: [], error: null }),
   ]);
   // O catálogo é hierárquico. Carregar os níveis inferiores sem restringir pelos
   // IDs do nível anterior permitia que opções de outra organização aparecessem
@@ -31,6 +31,9 @@ export default async function TicketsPage({ searchParams }: PageProps) {
   const { data: offerings } = subcategoryIds.length
     ? await supabase.from("service_offerings").select("id, subcategory_id, code, name").in("subcategory_id", subcategoryIds).eq("active", true).order("name")
     : { data: [] };
+  const technicianIds = [...new Set((tickets ?? []).map((ticket) => ticket.assigned_technician_id).filter(Boolean))];
+  const { data: technicians } = technicianIds.length ? await supabase.from("technicians").select("id,full_name").in("id", technicianIds) : { data: [] };
+  const technicianById = new Map((technicians ?? []).map((technician) => [technician.id, technician.full_name]));
   const fieldProgressByTicket = await loadTicketFieldProgress(supabase, tickets ?? []);
   const ticketIds = (tickets ?? []).map((ticket) => ticket.id);
   const { data: serviceLevels } = ticketIds.length ? await supabase.from("ticket_service_levels").select("ticket_id,resolution_due_at").in("ticket_id", ticketIds) : { data: [] };
@@ -40,6 +43,6 @@ export default async function TicketsPage({ searchParams }: PageProps) {
   const locationById = new Map((locations ?? []).map((location) => [location.id, `${location.name} · ${location.city}`]));
 
   return <section className="oneit-page-shell mx-auto max-w-6xl p-5 sm:p-8"><div className="oneit-page-heading-row"><OneitPageHeader eyebrow="Operação" title="Chamados" description="Acompanhe a fila e abra solicitações pelo catálogo de serviços." /><TicketCreateFlow organizations={organizations} customers={customers} contracts={contracts ?? []} locations={locations ?? []} categories={categories ?? []} subcategories={subcategories ?? []} offerings={offerings ?? []} collaborators={collaborators ?? []} departments={departments ?? []} /></div>{message ? <p role="status" className="mt-4 rounded-lg border border-sky-200 bg-sky-50 p-3 text-sm text-sky-900">{message}</p> : null}{ticketsError ? <p role="alert" className="mt-4 rounded-lg border border-rose-200 bg-rose-50 p-3 text-sm text-rose-900">A fila não pôde ser carregada pelo banco de dados. Nenhum chamado foi descartado; atualize a tela ou verifique sua organização e permissão.</p> : null}
-    <TicketsTable tickets={(tickets ?? []).map((ticket) => ({ ...ticket, field_progress: fieldProgressByTicket.get(ticket.id) ?? null, customer_name: customerById.get(ticket.customer_id) ?? "Cliente não identificado", location_name: locationById.get(ticket.location_id) ?? "Local não informado", resolution_due_at: levelByTicketId.get(ticket.id) ?? null }))} />
+    <TicketsTable tickets={(tickets ?? []).map((ticket) => ({ ...ticket, technician_name: ticket.assigned_technician_id ? technicianById.get(ticket.assigned_technician_id) ?? "Técnico não encontrado" : null, field_progress: fieldProgressByTicket.get(ticket.id) ?? null, customer_name: customerById.get(ticket.customer_id) ?? "Cliente não identificado", location_name: locationById.get(ticket.location_id) ?? "Local não informado", resolution_due_at: levelByTicketId.get(ticket.id) ?? null }))} />
   </section>;
 }
