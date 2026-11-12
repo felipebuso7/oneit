@@ -168,6 +168,13 @@ textarea {
 .oneit-page-heading-row > .oneit-page-header { flex: 1 1 auto; }
 .oneit-page-heading-row > :not(.oneit-page-header) { align-self: center; }
 
+.oneit-filter-bar {
+  box-shadow: 0 1px 3px rgb(15 23 42 / 0.06);
+}
+.oneit-filter-bar label { color: var(--oneit-ink); }
+.oneit-filter-bar input,
+.oneit-filter-bar select { min-height: 42px; }
+
 .oneit-card {
   border: 1px solid var(--oneit-line);
   border-radius: 12px;
