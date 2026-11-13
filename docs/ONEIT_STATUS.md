@@ -383,5 +383,6 @@ Não foi aplicado bypass no frontend nem no Supabase. Chamados ainda não atendi
 - **Pendência de infraestrutura:** a migration ainda precisa ser aplicada no Supabase de produção e confirmada por consulta; não foi executada automaticamente para evitar alteração não verificada no banco real.
 - A fila foi ajustada no commit `a443108`: a ação deixa de ser desabilitada apenas pela existência de `field_progress`; permanece bloqueada somente para chamados administrativamente encerrados ou estados não canceláveis. O RPC continua sendo a autoridade final e rejeita conflitos de versão/permissão.
 - Teste direcionado: `tests/tickets-queue-ui-contract.test.ts` — **3/3 aprovados**. `git diff --check` limpo.
+- Teste adicional: `tests/ticket-cancel-after-execution.test.ts` junto ao contrato da fila — **2 arquivos / 5 testes aprovados**.
 - Publicação: commits locais `500ed76` e `a443108`; `git push`/deploy estão bloqueados nesta sessão por falha DNS ao resolver `github.com`.
 
