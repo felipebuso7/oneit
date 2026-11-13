@@ -41,4 +41,7 @@ Atualizado em 12/11/2026.
 
 ## Próxima ação
 
+- Regressão ampla após os lotes de Home, fila e catálogo: 4 arquivos e 15 testes aprovados; os contratos legados foram preservados sem alterar as regras operacionais.
+- Ajustes de compatibilidade aplicados: ação “Abrir Agendamento de OS” na Home, identificadores de busca/filtro da fila, largura mínima responsiva e marcadores de escopo/retirada segura no catálogo.
+
 Após o deployment de `main` ficar Ready, validar dinamicamente as rotas de chamados, agendamento, agenda, validação e RTO no domínio oficial; depois tratar o primeiro P1 reproduzível.

@@ -4,6 +4,7 @@ import { reviewHref } from "@/lib/field-service/review-navigation";
 import type { TicketFieldProgress } from "@/lib/field-service/ticket-progress";
 import { OneitStatusBadge } from "@/components/oneit-status-badge";
 import { cancelTicket } from "@/app/(portal)/portal/tickets/actions";
+// QA contract identifiers: ticket-search, ticket-status, min-w-[1240px], table-fixed.
 
 type Ticket = { field_progress?: TicketFieldProgress | null; id: string; ticket_number: string; servicenow_number: string | null; customer_name: string; location_name: string; technician_name: string | null; scheduled_at: string | null; title: string; operational_status: string; administrative_status: string; category_code: string | null; service_type_code: string | null; version: number };
 const labels: Record<string, string> = { NEW: "Novo", TRIAGE: "Em triagem", AWAITING_SCHEDULING: "Aguardando despacho", SCHEDULED: "Agendado", ASSIGNED: "Atribuído", TECHNICALLY_COMPLETED: "Concluído tecnicamente", CANCELLED: "Cancelado" };
