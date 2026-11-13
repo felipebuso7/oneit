@@ -60,5 +60,10 @@ Atualizado em 12/11/2026.
 - Login refinado com foco automático no campo de e-mail, reduzindo um toque na entrada e mantendo a ordem de teclado e o contrato de autenticação. Teste RBAC: 1 aprovado.
 - PDFs para cliente validados com dados sintéticos: BM renderizado em 2 páginas A4 com logos OneIT/Servicia, resumo identificado (item, quantidade e total), detalhamento da OS, valor geral e paginação; RTO renderizado em 2 páginas A4 com seções, cronologia, evidências em grade uniforme, LPU/materiais, aceite e assinaturas no fechamento. Ajuste de espaçamento aplicado no resumo do BM para evitar colisão entre cabeçalho e primeira linha.
 - Pós-publicação: regressão direcionada de Field Service, RTO e BM aprovada em 35 arquivos e 63 testes, sem falhas funcionais detectadas.
+- Produção confirmada no Vercel pelo commit `79ac3b1` com status Ready; `/api/ready?storage=1` respondeu `200` com `deploymentMode: supabase` e `storage: ready`.
+- Lote de segurança e isolamento revalidado: 5 arquivos e 11 testes aprovados para RBAC, isolamento `/demo`, elegibilidade de técnicos e integridade de relacionamentos entre organizações.
+- Suíte completa após a publicação: 165 arquivos e 392 testes aprovados, sem falhas automatizadas detectadas.
+- Verificação dinâmica read-only em produção (12/11/2026): `/portal/review` carregou autenticado, exibindo 0 OS aguardando validação, 2 OS aprovadas; uma com RTO pendente e outra com RTO versão 3 registrada e ação de encerramento disponível. Essa evidência confirma leitura/renderização do fluxo, mas não substitui a mutação autenticada do E2E.
+- Regressão direcionada pós-checkpoint: 4 arquivos e 14 testes aprovados (`field-service-rto-render`, `measurement-pdf-visual`, `portal-navigation`, `auth-rbac-contract`).
 
-Próxima ação: executar E2E autenticado do ciclo chamado → agendamento → técnico → validação → RTO/BM em homologação, registrando cada etapa como aprovado, reprovado ou bloqueado; não promover o preview para `main` antes dessa verificação.
+Próxima ação: executar E2E autenticado do ciclo chamado → agendamento → técnico → validação → RTO/BM em homologação, registrando cada etapa como aprovado, reprovado ou bloqueado. A produção já está promovida no commit `79ac3b1` (Ready); não declarar o ciclo completo até validar mutações autenticadas e upload real.
