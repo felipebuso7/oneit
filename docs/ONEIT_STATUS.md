@@ -411,3 +411,9 @@ Não foi aplicado bypass no frontend nem no Supabase. Chamados ainda não atendi
 - `/portal/changes` recebeu cabeçalho OneIT e superfícies compartilhadas para criação e acompanhamento de mudanças.
 - Verificação: ESLint da rota concluído com exit code 0; planos de risco, teste e rollback preservados.
 
+### Regressão consolidada dos lotes recentes (13/11/2026)
+
+- Contratos da fila/cancelamento/cabeçalho: **3 arquivos / 6 testes aprovados**.
+- `npm run typecheck`: concluído com exit code 0.
+- Observação: o Vitest exibiu apenas o aviso conhecido de timeout de encerramento do processo após os testes; os testes finalizaram aprovados.
+
