@@ -418,5 +418,6 @@ Não foi aplicado bypass no frontend nem no Supabase. Chamados ainda não atendi
 - Observação: o Vitest exibiu apenas o aviso conhecido de timeout de encerramento do processo após os testes; os testes finalizaram aprovados.
 - Auditoria adicional: `npm run audit:migrations:strict` — **197 migrations, nenhum alerta estático**; `git diff --check` limpo.
 - Regressão global de UI: `npm run lint:core-ui` concluído com exit code 0.
+- Suíte completa: `npm test -- --reporter=dot` — **167 arquivos / 397 testes aprovados**.
 - Build de produção: typecheck e lint passam, mas `npm run build` permanece bloqueado por `EPERM` do filesystem ao criar/remover diretórios dentro de `.next` (inclusive `server/chunks`); limpeza segura e remoção de atributo ReadOnly foram tentadas, sem processo Node ativo identificado.
 
