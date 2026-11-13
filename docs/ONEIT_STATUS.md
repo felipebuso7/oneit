@@ -2,6 +2,13 @@
 
 Atualizado em 12/11/2026.
 
+## Lote de estados compartilhados (12/11/2026)
+
+- **Implementado:** `OneitEmptyState`, `OneitLoadingState` e `OneitErrorState` agora usam uma superfície visual comum, faixa semântica lateral, ícone contextual e entrada suave respeitando `prefers-reduced-motion`.
+- **Arquivos:** `src/components/oneit-state.tsx`, `src/app/globals.css`.
+- **Verificação:** `npx tsc --noEmit` sem diagnósticos; contratos de Design System, agenda e responsividade — 2 arquivos / 5 testes aprovados.
+- **Publicação:** commit `5641075` enviado para `main`; o deployment de produção será acompanhado pelo endpoint de versão assim que a rede estiver disponível.
+
 ## Verificação desta retomada
 
 - **Fila de chamados — responsividade (12/11/2026):** a listagem agora troca a tabela horizontal por cartões operacionais abaixo de `lg`, mantendo chamado/ServiceNow, situação, cliente/local, técnico, visita e ação no mesmo viewport. Em desktop, a tabela permanece disponível para produtividade. Evidência: `src/components/tickets/tickets-table.tsx`; contrato `tests/portal-responsive-contract.test.ts`, `tests/tickets-queue-ui-contract.test.ts` — 3 arquivos / 6 testes aprovados; `npx tsc --noEmit` sem diagnósticos.
