@@ -64,6 +64,29 @@ export async function updateTicketTriageContext(formData: FormData) {
   redirect(`/portal/tickets/${value.ticketId}?message=Solicitante,+departamento+e+serviço+atualizados.`);
 }
 
+export async function updateTicketBasics(formData: FormData) {
+  const ticketId = String(formData.get("ticketId") ?? "");
+  const version = Number(formData.get("version"));
+  const title = String(formData.get("title") ?? "").trim();
+  const description = String(formData.get("description") ?? "").trim();
+  const servicenowNumber = String(formData.get("servicenowNumber") ?? "").trim();
+  const impact = String(formData.get("impact") ?? "");
+  const urgency = String(formData.get("urgency") ?? "");
+  if (!ticketId || !Number.isInteger(version) || version < 1 || title.length < 5 || description.length < 10 || !servicenowNumber || !["LOW", "MEDIUM", "HIGH"].includes(impact) || !["LOW", "MEDIUM", "HIGH"].includes(urgency)) {
+    redirect(`/portal/tickets/${ticketId}/edit?message=Confira+os+campos+obrigatórios.`);
+  }
+  const { supabase } = await requireUser();
+  const { data: current } = await supabase.from("tickets").select("operational_status").eq("id", ticketId).maybeSingle();
+  if (!current || !["NEW", "TRIAGE", "AWAITING_SCHEDULING", "SCHEDULED"].includes(current.operational_status)) {
+    redirect(`/portal/tickets/${ticketId}?message=Este chamado não pode mais ser editado após o início do atendimento.`);
+  }
+  const { error } = await supabase.from("tickets").update({ title, description, servicenow_number: servicenowNumber, impact, urgency }).eq("id", ticketId).eq("version", version);
+  if (error) redirect(`/portal/tickets/${ticketId}/edit?message=${encodeURIComponent(error.message.includes("duplicate") ? "Já existe um chamado com este ServiceNow." : "Não foi possível salvar a edição." )}`);
+  revalidatePath(`/portal/tickets/${ticketId}`);
+  revalidatePath("/portal/tickets");
+  redirect(`/portal/tickets/${ticketId}?message=Chamado+atualizado+com+sucesso.`);
+}
+
 export async function linkTicketByNumber(formData: FormData) {
   const parsed = ticketNumberRelationshipSchema.safeParse({ ticketId: formData.get("ticketId"), parentTicketNumber: formData.get("parentTicketNumber"), relationshipType: formData.get("relationshipType"), reason: formData.get("reason") || undefined });
   if (!parsed.success) redirect("/portal/tickets?message=Dados+de+vínculo+inválidos.");

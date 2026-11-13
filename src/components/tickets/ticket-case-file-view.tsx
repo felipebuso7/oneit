@@ -45,7 +45,7 @@ export function TicketCaseFileView({ ticket, requesterName, groupLabel, level, c
     <Link href="/portal/tickets" className="text-sm font-medium text-[#0b4a64]">← Voltar aos chamados</Link>
     <div className="mt-3 flex flex-wrap items-start justify-between gap-4">
       <OneitPageHeader eyebrow="Dossiê do chamado" title={`${ticket.ticket_number} — ${ticket.title}`} description={`${ticket.ticket_type} · P${ticket.priority} · impacto ${ticket.impact} · urgência ${ticket.urgency} · N${ticket.support_level}${groupLabel ? ` · ${groupLabel}` : ""}`} />
-      {canDispatch ? <Link href={`/portal/field-service?ticket=${encodeURIComponent(ticket.id)}`} className="shrink-0 rounded-lg bg-[#092f40] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#0b4a64]">Atribuir visita</Link> : awaitingValidation ? <Link href="/portal/review" className="shrink-0 rounded-lg bg-amber-700 px-4 py-2.5 text-sm font-semibold text-white hover:bg-amber-800">Validar OS</Link> : null}
+      {canDispatch ? <div className="flex flex-wrap gap-2"><Link href={`/portal/tickets/${ticket.id}/edit`} className="shrink-0 rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-sky-900 hover:bg-sky-50">Editar chamado</Link><Link href={`/portal/field-service?ticket=${encodeURIComponent(ticket.id)}`} className="shrink-0 rounded-lg bg-[#092f40] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#0b4a64]">Atribuir visita</Link></div> : awaitingValidation ? <Link href="/portal/review" className="shrink-0 rounded-lg bg-amber-700 px-4 py-2.5 text-sm font-semibold text-white hover:bg-amber-800">Validar OS</Link> : null}
     </div>
     {message ? <p role="status" className="mt-4 rounded-lg bg-sky-50 p-3 text-sm text-sky-900">{message}</p> : null}
 
