@@ -45,5 +45,6 @@ Atualizado em 12/11/2026.
 - Ajustes de compatibilidade aplicados: ação “Abrir Agendamento de OS” na Home, identificadores de busca/filtro da fila, largura mínima responsiva e marcadores de escopo/retirada segura no catálogo.
 - Jornada do técnico refinada em `src/components/field-service/partner-execution-flow.tsx`: cada estado agora destaca explicitamente a **Próxima ação** em uma faixa de alto contraste, mantendo a linha do tempo, regras de evidência, materiais, assinatura e checkout. Testes direcionados: 5 arquivos e 9 testes aprovados.
 - Navegação global refinada em `src/components/portal-sidebar-light.tsx`: grupos com rota ativa agora recebem marcador visual laranja e contraste textual reforçado, mantendo foco por teclado e seleção de página. Testes de navegação/responsividade: 2 arquivos e 12 testes aprovados.
+- Fila de chamados refinada em `src/app/globals.css`: coluna de ação ganhou largura mínima, alvos de toque consistentes e feedback contextual distinto para abrir/agendar/excluir, mantendo a tabela navegável em viewport estreito. Testes de fila/responsividade/navegação: 3 arquivos e 15 testes aprovados.
 
 Após o deployment de `main` ficar Ready, validar dinamicamente as rotas de chamados, agendamento, agenda, validação e RTO no domínio oficial; depois tratar o primeiro P1 reproduzível.

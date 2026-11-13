@@ -275,6 +275,25 @@ textarea {
 [aria-label="Fila de chamados"] [data-oneit-data-table] td:first-child {
   padding-left: 16px;
 }
+[aria-label="Fila de chamados"] [data-oneit-data-table] td:last-child {
+  min-width: 168px;
+}
+[aria-label="Fila de chamados"] [data-oneit-data-table] td:last-child a,
+[aria-label="Fila de chamados"] [data-oneit-data-table] td:last-child button {
+  display: inline-flex;
+  min-height: 32px;
+  align-items: center;
+  border-radius: 8px;
+  padding: 6px 9px;
+  transition: background-color 160ms ease, color 160ms ease, transform 160ms ease;
+}
+[aria-label="Fila de chamados"] [data-oneit-data-table] td:last-child a:hover {
+  background: #e0f2fe;
+  transform: translateX(2px);
+}
+[aria-label="Fila de chamados"] [data-oneit-data-table] td:last-child button:hover {
+  background: #fff1f2;
+}
 
 /* Acesso externo do técnico: as marcas precisam ser reconhecíveis em telas móveis. */
 img[alt="Servicia Facilities Services"] { height: 40px !important; width: auto !important; max-width: 52% !important; object-fit: contain; object-position: right center; }
