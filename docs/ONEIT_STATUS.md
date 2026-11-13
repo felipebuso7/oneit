@@ -369,3 +369,9 @@ Não foi aplicado bypass no frontend nem no Supabase. Chamados ainda não atendi
 - Cobertura: RLS de entidades filhas, RBAC, integridade entre organizações, fronteira de persistência de produção e isolamento do modo demo.
 - Limitação: permanece pendente somente a reprodução autenticada negativa com dois tenants reais/controlados; não há credencial secundária disponível para executar isso sem inventar evidência.
 
+### Regressão operacional ampliada (13/11/2026)
+
+- Comando direcionado executado sobre validação, revisão, RTO, despacho e caminhos de produção.
+- Resultado: **9 arquivos / 16 testes aprovados**.
+- Cobertura: fluxo de validação, integridade e concorrência da revisão, histórico e imutabilidade de RTO, despacho atômico, mapeamento operacional e persistência de produção.
+
