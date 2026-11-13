@@ -118,3 +118,10 @@ Próxima ação: executar E2E autenticado do ciclo chamado → agendamento → t
 - **Validação visual pós-deploy:** em produção, `?date=2026-10-29` exibiu o bloco `Agenda de Eder Ponciano`, `1 visita` e o compromisso `13:00–14:00` com link para o chamado. Nenhuma mutação foi executada.
 - **Rotas planejadas — smoke autenticado:** em produção, `portal/routes?date=2026-10-29` exibiu `Eder Ponciano` com blocos **Manhã** (`08:00–12:00`) e **Tarde** (`13:00–18:00`), cada um com OS, polo/local e horário; **Noite** foi exibida como “Sem visita”. Nenhuma mutação foi executada.
 
+### Fila de chamados — seleção e ações administrativas (13/11/2026)
+
+- **Implementado:** `src/components/tickets/tickets-table.tsx` passou a permitir selecionar um chamado por rádio, em desktop e mobile, com barra contextual de ações.
+- **Ações:** “Editar chamado” leva ao dossiê do chamado para atualização contextual; “Excluir chamado” usa a ação server-side existente `cancelTicket`, confirmação explícita, controle de versão e bloqueio para chamados já iniciados/encerrados.
+- **Segurança preservada:** a exclusão continua sendo cancelamento auditável via RPC `cancel_ticket`; não há remoção física nem bypass de RLS.
+- **Verificação:** contratos responsivos e de despacho passaram (`3/3` testes). `tsc` foi iniciado, mas excedeu o limite de execução local sem emitir diagnóstico; deve ser repetido no CI/ambiente de build.
+
