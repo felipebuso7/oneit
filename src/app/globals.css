@@ -93,6 +93,28 @@ body {
   font-size: 14px;
 }
 
+[data-oneit-data-table] {
+  table-layout: fixed;
+  min-width: 0 !important;
+}
+
+[data-oneit-data-table] thead {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+}
+
+[data-oneit-data-table] th,
+[data-oneit-data-table] td {
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 900px) {
+  [data-oneit-data-table] {
+    min-width: 760px;
+  }
+}
+
 button:focus-visible,
 a:focus-visible,
 input:focus-visible,
