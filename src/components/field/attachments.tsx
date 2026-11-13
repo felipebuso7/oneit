@@ -14,13 +14,14 @@ export function Attachments({ ownerId, ticketId, version, canAddMaterial, materi
   evidences: { id: string; evidence_type: string; size_bytes: number }[];
 }) {
   return <div className="mt-6 space-y-6 border-t pt-5">
-    {canAddMaterial ? <section><h3 className="font-semibold">Materiais utilizados</h3>
+    {canAddMaterial ? <section className="rounded-xl border border-slate-200 bg-slate-50 p-4"><div className="flex flex-wrap items-start justify-between gap-2"><div><h3 className="font-semibold">Materiais utilizados</h3><p className="mt-1 text-xs text-slate-600">Selecione somente itens ativos do catálogo da organização e informe a quantidade aplicada nesta OS.</p></div><span className="rounded-full bg-white px-2.5 py-1 text-xs font-semibold text-slate-600">{usages.length} lançado(s)</span></div>
       <form action={addMaterial} className="mt-3 space-y-3">
         <input type="hidden" name="ticketId" value={ticketId} />
         <label className="block text-sm">Material<select required name="materialId" defaultValue="" className="mt-1 block w-full rounded border p-2"><option disabled value="">Selecione</option>{materials.map((item) => <option key={item.id} value={item.id}>{item.name} ({item.unit})</option>)}</select></label>
         <label className="block text-sm">Quantidade<input required name="quantity" type="number" min="0.001" max="100000" step="0.001" className="mt-1 block w-full rounded border p-2" /></label>
-        <button type="submit" className="rounded bg-slate-800 px-4 py-2 text-sm font-semibold text-white">Registrar material</button>
+        <button type="submit" disabled={!materials.length} className="rounded bg-slate-800 px-4 py-2 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:bg-slate-300">Registrar material</button>
       </form>
+      {!materials.length ? <p className="mt-3 rounded-lg border border-amber-200 bg-amber-50 p-3 text-xs text-amber-900">Nenhum material ativo foi carregado para esta organização. O lançamento está bloqueado até o catálogo ser disponibilizado.</p> : null}
       <OfflineMaterialForm ownerId={ownerId} ticketId={ticketId} version={version} materials={materials} />
       <ul className="mt-3 space-y-2 text-sm">{usages.map((item) => <li key={item.id}>{item.material_name}: {item.quantity} {item.unit}</li>)}</ul>
     </section> : null}
