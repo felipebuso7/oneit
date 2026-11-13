@@ -315,4 +315,12 @@ Não foi aplicado bypass no frontend nem no Supabase. Chamados ainda não atendi
 - O endpoint público `/api/version` foi consultado no navegador autenticado.
 - Produção respondeu o commit `b9771ce9acf4363e59596876aa32bba6724d2851`, deployment `oneit-65243ec545-20261113135859`.
 - Os commits posteriores (`59ead9c` e seguintes) estão sincronizados no Git, mas ainda não estavam refletidos pela Vercel no momento da verificação; não declarar esses lotes como disponíveis em produção até nova confirmação.
+- Revalidação posterior manteve o mesmo resultado: produção continua em `b9771ce`.
+
+### Lote visual — Avisos operacionais (13/11/2026)
+
+- Rota ajustada: `/portal/announcements`.
+- Alterações visíveis: cabeçalho compartilhado, formulário de publicação em cartão, labels acessíveis, feedback semântico e cartões de avisos com confirmação de leitura preservada.
+- Verificação: `operational-page-header-contract.test.ts` — **1/1 aprovado**.
+- Publicação: pendente sincronização do commit deste lote e confirmação via `/api/version`.
 

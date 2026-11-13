@@ -22,6 +22,7 @@ const operationalRoutes = [
   "saas-settings",
   "pending",
   "operational-reports",
+  "announcements",
 ] as const;
 
 describe("cabeçalho compartilhado das rotas operacionais", () => {
