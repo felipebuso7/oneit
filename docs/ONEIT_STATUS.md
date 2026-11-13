@@ -431,6 +431,7 @@ Não foi aplicado bypass no frontend nem no Supabase. Chamados ainda não atendi
 - A página autenticada deixou de mascarar falhas de leitura do catálogo com erro genérico do servidor; agora redireciona para a própria agenda com mensagem operacional orientando a revisão do cadastro da organização.
 - Regressão após o lote: `tests/partner-materials-route.test.ts` — 5 testes aprovados; `git diff --check` limpo. O aviso de encerramento do Vitest permanece conhecido, sem falha de teste.
 - Regressão global após os ajustes do técnico: `npm test -- --reporter=dot` — **167 arquivos / 399 testes aprovados**.
+- Após o timeout do catálogo: teste direcionado de materiais **5/5** e regressão global **167/399** aprovados; nenhum contrato foi quebrado.
 
 ### Lote visual P2 — Contratos (13/11/2026)
 
