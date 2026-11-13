@@ -184,6 +184,11 @@ Não foi aplicado bypass no frontend nem no Supabase. Chamados ainda não atendi
 
 - Despacho, execução/fechamento, RTO/BM, autenticação/RBAC e isolamento RLS: **5 arquivos / 7 testes aprovados**.
 - A execução foi contratual/estática; nenhum chamado, upload ou documento foi mutado em produção.
+
+### Verificação técnica pós-lote (13/11/2026)
+
+- `npx tsc --noEmit --pretty false`: concluído sem diagnósticos.
+- O lint central e o lint direcionado não emitiram diagnósticos antes do limite de execução local; não foram classificados como aprovação independente.
 - **Segurança preservada:** a exclusão continua sendo cancelamento auditável via RPC `cancel_ticket`; não há remoção física nem bypass de RLS.
 - **Verificação:** contratos responsivos e de despacho passaram (`3/3` testes). `tsc` foi iniciado, mas excedeu o limite de execução local sem emitir diagnóstico; deve ser repetido no CI/ambiente de build.
 - **Publicação:** commit `9b0a580` foi enviado com sucesso para `origin/main`. O endpoint público `/api/version` ainda responde o commit `eae0f44`; o webhook/deploy da Vercel ainda não propagou esta alteração. Não declarar a funcionalidade disponível em produção até o endpoint refletir `9b0a580`.
