@@ -296,3 +296,10 @@ Não foi aplicado bypass no frontend nem no Supabase. Chamados ainda não atendi
 - Verificação: `operational-page-header-contract.test.ts` — **1/1 aprovado**.
 - Publicação: pendente sincronização do commit deste lote e confirmação via `/api/version`.
 
+### Lote visual — Pendências e reagendamento (13/11/2026)
+
+- Rota ajustada: `/portal/pending`.
+- Alterações visíveis: cabeçalho compartilhado, cartões de pendência, bloco de reagendamento em disclosure, labels acessíveis, estados de erro/sucesso e histórico operacional padronizados.
+- Verificação: `operational-page-header-contract.test.ts` — **1/1 aprovado**.
+- Publicação: pendente sincronização do commit deste lote e confirmação via `/api/version`.
+

@@ -20,6 +20,7 @@ const operationalRoutes = [
   "escalations",
   "feature-flags",
   "saas-settings",
+  "pending",
 ] as const;
 
 describe("cabeçalho compartilhado das rotas operacionais", () => {
