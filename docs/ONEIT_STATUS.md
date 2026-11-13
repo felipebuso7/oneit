@@ -91,4 +91,5 @@ Próxima ação: executar E2E autenticado do ciclo chamado → agendamento → t
 - **Regressão completa após o checkpoint:** `npm test -- --run --no-file-parallelism` passou com `166` arquivos e `394` testes.
 - **Melhoria implementada:** a agenda agora agrupa os compromissos em blocos por técnico, com contagem de visitas, cor consistente e cards responsivos; cada card mantém o link direto para o chamado. Commit `fe6f6de`; typecheck e 14 contratos direcionados aprovados.
 - **Validação visual pós-deploy:** em produção, `?date=2026-10-29` exibiu o bloco `Agenda de Eder Ponciano`, `1 visita` e o compromisso `13:00–14:00` com link para o chamado. Nenhuma mutação foi executada.
+- **Rotas planejadas — smoke autenticado:** em produção, `portal/routes?date=2026-10-29` exibiu `Eder Ponciano` com blocos **Manhã** (`08:00–12:00`) e **Tarde** (`13:00–18:00`), cada um com OS, polo/local e horário; **Noite** foi exibida como “Sem visita”. Nenhuma mutação foi executada.
 
