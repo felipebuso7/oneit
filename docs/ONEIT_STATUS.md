@@ -430,6 +430,7 @@ Não foi aplicado bypass no frontend nem no Supabase. Chamados ainda não atendi
 - O fluxo autenticado `/portal/field` agora traduz os erros da RPC `add_ticket_material` em mensagens operacionais específicas (autorização, estado da OS, material inativo/fora da organização ou falha técnica), evitando o “Tente novamente” sem diagnóstico.
 - A página autenticada deixou de mascarar falhas de leitura do catálogo com erro genérico do servidor; agora redireciona para a própria agenda com mensagem operacional orientando a revisão do cadastro da organização.
 - Regressão após o lote: `tests/partner-materials-route.test.ts` — 5 testes aprovados; `git diff --check` limpo. O aviso de encerramento do Vitest permanece conhecido, sem falha de teste.
+- Regressão global após os ajustes do técnico: `npm test -- --reporter=dot` — **167 arquivos / 399 testes aprovados**.
 
 ### Lote visual P2 — Contratos (13/11/2026)
 
