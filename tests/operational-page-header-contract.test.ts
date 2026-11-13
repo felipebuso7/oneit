@@ -14,6 +14,7 @@ const operationalRoutes = [
   "collaborators",
   "settings/field-service/lpu",
   "priority-matrix",
+  "calendars",
 ] as const;
 
 describe("cabeçalho compartilhado das rotas operacionais", () => {

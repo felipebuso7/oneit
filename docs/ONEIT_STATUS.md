@@ -254,3 +254,10 @@ Não foi aplicado bypass no frontend nem no Supabase. Chamados ainda não atendi
 - Verificação: `npx tsc --noEmit --pretty false` sem diagnósticos; `operational-page-header-contract.test.ts` — **1/1 teste aprovado**.
 - Publicação: commit `eff94b2` sincronizado em `origin/main`; a propagação da Vercel deve ser confirmada pelo `/api/version` antes de declarar a rota em produção.
 
+### Lote visual — Calendários operacionais (13/11/2026)
+
+- Rota ajustada: `/portal/calendars`.
+- Alterações visíveis: cabeçalho compartilhado, formulário “Novo calendário” em cartão, labels acessíveis, feedback de operação e estado vazio consistente.
+- Verificação: `npx tsc --noEmit --pretty false` e `operational-page-header-contract.test.ts` executados sem diagnóstico visível neste ambiente.
+- Publicação: pendente sincronização do commit deste lote e confirmação via `/api/version`.
+
