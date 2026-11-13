@@ -60,5 +60,6 @@ Atualizado em 12/11/2026.
 - Login refinado com foco automático no campo de e-mail, reduzindo um toque na entrada e mantendo a ordem de teclado e o contrato de autenticação. Teste RBAC: 1 aprovado.
 - PDFs para cliente validados com dados sintéticos: BM renderizado em 2 páginas A4 com logos OneIT/Servicia, resumo identificado (item, quantidade e total), detalhamento da OS, valor geral e paginação; RTO renderizado em 2 páginas A4 com seções, cronologia, evidências em grade uniforme, LPU/materiais, aceite e assinaturas no fechamento. Ajuste de espaçamento aplicado no resumo do BM para evitar colisão entre cabeçalho e primeira linha.
 - Pós-publicação: regressão direcionada de Field Service, RTO e BM aprovada em 35 arquivos e 63 testes, sem falhas funcionais detectadas.
+- Produção confirmada no Vercel pelo commit `79ac3b1` com status Ready; `/api/ready?storage=1` respondeu `200` com `deploymentMode: supabase` e `storage: ready`.
 
 Próxima ação: executar E2E autenticado do ciclo chamado → agendamento → técnico → validação → RTO/BM em homologação, registrando cada etapa como aprovado, reprovado ou bloqueado; não promover o preview para `main` antes dessa verificação.
