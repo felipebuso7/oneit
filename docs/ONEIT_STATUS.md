@@ -401,3 +401,8 @@ Não foi aplicado bypass no frontend nem no Supabase. Chamados ainda não atendi
 - `/portal/controlled-documents` recebeu cabeçalho OneIT, formulário/lista em cartões compartilhados e melhor hierarquia para versão, submissão e aprovação.
 - Verificação: ESLint da rota concluído com exit code 0; contratos de actions preservados.
 
+### Lote visual P2 — Aprovações (13/11/2026)
+
+- `/portal/approvals` recebeu cabeçalho OneIT e superfícies compartilhadas para solicitar e decidir aprovações, sem alterar a segregação do aprovador.
+- Verificação: ESLint da rota concluído com exit code 0.
+
