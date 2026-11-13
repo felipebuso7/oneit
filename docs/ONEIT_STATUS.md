@@ -7,6 +7,7 @@ Atualizado em 12/11/2026.
 - Regressão direcionada executada após a publicação `e202dd8`: 4 arquivos e 14 testes aprovados (`field-service-rto-render`, `measurement-pdf-visual`, `portal-navigation`, `auth-rbac-contract`). Nenhuma mutação foi feita em produção.
 - Regressão ampliada dos contratos operacionais: 15 arquivos e 23 testes aprovados, cobrindo despacho/WhatsApp, execução, validação, RTO, LPU e BM. A evidência é estática/contratual; o E2E autenticado com mutação e upload real continua pendente.
 - Suíte completa executada nesta retomada: 165 arquivos e 392 testes aprovados. O aviso do Vitest sobre `configLoader: native` permanece informativo e não alterou o resultado.
+- Verificação TypeScript (`npx tsc --noEmit`) concluída sem diagnósticos.
 
 ## Último lote validado
 
