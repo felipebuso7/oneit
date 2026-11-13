@@ -53,7 +53,8 @@ export default async function FieldPage({ searchParams }: PageProps) {
     ids.length ? supabase.from("ticket_materials").select("id, ticket_id, material_name, unit, quantity").in("ticket_id", ids).order("created_at") : Promise.resolve({ data: [], error: null }),
     ids.length ? supabase.from("ticket_evidences").select("id, ticket_id, evidence_type, size_bytes").in("ticket_id", ids).order("created_at") : Promise.resolve({ data: [], error: null }),
   ]);
-  if (materialError || usageError || evidenceError) throw new Error("Não foi possível carregar materiais e evidências.");
+  if (usageError || evidenceError) throw new Error("Não foi possível carregar os registros de materiais e evidências da OS.");
+  if (materialError) redirect("/portal/field?message=O+catálogo+de+materiais+não+foi+carregado.+Verifique+o+cadastro+da+organização+e+tente+novamente.");
 
   return <section className="mx-auto max-w-5xl p-5 sm:p-8">
     <OneitPageHeader eyebrow="Campo" title="Agenda Técnicos" description="Atendimentos atribuídos, deslocamento e execução da OS." />
