@@ -51,5 +51,6 @@ Atualizado em 12/11/2026.
 - Agenda Técnicos refinada em `src/app/(portal)/portal/scheduling/page.tsx`: legenda visual por técnico adicionada acima dos compromissos, preservando as cores usadas nos eventos e a navegação para o chamado. Testes de agenda/navegação: 3 arquivos e 14 testes aprovados.
 - Abertura de chamado refinada em `src/components/tickets/ticket-create-flow.tsx`: o drawer agora exibe progresso visual explícito entre referência/serviço e dados da solicitação, mantendo bloqueios e validações existentes. Testes de criação/fila/navegação: 2 arquivos e 13 testes aprovados.
 - BM refinado em `src/app/(portal)/portal/field-service/finance/measurement-panel.tsx` e `src/app/globals.css`: ação de iniciar fechamento ganhou destaque, totais ficaram mais evidentes e ações de PDF/validação receberam alvos e hover consistentes. Testes de PDF/BM: 2 arquivos e 2 testes aprovados.
+- Tela de login refinada em `src/app/(auth)/login/page.tsx`: fundo com identidade OneIT, superfície translúcida com profundidade e destaque visual mais forte para a entrada, sem alterar autenticação, mensagens ou permissões. Testes de auth/navegação: 2 arquivos e 11 testes aprovados.
 
 Após o deployment de `main` ficar Ready, validar dinamicamente as rotas de chamados, agendamento, agenda, validação e RTO no domínio oficial; depois tratar o primeiro P1 reproduzível.

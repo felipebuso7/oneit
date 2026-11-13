@@ -10,8 +10,9 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
   const selfHosted = process.env.ONEIT_DEPLOYMENT_MODE === "self_hosted";
 
   return (
-    <main className="grid min-h-screen place-items-center bg-slate-950 p-6 text-slate-100">
-      <form action={login} className="w-full max-w-md rounded-2xl border border-slate-700 bg-slate-900 p-8 shadow-2xl" aria-labelledby="login-title">
+    <main className="relative grid min-h-screen place-items-center overflow-hidden bg-[radial-gradient(circle_at_top_right,#0e7490_0%,transparent_38%),linear-gradient(145deg,#041923_0%,#082f49_58%,#092f40_100%)] p-6 text-slate-100">
+      <div aria-hidden className="pointer-events-none absolute -bottom-32 -left-20 h-72 w-72 rounded-full bg-orange-500/15 blur-3xl" />
+      <form action={login} className="relative w-full max-w-md rounded-3xl border border-white/15 bg-slate-950/75 p-8 shadow-2xl shadow-slate-950/40 backdrop-blur sm:p-10" aria-labelledby="login-title">
         <Image src="/brand/oneit-white.png" alt="OneIT" width={200} height={112} priority className="h-14 w-36 object-contain object-left" />
         <h1 id="login-title" className="mt-3 text-2xl font-semibold">Acessar a operação</h1>
         <p className="mt-2 text-sm text-slate-400">Use a conta corporativa autorizada para sua organização.</p>
