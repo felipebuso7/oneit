@@ -61,5 +61,6 @@ Atualizado em 12/11/2026.
 - PDFs para cliente validados com dados sintéticos: BM renderizado em 2 páginas A4 com logos OneIT/Servicia, resumo identificado (item, quantidade e total), detalhamento da OS, valor geral e paginação; RTO renderizado em 2 páginas A4 com seções, cronologia, evidências em grade uniforme, LPU/materiais, aceite e assinaturas no fechamento. Ajuste de espaçamento aplicado no resumo do BM para evitar colisão entre cabeçalho e primeira linha.
 - Pós-publicação: regressão direcionada de Field Service, RTO e BM aprovada em 35 arquivos e 63 testes, sem falhas funcionais detectadas.
 - Produção confirmada no Vercel pelo commit `79ac3b1` com status Ready; `/api/ready?storage=1` respondeu `200` com `deploymentMode: supabase` e `storage: ready`.
+- Lote de segurança e isolamento revalidado: 5 arquivos e 11 testes aprovados para RBAC, isolamento `/demo`, elegibilidade de técnicos e integridade de relacionamentos entre organizações.
 
 Próxima ação: executar E2E autenticado do ciclo chamado → agendamento → técnico → validação → RTO/BM em homologação, registrando cada etapa como aprovado, reprovado ou bloqueado; não promover o preview para `main` antes dessa verificação.
