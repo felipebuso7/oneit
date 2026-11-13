@@ -128,6 +128,12 @@ Próxima ação: executar E2E autenticado do ciclo chamado → agendamento → t
 O chamado exibido na validação visual está em **Aguardando validação** (`TECHNICALLY_COMPLETED` / `AWAITING_REVIEW`) e possui execução de campo registrada. O botão “Excluir chamado” permanecer desabilitado nesse estado é comportamento intencional: a função `public.cancel_ticket` (migration `20261028200000_cancel_ticket.sql`) rejeita chamados com deslocamento, atendimento iniciado ou conclusão técnica, preservando o histórico operacional e o vínculo do RTO.
 
 Não foi aplicado bypass no frontend nem no Supabase. Chamados ainda não atendidos continuam elegíveis para cancelamento pela fila, com confirmação e auditoria. Para remover registros de homologação que já tiveram execução, é necessária uma operação administrativa de limpeza de dados de teste, com critério explícito e autorização separada; excluir esses registros pela fila quebraria a trilha operacional.
+
+### Retomada da auditoria — RLS de dados filhos
+
+- `npm run audit:migrations -- --strict`: **196 migrations, nenhum alerta estático**.
+- A migration `20261113090000_harden_ticket_child_rls.sql` permanece pronta, mas a tentativa de `supabase db push --dry-run` foi bloqueada pelo `EPERM` do CLI ao gravar `C:\Users\felipe.buso_tothetop\\.supabase\\telemetry.json.tmp...`; nenhuma alteração remota foi executada.
+- Próxima ação: aplicar a migration em ambiente Supabase autenticado após liberar o armazenamento do CLI ou usar o SQL Editor conectado, e então validar leitura isolada entre organizações.
 - **Segurança preservada:** a exclusão continua sendo cancelamento auditável via RPC `cancel_ticket`; não há remoção física nem bypass de RLS.
 - **Verificação:** contratos responsivos e de despacho passaram (`3/3` testes). `tsc` foi iniciado, mas excedeu o limite de execução local sem emitir diagnóstico; deve ser repetido no CI/ambiente de build.
 - **Publicação:** commit `9b0a580` foi enviado com sucesso para `origin/main`. O endpoint público `/api/version` ainda responde o commit `eae0f44`; o webhook/deploy da Vercel ainda não propagou esta alteração. Não declarar a funcionalidade disponível em produção até o endpoint refletir `9b0a580`.
