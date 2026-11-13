@@ -268,3 +268,10 @@ Não foi aplicado bypass no frontend nem no Supabase. Chamados ainda não atendi
 - Verificação: `operational-page-header-contract.test.ts` — **1/1 aprovado**; `tsc` executado sem diagnóstico reportado.
 - Publicação: pendente sincronização do commit deste lote e confirmação via `/api/version`.
 
+### Lote visual — Grupos de suporte (13/11/2026)
+
+- Rota ajustada: `/portal/support-groups`.
+- Alterações visíveis: cabeçalho compartilhado, formulário “Novo grupo” em cartão, labels acessíveis, feedback semântico e tabela/estado vazio consistente.
+- Verificação: `operational-page-header-contract.test.ts` — **1/1 aprovado**; typecheck executado sem diagnóstico reportado.
+- Publicação: pendente sincronização do commit deste lote e confirmação via `/api/version`.
+

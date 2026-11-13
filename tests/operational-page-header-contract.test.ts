@@ -16,6 +16,7 @@ const operationalRoutes = [
   "priority-matrix",
   "calendars",
   "sla",
+  "support-groups",
 ] as const;
 
 describe("cabeçalho compartilhado das rotas operacionais", () => {
