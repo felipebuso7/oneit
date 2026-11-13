@@ -10,6 +10,13 @@ Atualizado em 12/11/2026.
 - **Publicação:** commit `5641075` enviado para `main` e confirmado em produção pelo endpoint `/api/version` como `environment: production`; `/api/ready` retornou `status: ready` e `deploymentMode: supabase`.
 - **Regressão ampliada:** `npm test -- --run --no-file-parallelism` — 166 arquivos / 394 testes aprovados.
 
+## Lote de badges de status (13/11/2026)
+
+- **Implementado:** os cinco tons de `OneitStatusBadge` agora têm contorno semântico além do preenchimento, melhorando leitura e acessibilidade em tabelas e cards.
+- **Arquivo:** `src/app/globals.css`.
+- **Verificação:** TypeScript sem diagnósticos; contratos de Design System e navegação — 2 arquivos / 13 testes aprovados.
+- **Publicação:** commit `75bd769` enviado para `main`; acompanhamento do deployment feito pelo endpoint público.
+
 ## Verificação desta retomada
 
 - **Fila de chamados — responsividade (12/11/2026):** a listagem agora troca a tabela horizontal por cartões operacionais abaixo de `lg`, mantendo chamado/ServiceNow, situação, cliente/local, técnico, visita e ação no mesmo viewport. Em desktop, a tabela permanece disponível para produtividade. Evidência: `src/components/tickets/tickets-table.tsx`; contrato `tests/portal-responsive-contract.test.ts`, `tests/tickets-queue-ui-contract.test.ts` — 3 arquivos / 6 testes aprovados; `npx tsc --noEmit` sem diagnósticos.
