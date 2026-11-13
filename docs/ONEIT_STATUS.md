@@ -161,6 +161,12 @@ Não foi aplicado bypass no frontend nem no Supabase. Chamados ainda não atendi
 - `/api/version` confirmou produção em estado `Ready`, deployment `oneit-ace46e6bc0-20261113131254`.
 - Smoke autenticado na fila: a listagem caiu de `6 de 6` para `2 de 2`; os chamados cancelados deixaram de ser exibidos na fila operacional.
 - Os registros não foram apagados fisicamente: continuam preservados no banco com status `CANCELLED` e auditoria.
+
+### Smoke visual da Home — produção (13/11/2026)
+
+- `/portal` autenticado renderizou hero operacional, ação primária “Abrir fila de chamados”, três jornadas (“Chamados”, “Agendamento de OS”, “Validação de OS”), fluxo em cinco etapas e acessos rápidos para Agenda, BM e Catálogo.
+- A navegação global exibiu os destinos operacionais atuais, sem links órfãos observados nesta leitura.
+- Evidência dinâmica obtida por snapshot DOM autenticado; nenhuma mutação executada.
 - **Segurança preservada:** a exclusão continua sendo cancelamento auditável via RPC `cancel_ticket`; não há remoção física nem bypass de RLS.
 - **Verificação:** contratos responsivos e de despacho passaram (`3/3` testes). `tsc` foi iniciado, mas excedeu o limite de execução local sem emitir diagnóstico; deve ser repetido no CI/ambiente de build.
 - **Publicação:** commit `9b0a580` foi enviado com sucesso para `origin/main`. O endpoint público `/api/version` ainda responde o commit `eae0f44`; o webhook/deploy da Vercel ainda não propagou esta alteração. Não declarar a funcionalidade disponível em produção até o endpoint refletir `9b0a580`.
