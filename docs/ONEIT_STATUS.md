@@ -88,4 +88,5 @@ Próxima ação: executar E2E autenticado do ciclo chamado → agendamento → t
 - **Agenda/despacho:** contratos direcionados aprovados (`15/15` testes) e TypeScript sem erros. A tela usa `technicians` como fonte canônica, mantém o filtro por organização e apresenta agenda por data, técnico e cor.
 - **Smoke autenticado da agenda:** em `https://oneit-omega.vercel.app/portal/scheduling`, a data atual exibiu estado vazio honesto e link para a última data com agenda; em `?date=2026-10-29`, foi exibido compromisso real `13:00–14:00` vinculado ao chamado `FSM-2026-000004` e ao técnico `Eder Ponciano`, com link para abrir o chamado. Nenhuma mutação foi executada.
 - **Limitação ainda aberta:** a migration `20261113090000_harden_ticket_child_rls.sql` segue preparada no repositório, mas ainda não aplicada remotamente no Supabase; o ciclo E2E autenticado com upload/RTO permanece pendente de homologação.
+- **Regressão completa após o checkpoint:** `npm test -- --run --no-file-parallelism` passou com `166` arquivos e `394` testes.
 
