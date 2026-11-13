@@ -36,6 +36,7 @@
 - **Lote P2 concluído:** `/portal/controlled-documents` recebeu cabeçalho compartilhado, formulário de criação e lista/versionamento em superfícies `oneit-card`, preservando submissão, aprovação e histórico.
 - **Lote P2 concluído:** `/portal/approvals` recebeu cabeçalho compartilhado e superfícies `oneit-card` para solicitação/lista de decisões, preservando segregação do aprovador e actions existentes.
 - **Lote P2 concluído:** `/portal/changes` recebeu cabeçalho compartilhado e superfícies `oneit-card` para criação/listagem de GMUD, preservando risco, plano de testes e rollback.
+- **Lote P2 concluído:** `/portal/contracts` recebeu cabeçalho compartilhado e superfícies `oneit-card` para cadastro/listagem de contratos, mantendo alertas de vigência e action de criação.
 - **Estados operacionais compartilhados — concluído neste lote:** `OneitEmptyState`, `OneitLoadingState` e `OneitErrorState` receberam tokens visuais, faixa semântica, ícone contextual e movimento acessível; typecheck e regressão completa aprovados nos commits `5641075`/`14809cc`.
 - **Badges de status — concluído neste lote:** contornos semânticos foram adicionados aos cinco tons de `OneitStatusBadge`, reforçando a distinção visual sem depender apenas da cor; 13 testes direcionados aprovados no commit `75bd769`.
 - ~~Comparar dados cadastrais de LPU com o tipo exibido na interface.~~ **Verificado neste lote:** API, UI e migrations usam `kind`, `unit`, `unit_price`, vigência e `active` de forma consistente; 14 testes de CRUD/composição/validação aprovados.

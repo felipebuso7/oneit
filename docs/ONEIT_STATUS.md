@@ -419,5 +419,10 @@ Não foi aplicado bypass no frontend nem no Supabase. Chamados ainda não atendi
 - Auditoria adicional: `npm run audit:migrations:strict` — **197 migrations, nenhum alerta estático**; `git diff --check` limpo.
 - Regressão global de UI: `npm run lint:core-ui` concluído com exit code 0.
 - Suíte completa: `npm test -- --reporter=dot` — **167 arquivos / 397 testes aprovados**.
+
+### Lote visual P2 — Contratos (13/11/2026)
+
+- `/portal/contracts` recebeu cabeçalho OneIT, formulário e listagem em cartões compartilhados, mantendo alertas de vencimento e criação de contratos.
+- Verificação: ESLint da rota concluído com exit code 0.
 - Build de produção: typecheck e lint passam, mas `npm run build` permanece bloqueado por `EPERM` do filesystem ao criar/remover diretórios dentro de `.next` (inclusive `server/chunks`); limpeza segura e remoção de atributo ReadOnly foram tentadas, sem processo Node ativo identificado.
 
