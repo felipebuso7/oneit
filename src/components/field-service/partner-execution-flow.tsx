@@ -71,6 +71,7 @@ export function PartnerExecutionFlow({ access, apiAccess, onLocalComplete }: { a
   const [materialQuantity, setMaterialQuantity] = useState("1");
   const [materialsReady, setMaterialsReady] = useState(false);
   const [materialsError, setMaterialsError] = useState(false);
+  const [materialsErrorCode, setMaterialsErrorCode] = useState<string | null>(null);
   const [materialReload, setMaterialReload] = useState(0);
   const accessToken = apiAccess?.token;
   const accessCode = apiAccess?.code;
@@ -116,6 +117,7 @@ export function PartnerExecutionFlow({ access, apiAccess, onLocalComplete }: { a
       if (active) {
         const code = error instanceof Error ? error.message : "MATERIAL_SERVICE_UNAVAILABLE";
         setMaterialsError(true);
+        setMaterialsErrorCode(code);
         setNotice(code === "MATERIAL_SERVICE_NOT_DEPLOYED"
           ? "O catálogo de materiais ainda não está disponível neste ambiente. Avise o gestor para aplicar a atualização do banco."
           : "Não foi possível carregar os materiais. Tente novamente antes de salvar o atendimento.");
@@ -267,7 +269,8 @@ export function PartnerExecutionFlow({ access, apiAccess, onLocalComplete }: { a
           {!materialCatalog.length && <p className="mt-2 text-xs text-amber-800">Não há materiais vigentes na LPU desta organização. Solicite o cadastro ao gestor.</p>}
         </> : materialsError ? <div className="mt-3 rounded-lg border border-amber-200 bg-amber-50 p-3">
           <p className="text-xs text-amber-900">Não foi possível carregar os materiais. O lançamento fica bloqueado até a fonte oficial responder.</p>
-          <button type="button" onClick={() => { setMaterialsReady(false); setMaterialsError(false); setMaterialReload((value) => value + 1); }} className="mt-2 text-xs font-semibold text-cyan-900 underline">Tentar novamente</button>
+          {materialsErrorCode ? <p className="mt-1 text-[11px] font-mono text-amber-800">Código: {materialsErrorCode}</p> : null}
+          <button type="button" onClick={() => { setMaterialsReady(false); setMaterialsError(false); setMaterialsErrorCode(null); setMaterialReload((value) => value + 1); }} className="mt-2 text-xs font-semibold text-cyan-900 underline">Tentar novamente</button>
         </div> : <p className="mt-3 text-xs text-slate-500">Carregando materiais cadastrados…</p>}
       </section>
       <div className="rounded-xl border border-cyan-200 bg-cyan-50 p-4"><p className="text-sm font-semibold text-cyan-950">Aceite do cliente</p><input value={name} onChange={(input) => { setName(input.target.value); setSignature(""); }} className="mt-3 w-full rounded-lg border bg-white px-3 py-2 text-sm" placeholder="Nome do responsável" /><button type="button" onClick={() => setSignatureOpen(true)} className="mt-2 w-full rounded-lg bg-cyan-700 px-3 py-2 text-sm font-semibold text-white">{signature ? "Assinatura confirmada ✓" : "Abrir assinatura"}</button></div>
