@@ -211,6 +211,12 @@ Não foi aplicado bypass no frontend nem no Supabase. Chamados ainda não atendi
 
 - Consulta autenticada em `?date=2026-10-29` exibiu o bloco **Agenda de Eder Ponciano**, `1 visita` e o compromisso `13:00–14:00` com link direto para o chamado `FSM-2026-000004`.
 - A composição por técnico e o estado vazio das filas de pendência/atribuição foram renderizados sem dados fictícios.
+
+### Smoke RTO Encerrados — produção (13/11/2026)
+
+- A tela autenticada renderizou filtros por período, chamado e técnico, ação de limpar filtros e **3 relatórios disponíveis**.
+- Cada relatório exibiu OS, chamado, técnico, versão, data, SHA-256 e link de download PDF.
+- Nenhuma geração, exclusão ou alteração de relatório foi executada.
 - **Segurança preservada:** a exclusão continua sendo cancelamento auditável via RPC `cancel_ticket`; não há remoção física nem bypass de RLS.
 - **Verificação:** contratos responsivos e de despacho passaram (`3/3` testes). `tsc` foi iniciado, mas excedeu o limite de execução local sem emitir diagnóstico; deve ser repetido no CI/ambiente de build.
 - **Publicação:** commit `9b0a580` foi enviado com sucesso para `origin/main`. O endpoint público `/api/version` ainda responde o commit `eae0f44`; o webhook/deploy da Vercel ainda não propagou esta alteração. Não declarar a funcionalidade disponível em produção até o endpoint refletir `9b0a580`.
