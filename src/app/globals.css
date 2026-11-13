@@ -663,6 +663,15 @@ html[data-oneit-sidebar="collapsed"] .oneit-demo-sidebar nav :is(a, button)[data
   box-shadow: 0 3px 7px rgb(243 108 33 / 0.25), inset 0 1px 0 white;
 }
 
+/* Catálogo administrativo: a aba atual e as ações de manutenção ficam mais evidentes. */
+a[href^="/portal/service-catalog?tab="] {
+  transition: background-color 160ms ease, color 160ms ease, box-shadow 160ms ease;
+}
+a[href^="/portal/service-catalog?tab="]:hover {
+  background: #e0f2fe;
+  color: #082f49;
+}
+
 /* Detalhe de chamados: abas compactas e agrupadas visualmente. */
 [role="dialog"][aria-label^="Atendimento do chamado"] > div:nth-child(2) {
   flex-wrap: wrap;
