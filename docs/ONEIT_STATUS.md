@@ -124,4 +124,5 @@ Próxima ação: executar E2E autenticado do ciclo chamado → agendamento → t
 - **Ações:** “Editar chamado” leva ao dossiê do chamado para atualização contextual; “Excluir chamado” usa a ação server-side existente `cancelTicket`, confirmação explícita, controle de versão e bloqueio para chamados já iniciados/encerrados.
 - **Segurança preservada:** a exclusão continua sendo cancelamento auditável via RPC `cancel_ticket`; não há remoção física nem bypass de RLS.
 - **Verificação:** contratos responsivos e de despacho passaram (`3/3` testes). `tsc` foi iniciado, mas excedeu o limite de execução local sem emitir diagnóstico; deve ser repetido no CI/ambiente de build.
+- **Publicação:** commit `9b0a580` foi enviado com sucesso para `origin/main`. O endpoint público `/api/version` ainda responde o commit `eae0f44`; o webhook/deploy da Vercel ainda não propagou esta alteração. Não declarar a funcionalidade disponível em produção até o endpoint refletir `9b0a580`.
 
