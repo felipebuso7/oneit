@@ -406,3 +406,8 @@ Não foi aplicado bypass no frontend nem no Supabase. Chamados ainda não atendi
 - `/portal/approvals` recebeu cabeçalho OneIT e superfícies compartilhadas para solicitar e decidir aprovações, sem alterar a segregação do aprovador.
 - Verificação: ESLint da rota concluído com exit code 0.
 
+### Lote visual P2 — GMUD / Change Enablement (13/11/2026)
+
+- `/portal/changes` recebeu cabeçalho OneIT e superfícies compartilhadas para criação e acompanhamento de mudanças.
+- Verificação: ESLint da rota concluído com exit code 0; planos de risco, teste e rollback preservados.
+
