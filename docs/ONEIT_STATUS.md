@@ -122,6 +122,12 @@ Próxima ação: executar E2E autenticado do ciclo chamado → agendamento → t
 
 - **Implementado:** `src/components/tickets/tickets-table.tsx` passou a permitir selecionar um chamado por rádio, em desktop e mobile, com barra contextual de ações.
 - **Ações:** “Editar chamado” leva ao dossiê do chamado para atualização contextual; “Excluir chamado” usa a ação server-side existente `cancelTicket`, confirmação explícita, controle de versão e bloqueio para chamados já iniciados/encerrados.
+
+### Regra de exclusão — validação do chamado FSM-2026-000006
+
+O chamado exibido na validação visual está em **Aguardando validação** (`TECHNICALLY_COMPLETED` / `AWAITING_REVIEW`) e possui execução de campo registrada. O botão “Excluir chamado” permanecer desabilitado nesse estado é comportamento intencional: a função `public.cancel_ticket` (migration `20261028200000_cancel_ticket.sql`) rejeita chamados com deslocamento, atendimento iniciado ou conclusão técnica, preservando o histórico operacional e o vínculo do RTO.
+
+Não foi aplicado bypass no frontend nem no Supabase. Chamados ainda não atendidos continuam elegíveis para cancelamento pela fila, com confirmação e auditoria. Para remover registros de homologação que já tiveram execução, é necessária uma operação administrativa de limpeza de dados de teste, com critério explícito e autorização separada; excluir esses registros pela fila quebraria a trilha operacional.
 - **Segurança preservada:** a exclusão continua sendo cancelamento auditável via RPC `cancel_ticket`; não há remoção física nem bypass de RLS.
 - **Verificação:** contratos responsivos e de despacho passaram (`3/3` testes). `tsc` foi iniciado, mas excedeu o limite de execução local sem emitir diagnóstico; deve ser repetido no CI/ambiente de build.
 - **Publicação:** commit `9b0a580` foi enviado com sucesso para `origin/main`. O endpoint público `/api/version` ainda responde o commit `eae0f44`; o webhook/deploy da Vercel ainda não propagou esta alteração. Não declarar a funcionalidade disponível em produção até o endpoint refletir `9b0a580`.
