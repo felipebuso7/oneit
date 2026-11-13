@@ -276,6 +276,13 @@ textarea {
 .oneit-btn--secondary { border: 1px solid var(--oneit-line); background: white; color: var(--oneit-petrol-900); }
 .oneit-btn--secondary:hover { background: #f4f8f8; }
 
+[data-oneit-status] { border: 1px solid transparent; letter-spacing: .01em; }
+[data-oneit-status="neutral"] { border-color: #cbd5e1; }
+[data-oneit-status="info"] { border-color: #7dd3fc; }
+[data-oneit-status="success"] { border-color: #6ee7b7; }
+[data-oneit-status="warning"] { border-color: #fbbf24; }
+[data-oneit-status="danger"] { border-color: #fca5a5; }
+
 [data-oneit-data-table] tbody tr { transition: background-color 120ms ease; }
 [data-oneit-data-table] tbody tr:hover { background: #f8fbfb; }
 [data-oneit-data-table] tbody tr:focus-within { background: #eef8fa; }
