@@ -201,6 +201,21 @@ textarea {
 .oneit-bm-panel > section { box-shadow: 0 1px 3px rgb(15 23 42 / 0.06); }
 .oneit-bm-panel [data-oneit-data-table] tbody tr { transition: background-color 140ms ease; }
 .oneit-bm-panel [data-oneit-data-table] tbody tr:hover { background: #f8fafc; }
+.oneit-bm-panel [data-oneit-data-table] td:nth-child(4) {
+  color: #082f49;
+  font-size: 0.95rem;
+  font-weight: 700;
+}
+.oneit-bm-panel [data-oneit-data-table] td:last-child a,
+.oneit-bm-panel [data-oneit-data-table] td:last-child button {
+  min-height: 32px;
+  transition: background-color 160ms ease, border-color 160ms ease;
+}
+.oneit-bm-panel [data-oneit-data-table] td:last-child a:hover,
+.oneit-bm-panel [data-oneit-data-table] td:last-child button:hover {
+  border-color: #0b6171;
+  background: #ecfeff;
+}
 
 .oneit-card {
   border: 1px solid var(--oneit-line);
@@ -227,6 +242,16 @@ textarea {
   font-size: 13px;
   font-weight: 700;
   transition: background-color 140ms ease, box-shadow 140ms ease, transform 140ms ease;
+}
+
+.oneit-btn:focus-visible {
+  outline: 3px solid rgb(14 116 144 / 0.35);
+  outline-offset: 2px;
+}
+.oneit-page-header:focus-within,
+.oneit-card:focus-within {
+  border-color: #7dd3fc;
+  box-shadow: 0 0 0 3px rgb(14 165 233 / 0.1), var(--oneit-shadow-sm);
 }
 
 .oneit-btn:active { transform: translateY(1px); }
@@ -274,6 +299,42 @@ textarea {
 }
 [aria-label="Fila de chamados"] [data-oneit-data-table] td:first-child {
   padding-left: 16px;
+}
+[aria-label="Fila de chamados"] [data-oneit-data-table] td:last-child {
+  min-width: 168px;
+}
+[aria-label="Fila de chamados"] [data-oneit-data-table] td:last-child a,
+[aria-label="Fila de chamados"] [data-oneit-data-table] td:last-child button {
+  display: inline-flex;
+  min-height: 32px;
+  align-items: center;
+  border-radius: 8px;
+  padding: 6px 9px;
+  transition: background-color 160ms ease, color 160ms ease, transform 160ms ease;
+}
+[aria-label="Fila de chamados"] [data-oneit-data-table] td:last-child a:hover {
+  background: #e0f2fe;
+  transform: translateX(2px);
+}
+[aria-label="Fila de chamados"] [data-oneit-data-table] td:last-child button:hover {
+  background: #fff1f2;
+}
+
+/* Revisão gerencial: decisões importantes precisam ser distinguíveis sem depender só do texto. */
+form[aria-label="Decisão do gestor sobre a OS"] button[value="APPROVE"] {
+  background: #047857;
+  box-shadow: 0 1px 2px rgb(6 78 59 / .18);
+}
+form[aria-label="Decisão do gestor sobre a OS"] button[value="APPROVE"]:hover:not(:disabled) {
+  background: #065f46;
+}
+form[aria-label="Decisão do gestor sobre a OS"] button[value="RETURN"] {
+  border-color: #f59e0b;
+  color: #92400e;
+  background: #fffbeb;
+}
+form[aria-label="Decisão do gestor sobre a OS"] button[value="RETURN"]:hover {
+  background: #fef3c7;
 }
 
 /* Acesso externo do técnico: as marcas precisam ser reconhecíveis em telas móveis. */
@@ -575,6 +636,17 @@ html[data-oneit-sidebar="collapsed"] .oneit-demo-sidebar nav :is(a, button)[data
   border-radius: 6px !important;
 }
 
+/* Drawers operacionais entram suavemente para preservar contexto sem atrasar a tarefa. */
+[role="dialog"][aria-label="Catálogo para novo chamado"],
+[role="dialog"][aria-label="Preenchimento do chamado"] {
+  animation: oneit-drawer-in 180ms ease-out both;
+  transform-origin: right center;
+}
+@keyframes oneit-drawer-in {
+  from { opacity: 0; transform: translateX(18px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
 [aria-label="Selecionar serviço do catálogo"] > div:first-child {
   padding-top: 0.8rem !important;
   padding-bottom: 0.8rem !important;
@@ -612,6 +684,15 @@ html[data-oneit-sidebar="collapsed"] .oneit-demo-sidebar nav :is(a, button)[data
   box-shadow: 0 3px 7px rgb(243 108 33 / 0.25), inset 0 1px 0 white;
 }
 
+/* Catálogo administrativo: a aba atual e as ações de manutenção ficam mais evidentes. */
+a[href^="/portal/service-catalog?tab="] {
+  transition: background-color 160ms ease, color 160ms ease, box-shadow 160ms ease;
+}
+a[href^="/portal/service-catalog?tab="]:hover {
+  background: #e0f2fe;
+  color: #082f49;
+}
+
 /* Detalhe de chamados: abas compactas e agrupadas visualmente. */
 [role="dialog"][aria-label^="Atendimento do chamado"] > div:nth-child(2) {
   flex-wrap: wrap;
@@ -646,5 +727,9 @@ html[data-oneit-sidebar="collapsed"] .oneit-demo-sidebar nav :is(a, button)[data
 @media (prefers-reduced-motion: reduce) {
   .oneit-catalog-tile {
     transition: none;
+  }
+  [role="dialog"][aria-label="Catálogo para novo chamado"],
+  [role="dialog"][aria-label="Preenchimento do chamado"] {
+    animation: none;
   }
 }

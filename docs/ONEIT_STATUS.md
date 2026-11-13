@@ -4,7 +4,7 @@ Atualizado em 12/11/2026.
 
 ## Último lote validado
 
-- Em andamento: redesign estrutural da Home autenticada. O estado anterior foi capturado no domínio oficial; a nova composição está implementada localmente e aguarda publicação em preview para comparação pós-deploy.
+- Redesign estrutural da Home autenticada publicado no preview Vercel do commit `1802818`; o deployment foi observado como **Ready**. A validação visual autenticada permanece limitada nesta execução porque a nova aba visível não pôde ser aberta.
 - O componente compartilhado `OneitKpiGrid` foi refinado com estados visualmente distinguíveis para indicadores normais, atenção e positivos; testes de navegação/design system passaram.
 - URL do preview da branch: `https://oneit-git-preview-home-redesign-okaa1.vercel.app/portal`. A Vercel publicou o artefato, mas o ambiente de Preview redireciona para `error=environment` por não possuir as variáveis de autenticação; a validação visual autenticada pós-redesign permanece bloqueada.
 - Navegação lateral recebeu estados de foco visível, transições de 200 ms e deslocamento sutil no hover para links não ativos. Commit `2f6a79e` publicado na branch de preview; produção permanece intocada.
@@ -33,6 +33,8 @@ Atualizado em 12/11/2026.
 ## Estado conhecido
 
 - O worktree possui alterações anteriores do projeto; não fazer limpeza destrutiva.
+- O preview atual da branch `preview/home-redesign` está disponível em `https://oneit-2au3hl90o-okaa1.vercel.app/` e corresponde ao commit `1802818`.
+- Regressão direcionada das jornadas críticas executada em 14 arquivos e 24 testes: chamados, despacho, execução, validação, RTO e BM passaram.
 - Os commits `d9674ab`, `3cde5f6` e `fdfed79` foram publicados no GitHub nas branches `prep/cloud-staging` e `main`.
 - O GitHub foi conectado ao projeto Vercel (`felipebuso7/oneit`). O deployment de preview do commit `fdfed79` ficou **Ready** em `oneit-btgduul66-okaa1.vercel.app`, mas o ambiente de preview não possui as variáveis de autenticação e redireciona para `error=environment`.
 - O push para `main` disparou os deployments de produção `oneit-rf8jbd9p6-okaa1.vercel.app` e `oneit-lzcwvchao-okaa1.vercel.app`; ambos ficaram **Ready**. O domínio oficial `https://oneit-omega.vercel.app` foi recarregado e exibiu “Abrir Agendamento de OS”, “Agendamento de OS”, “Agenda Técnicos” e “RTO Encerrados”.
@@ -43,5 +45,18 @@ Atualizado em 12/11/2026.
 
 - Regressão ampla após os lotes de Home, fila e catálogo: 4 arquivos e 15 testes aprovados; os contratos legados foram preservados sem alterar as regras operacionais.
 - Ajustes de compatibilidade aplicados: ação “Abrir Agendamento de OS” na Home, identificadores de busca/filtro da fila, largura mínima responsiva e marcadores de escopo/retirada segura no catálogo.
+- Jornada do técnico refinada em `src/components/field-service/partner-execution-flow.tsx`: cada estado agora destaca explicitamente a **Próxima ação** em uma faixa de alto contraste, mantendo a linha do tempo, regras de evidência, materiais, assinatura e checkout. Testes direcionados: 5 arquivos e 9 testes aprovados.
+- Navegação global refinada em `src/components/portal-sidebar-light.tsx`: grupos com rota ativa agora recebem marcador visual laranja e contraste textual reforçado, mantendo foco por teclado e seleção de página. Testes de navegação/responsividade: 2 arquivos e 12 testes aprovados.
+- Fila de chamados refinada em `src/app/globals.css`: coluna de ação ganhou largura mínima, alvos de toque consistentes e feedback contextual distinto para abrir/agendar/excluir, mantendo a tabela navegável em viewport estreito. Testes de fila/responsividade/navegação: 3 arquivos e 15 testes aprovados.
+- Ação primária do despacho refinada em `src/app/(portal)/portal/field-service/dispatch-workspace.tsx`: “Agendar visita e encaminhar por WhatsApp” agora usa destaque laranja, alvo de toque maior, hover e estado desabilitado explícito. Testes de despacho/WhatsApp/concorrência: 4 arquivos e 6 testes aprovados.
+- Decisão gerencial refinada em `src/app/globals.css`: aprovar OS usa estado verde semântico e devolver para correção usa estado âmbar, mantendo foco na conferência e sem alterar as ações do backend. Testes de revisão: 5 arquivos e 9 testes aprovados.
+- Agenda Técnicos refinada em `src/app/(portal)/portal/scheduling/page.tsx`: legenda visual por técnico adicionada acima dos compromissos, preservando as cores usadas nos eventos e a navegação para o chamado. Testes de agenda/navegação: 3 arquivos e 14 testes aprovados.
+- Abertura de chamado refinada em `src/components/tickets/ticket-create-flow.tsx`: o drawer agora exibe progresso visual explícito entre referência/serviço e dados da solicitação, mantendo bloqueios e validações existentes. Testes de criação/fila/navegação: 2 arquivos e 13 testes aprovados.
+- BM refinado em `src/app/(portal)/portal/field-service/finance/measurement-panel.tsx` e `src/app/globals.css`: ação de iniciar fechamento ganhou destaque, totais ficaram mais evidentes e ações de PDF/validação receberam alvos e hover consistentes. Testes de PDF/BM: 2 arquivos e 2 testes aprovados.
+- Tela de login refinada em `src/app/(auth)/login/page.tsx`: fundo com identidade OneIT, superfície translúcida com profundidade e destaque visual mais forte para a entrada, sem alterar autenticação, mensagens ou permissões. Testes de auth/navegação: 2 arquivos e 11 testes aprovados.
+- Catálogo administrativo refinado em `src/app/globals.css`: abas de categorias/subcategorias ganharam transição, hover e contraste de navegação mais claros, preservando CRUD e escopo organizacional. Testes do catálogo/navegação: 2 arquivos e 19 testes aprovados.
+- Microinteração aplicada ao fluxo de abertura: drawers de catálogo/preenchimento entram em 180 ms com respeito a `prefers-reduced-motion`, sem mascarar erros nem alterar o comportamento do formulário. Testes de fila/navegação/responsividade: 3 arquivos e 15 testes aprovados.
+- Design System refinado em `src/app/globals.css`: botões compartilhados agora possuem foco visível consistente e cards/cabeçalhos evidenciam o contexto quando recebem foco interno, melhorando teclado e acessibilidade sem mudar layout estrutural. Testes do Design System: 1 arquivo e 10 testes aprovados.
+- Login refinado com foco automático no campo de e-mail, reduzindo um toque na entrada e mantendo a ordem de teclado e o contrato de autenticação. Teste RBAC: 1 aprovado.
 
-Após o deployment de `main` ficar Ready, validar dinamicamente as rotas de chamados, agendamento, agenda, validação e RTO no domínio oficial; depois tratar o primeiro P1 reproduzível.
+Próxima ação: executar E2E autenticado do ciclo chamado → agendamento → técnico → validação → RTO/BM em homologação, registrando cada etapa como aprovado, reprovado ou bloqueado; não promover o preview para `main` antes dessa verificação.
