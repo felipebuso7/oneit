@@ -8,6 +8,7 @@ Atualizado em 12/11/2026.
 - Regressão ampliada dos contratos operacionais: 15 arquivos e 23 testes aprovados, cobrindo despacho/WhatsApp, execução, validação, RTO, LPU e BM. A evidência é estática/contratual; o E2E autenticado com mutação e upload real continua pendente.
 - Suíte completa executada nesta retomada: 165 arquivos e 392 testes aprovados. O aviso do Vitest sobre `configLoader: native` permanece informativo e não alterou o resultado.
 - Verificação TypeScript (`npx tsc --noEmit`) concluída sem diagnósticos.
+- Verificação visual read-only no domínio oficial `https://oneit-omega.vercel.app/portal/field-service`: navegação autenticada renderizada com os rótulos operacionais atuais; a fila exibiu 0 chamados aguardando despacho, 2 visitas agendadas e os links para chamados/rotas. Nenhuma mutação foi executada.
 
 ## Último lote validado
 
