@@ -22,6 +22,7 @@ Atualizado em 12/11/2026.
 - `/api/ready?storage=1` em produção retornou `status: ready`, `deploymentMode: supabase` e `storage: ready`.
 - Isso confirma a disponibilidade do provedor, mas não substitui o upload autenticado de uma evidência sintética; esse passo segue pendente.
 - `npm run audit:migrations -- --strict` foi reexecutado: 196 migrations, nenhum alerta estático.
+- Lint de UI central e Field Service reexecutado (`lint:core-ui` e `lint:field-service`) sem diagnósticos; o processo encerrou após as duas etapas.
 
 ## Verificação desta retomada
 
