@@ -282,3 +282,10 @@ Não foi aplicado bypass no frontend nem no Supabase. Chamados ainda não atendi
 - Verificação: `operational-page-header-contract.test.ts` — **1/1 aprovado**; typecheck não reportou diagnóstico.
 - Publicação: pendente sincronização do commit deste lote e confirmação via `/api/version`.
 
+### Lote visual — Feature flags (13/11/2026)
+
+- Rota ajustada: `/portal/feature-flags`.
+- Alterações visíveis: cabeçalho compartilhado, formulário “Nova configuração” em cartão, labels acessíveis, feedback semântico e tabela/estado vazio consistentes.
+- Verificação: `operational-page-header-contract.test.ts` — **1/1 aprovado**.
+- Publicação: pendente sincronização do commit deste lote e confirmação via `/api/version`.
+
