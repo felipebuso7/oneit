@@ -23,6 +23,8 @@ describe("field service daily planning UI", () => {
     expect(scheduling).not.toContain("const selectedDate = /^\\\\d{4}-\\\\d{2}-\\\\d{2}$/");
     expect(scheduling).toContain('from("service_orders")');
     expect(scheduling).toContain("agendaEntries");
+    expect(scheduling).toContain("agendaByTechnician");
+    expect(scheduling).toContain("Agenda de ${technician?.full_name");
     expect(scheduling).toContain("technicianColorById");
     expect(scheduling).not.toContain("/portal/tickets?ticket=");
   });
