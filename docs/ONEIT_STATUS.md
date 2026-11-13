@@ -261,3 +261,10 @@ Não foi aplicado bypass no frontend nem no Supabase. Chamados ainda não atendi
 - Verificação: `npx tsc --noEmit --pretty false` e `operational-page-header-contract.test.ts` executados sem diagnóstico visível neste ambiente.
 - Publicação: pendente sincronização do commit deste lote e confirmação via `/api/version`.
 
+### Lote visual — SLA e OLA (13/11/2026)
+
+- Rota ajustada: `/portal/sla`.
+- Alterações visíveis: cabeçalho compartilhado, formulário “Nova política” em cartão, labels acessíveis, feedback semântico e estado vazio consistente.
+- Verificação: `operational-page-header-contract.test.ts` — **1/1 aprovado**; `tsc` executado sem diagnóstico reportado.
+- Publicação: pendente sincronização do commit deste lote e confirmação via `/api/version`.
+
