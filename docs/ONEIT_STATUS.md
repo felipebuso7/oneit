@@ -6,6 +6,7 @@ Atualizado em 12/11/2026.
 
 - **Fila de chamados — responsividade (12/11/2026):** a listagem agora troca a tabela horizontal por cartões operacionais abaixo de `lg`, mantendo chamado/ServiceNow, situação, cliente/local, técnico, visita e ação no mesmo viewport. Em desktop, a tabela permanece disponível para produtividade. Evidência: `src/components/tickets/tickets-table.tsx`; contrato `tests/portal-responsive-contract.test.ts`, `tests/tickets-queue-ui-contract.test.ts` — 3 arquivos / 6 testes aprovados; `npx tsc --noEmit` sem diagnósticos.
 - **Regressão após a fila responsiva (12/11/2026):** suíte completa `npm test -- --run --no-file-parallelism` aprovada — 165 arquivos / 392 testes.
+- **Smoke autenticado da fila (12/11/2026):** domínio oficial `oneit-omega.vercel.app/portal/tickets` carregou 6 registros; a leitura exibiu situação, chamado/ServiceNow, cliente/local, título/serviço, técnico, visita e ação contextual. Verificação somente leitura em viewport desktop; validação móvel autenticada permanece pendente.
 
 - Regressão direcionada executada após a publicação `e202dd8`: 4 arquivos e 14 testes aprovados (`field-service-rto-render`, `measurement-pdf-visual`, `portal-navigation`, `auth-rbac-contract`). Nenhuma mutação foi feita em produção.
 - Regressão ampliada dos contratos operacionais: 15 arquivos e 23 testes aprovados, cobrindo despacho/WhatsApp, execução, validação, RTO, LPU e BM. A evidência é estática/contratual; o E2E autenticado com mutação e upload real continua pendente.
