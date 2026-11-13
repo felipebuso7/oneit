@@ -194,6 +194,12 @@ Não foi aplicado bypass no frontend nem no Supabase. Chamados ainda não atendi
 
 - Contratos de isolamento e ausência de persistência local nas rotas autenticadas: **2 arquivos / 4 testes aprovados**.
 - A superfície `/demo` permanece separada das rotas autenticadas; nenhuma alteração de dados foi executada.
+
+### RLS remota — verificação read-only (13/11/2026)
+
+- SQL Editor autenticado no projeto `oneit-staging`/branch `main` retornou as políticas `read visible ticket evidences`, `read visible ticket execution` e `read visible ticket reports`.
+- Isso confirma que a migration de endurecimento está aplicada remotamente; não foi executado SQL de alteração nesta verificação.
+- Permanece pendente somente o teste negativo com dois usuários/organizações distintas.
 - **Segurança preservada:** a exclusão continua sendo cancelamento auditável via RPC `cancel_ticket`; não há remoção física nem bypass de RLS.
 - **Verificação:** contratos responsivos e de despacho passaram (`3/3` testes). `tsc` foi iniciado, mas excedeu o limite de execução local sem emitir diagnóstico; deve ser repetido no CI/ambiente de build.
 - **Publicação:** commit `9b0a580` foi enviado com sucesso para `origin/main`. O endpoint público `/api/version` ainda responde o commit `eae0f44`; o webhook/deploy da Vercel ainda não propagou esta alteração. Não declarar a funcionalidade disponível em produção até o endpoint refletir `9b0a580`.
