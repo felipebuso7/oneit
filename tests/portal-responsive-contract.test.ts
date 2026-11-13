@@ -6,8 +6,9 @@ const tickets = readFileSync("src/components/tickets/tickets-table.tsx", "utf8")
 
 describe("contratos responsivos do portal operacional", () => {
   it("mantém a tabela de chamados navegável sem estourar o viewport", () => {
-    expect(tickets).toContain('<div className="overflow-x-auto">');
-    expect(tickets).toContain("min-w-[1240px]");
+    expect(tickets).toContain('className="divide-y divide-slate-200 lg:hidden"');
+    expect(tickets).toContain('className="hidden overflow-x-auto lg:block"');
+    expect(tickets).toContain("min-w-[980px]");
     expect(css).toContain("[data-oneit-sidebar-offset] .overflow-x-auto");
     expect(css).toContain("overflow-x: auto");
   });
