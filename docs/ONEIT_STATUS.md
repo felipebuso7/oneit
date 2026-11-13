@@ -134,6 +134,13 @@ Não foi aplicado bypass no frontend nem no Supabase. Chamados ainda não atendi
 - `npm run audit:migrations -- --strict`: **196 migrations, nenhum alerta estático**.
 - A migration `20261113090000_harden_ticket_child_rls.sql` permanece pronta, mas a tentativa de `supabase db push --dry-run` foi bloqueada pelo `EPERM` do CLI ao gravar `C:\Users\felipe.buso_tothetop\\.supabase\\telemetry.json.tmp...`; nenhuma alteração remota foi executada.
 - Próxima ação: aplicar a migration em ambiente Supabase autenticado após liberar o armazenamento do CLI ou usar o SQL Editor conectado, e então validar leitura isolada entre organizações.
+
+### Smoke autenticado da fila — produção (13/11/2026)
+
+- Domínio `https://oneit-omega.vercel.app/portal/tickets` carregou 6 chamados persistidos.
+- O registro selecionado `FSM-2026-000006` exibiu o botão desabilitado com a ajuda acessível: “Este chamado já iniciou o atendimento e não pode ser excluído”.
+- O mesmo registro mostrou situação **Aguardando validação**, técnico **Eder Ponciano**, visita `30/10/2026, 13:00` e ação **Validar OS**, confirmando que a regra visual corresponde ao estado operacional.
+- Nenhuma mutação foi executada durante o smoke.
 - **Segurança preservada:** a exclusão continua sendo cancelamento auditável via RPC `cancel_ticket`; não há remoção física nem bypass de RLS.
 - **Verificação:** contratos responsivos e de despacho passaram (`3/3` testes). `tsc` foi iniciado, mas excedeu o limite de execução local sem emitir diagnóstico; deve ser repetido no CI/ambiente de build.
 - **Publicação:** commit `9b0a580` foi enviado com sucesso para `origin/main`. O endpoint público `/api/version` ainda responde o commit `eae0f44`; o webhook/deploy da Vercel ainda não propagou esta alteração. Não declarar a funcionalidade disponível em produção até o endpoint refletir `9b0a580`.
