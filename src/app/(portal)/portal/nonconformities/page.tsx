@@ -1,4 +1,5 @@
 import { requireUser } from "@/lib/auth/current-user";
+import { OneitPageHeader } from "@/components/oneit-page-header";
 import { createNonconformity, createNonconformityActionPlan, linkNonconformitySource, saveNonconformityCauseAnalysis, updateNonconformityWorkflow } from "./actions";
 
 type PageProps = { searchParams: Promise<{ message?: string }> };
@@ -58,9 +59,9 @@ export default async function NonconformitiesPage({ searchParams }: PageProps) {
   const analysisByRecord = new Map((analyses ?? []).map((analysis) => [analysis.nonconformity_id, analysis]));
 
   return <section className="mx-auto max-w-6xl p-5 sm:p-8">
-    <h1 className="text-3xl font-semibold">Não conformidades e melhorias</h1>
+    <OneitPageHeader eyebrow="GOVERNANÇA · MELHORIA CONTÍNUA" title="Não conformidades e melhorias" description="Registre achados, causas, ações corretivas e verificação de eficácia em uma única jornada." />
     <p className="mt-2 text-sm text-slate-600">Registro de achados para correção, ação corretiva e avaliação de eficácia.</p>
-    {message ? <p className="mt-4 rounded bg-sky-100 p-3 text-sm">{message}</p> : null}
+    {message ? <p role="status" className="mt-4 rounded-lg border border-sky-200 bg-sky-50 p-3 text-sm text-sky-900">{message}</p> : null}
     <form action={createNonconformity} className="mt-6 grid gap-3 rounded-xl border bg-white p-5 sm:grid-cols-2">
       <select name="organizationId" required defaultValue="" className="rounded border p-2"><option disabled value="">Organização</option>{(organizations ?? []).map((organization) => <option key={organization.id} value={organization.id}>{organization.name}</option>)}</select>
       <select name="recordType" required defaultValue="" className="rounded border p-2"><option disabled value="">Tipo de registro</option><option value="NONCONFORMITY">Não conformidade</option><option value="OBSERVATION">Observação</option><option value="IMPROVEMENT_OPPORTUNITY">Oportunidade de melhoria</option></select>

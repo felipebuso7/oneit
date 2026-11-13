@@ -318,6 +318,7 @@ Não foi aplicado bypass no frontend nem no Supabase. Chamados ainda não atendi
 - Revalidação posterior manteve o mesmo resultado: produção continua em `b9771ce`.
 - Nova verificação no navegador mostrou deployment `oneit-e5c9f0c8bd-20261113140203` com commit efetivo `c4dcd9e`; os commits posteriores ainda aguardam propagação.
 - Nova verificação mostrou deployment `oneit-4a2ed7482a-20261113140609` com commit efetivo `d3cfe01`; `f1952ab` e posteriores ainda aguardam propagação.
+- Nova verificação mostrou deployment `oneit-718a0b0604-20261113140748` com commit efetivo `f1952ab`; `0f5fde8` e posteriores ainda aguardam propagação.
 
 ### Lote visual — Avisos operacionais (13/11/2026)
 
@@ -344,6 +345,13 @@ Não foi aplicado bypass no frontend nem no Supabase. Chamados ainda não atendi
 
 - Rota ajustada: `/portal/risks`.
 - Alterações visíveis: cabeçalho compartilhado e feedback semântico padronizado, mantendo os estados e o fluxo de tratamento existentes.
+- Verificação: `operational-page-header-contract.test.ts` — **1/1 aprovado**.
+- Publicação: pendente sincronização do commit deste lote e confirmação via `/api/version`.
+
+### Lote visual — Não conformidades e melhorias (13/11/2026)
+
+- Rota ajustada: `/portal/nonconformities`.
+- Alterações visíveis: cabeçalho compartilhado e feedback semântico padronizado, mantendo a jornada de origem, análise causal, ação corretiva e eficácia.
 - Verificação: `operational-page-header-contract.test.ts` — **1/1 aprovado**.
 - Publicação: pendente sincronização do commit deste lote e confirmação via `/api/version`.
 

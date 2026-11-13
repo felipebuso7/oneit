@@ -26,6 +26,7 @@ const operationalRoutes = [
   "audit",
   "governance-dashboard",
   "risks",
+  "nonconformities",
 ] as const;
 
 describe("cabeçalho compartilhado das rotas operacionais", () => {
