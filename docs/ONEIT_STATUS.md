@@ -362,3 +362,10 @@ Não foi aplicado bypass no frontend nem no Supabase. Chamados ainda não atendi
 - Cobertura: fila de revisão, pré-condições de encerramento, API de revisão, geração/armazenamento/download de RTO, upload de evidências e rotas de geração/PDF do BM.
 - Limitação: o runner reporta timeout de encerramento do processo do Vitest após os testes, mas os 13 testes finalizaram aprovados; ciclo autenticado sintético com mutação real continua pendente.
 
+### Regressão de isolamento e autorização (13/11/2026)
+
+- Comando: `npx vitest run tests/ticket-child-rls-isolation.test.ts tests/auth-rbac-contract.test.ts tests/db-integrity-audit.test.ts tests/production-persistence-boundary.test.ts tests/production-demo-isolation.test.ts --reporter=dot`.
+- Resultado: **5 arquivos / 10 testes aprovados**.
+- Cobertura: RLS de entidades filhas, RBAC, integridade entre organizações, fronteira de persistência de produção e isolamento do modo demo.
+- Limitação: permanece pendente somente a reprodução autenticada negativa com dois tenants reais/controlados; não há credencial secundária disponível para executar isso sem inventar evidência.
+
