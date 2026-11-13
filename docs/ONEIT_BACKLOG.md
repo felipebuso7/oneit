@@ -27,6 +27,7 @@ Item só passa a concluído com alteração identificável, teste/validação ex
 ## Lote atual
 
 - Redesign estrutural da Home do portal preparado no ambiente de desenvolvimento: hero operacional, ações primárias por jornada, fluxo visual de cinco etapas e acessos rápidos. Commit pendente de publicação em preview; captura anterior da Home foi registrada via navegador.
+- Design system: cartões KPI receberam acento semântico, superfície contextual e microinteração de elevação, preservando o conteúdo real das métricas.
 
 - Refinamento visual da tela de Agendamento de OS publicado em `main` (`9c96081`), com cabeçalho compartilhado e barra de filtro de data padronizada.
 - `git diff --check` limpo. A captura autenticada da fila foi comprovada; a captura visual autenticada do agendamento permanece como validação manual pendente.
