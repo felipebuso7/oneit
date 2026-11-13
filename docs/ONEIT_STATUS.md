@@ -9,6 +9,7 @@ Atualizado em 12/11/2026.
 - URL do preview da branch: `https://oneit-git-preview-home-redesign-okaa1.vercel.app/portal`. A Vercel publicou o artefato, mas o ambiente de Preview redireciona para `error=environment` por não possuir as variáveis de autenticação; a validação visual autenticada pós-redesign permanece bloqueada.
 - Navegação lateral recebeu estados de foco visível, transições de 200 ms e deslocamento sutil no hover para links não ativos. Commit `2f6a79e` publicado na branch de preview; produção permanece intocada.
 - Catálogo de serviços reestruturado na branch de preview `aff7890`: abas por nível, contagem de registros, tabela com código/status/edição/exclusão e formulário contextual separado para categoria ou subcategoria. TypeScript aprovado.
+- Regressão direcionada do catálogo e navegação executada: 1 arquivo e 10 testes aprovados. O aviso do Vitest sobre encerramento do processo permanece não bloqueante; os testes fecham com sucesso.
 
 - Padronização de nomenclatura do despacho: **Agendamento de OS**.
 - Padronização da agenda do técnico: **Agenda Técnicos**.
