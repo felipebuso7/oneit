@@ -12,6 +12,7 @@ Atualizado em 12/11/2026.
 - Regressão direcionada do catálogo e navegação executada: 1 arquivo e 10 testes aprovados. O aviso do Vitest sobre encerramento do processo permanece não bloqueante; os testes fecham com sucesso.
 - Fila de Chamados recebeu ajuste global de tabela: layout fixo, cabeçalho sticky, quebra segura de conteúdo e largura reduzida em viewport estreito. Commit `538a16b` publicado no preview; validação autenticada visual segue bloqueada pelo ambiente Preview.
 - Revisão da Agenda Técnicos: a tela consolida `ticket_schedules` e `service_orders`, colore compromissos por técnico e permite abrir o chamado. A regressão correta (`routes-agenda-ui-contract`, `portal-scheduling-technician-source` e `portal-navigation`) passou com 14 testes; a busca anterior por um nome de arquivo inexistente foi corrigida.
+- Dashboard operacional validado com os contratos de paleta, cabeçalho e navegação: 3 arquivos, 16 testes aprovados. Os cartões KPI usam o refinamento visual compartilhado do `OneitKpiGrid`, sem alterar as métricas reais.
 
 - Padronização de nomenclatura do despacho: **Agendamento de OS**.
 - Padronização da agenda do técnico: **Agenda Técnicos**.
