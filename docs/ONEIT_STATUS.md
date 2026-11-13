@@ -53,5 +53,6 @@ Atualizado em 12/11/2026.
 - BM refinado em `src/app/(portal)/portal/field-service/finance/measurement-panel.tsx` e `src/app/globals.css`: ação de iniciar fechamento ganhou destaque, totais ficaram mais evidentes e ações de PDF/validação receberam alvos e hover consistentes. Testes de PDF/BM: 2 arquivos e 2 testes aprovados.
 - Tela de login refinada em `src/app/(auth)/login/page.tsx`: fundo com identidade OneIT, superfície translúcida com profundidade e destaque visual mais forte para a entrada, sem alterar autenticação, mensagens ou permissões. Testes de auth/navegação: 2 arquivos e 11 testes aprovados.
 - Catálogo administrativo refinado em `src/app/globals.css`: abas de categorias/subcategorias ganharam transição, hover e contraste de navegação mais claros, preservando CRUD e escopo organizacional. Testes do catálogo/navegação: 2 arquivos e 19 testes aprovados.
+- Microinteração aplicada ao fluxo de abertura: drawers de catálogo/preenchimento entram em 180 ms com respeito a `prefers-reduced-motion`, sem mascarar erros nem alterar o comportamento do formulário. Testes de fila/navegação/responsividade: 3 arquivos e 15 testes aprovados.
 
 Após o deployment de `main` ficar Ready, validar dinamicamente as rotas de chamados, agendamento, agenda, validação e RTO no domínio oficial; depois tratar o primeiro P1 reproduzível.

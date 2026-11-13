@@ -626,6 +626,17 @@ html[data-oneit-sidebar="collapsed"] .oneit-demo-sidebar nav :is(a, button)[data
   border-radius: 6px !important;
 }
 
+/* Drawers operacionais entram suavemente para preservar contexto sem atrasar a tarefa. */
+[role="dialog"][aria-label="Catálogo para novo chamado"],
+[role="dialog"][aria-label="Preenchimento do chamado"] {
+  animation: oneit-drawer-in 180ms ease-out both;
+  transform-origin: right center;
+}
+@keyframes oneit-drawer-in {
+  from { opacity: 0; transform: translateX(18px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
 [aria-label="Selecionar serviço do catálogo"] > div:first-child {
   padding-top: 0.8rem !important;
   padding-bottom: 0.8rem !important;
@@ -706,5 +717,9 @@ a[href^="/portal/service-catalog?tab="]:hover {
 @media (prefers-reduced-motion: reduce) {
   .oneit-catalog-tile {
     transition: none;
+  }
+  [role="dialog"][aria-label="Catálogo para novo chamado"],
+  [role="dialog"][aria-label="Preenchimento do chamado"] {
+    animation: none;
   }
 }
