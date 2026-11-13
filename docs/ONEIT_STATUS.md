@@ -239,3 +239,11 @@ Não foi aplicado bypass no frontend nem no Supabase. Chamados ainda não atendi
 - A seção **Composições de LPU** renderizou seleção de item vigente, quantidade e ação de adicionar/salvar; o estado vazio foi honesto (`0 cadastrada(s)`).
 - Nenhuma criação, edição, desativação ou composição foi executada nesta validação para preservar dados reais. O CRUD completo continua pendente de teste controlado em homologação.
 
+### Revalidação de exclusão/cancelamento de chamados — produção (13/11/2026)
+
+- `/api/version` respondeu `5e49da3b2683f929dcdca49bc611222812378706` em `environment=production`.
+- A fila respondeu **2 de 2** e não exibiu chamados com `operational_status = CANCELLED`; portanto o cancelamento seguro continua removendo o chamado da fila ativa.
+- Os dois registros visíveis estavam em **Aguardando validação** (`TECHNICALLY_COMPLETED`). O seletor funciona, mas o botão de exclusão permanece desabilitado por regra explícita: após check-in/execução, o histórico, evidências, assinatura, RTO e BM devem ser preservados.
+- Teste direcionado: `portal-ticket-queue-limits.test.ts` + `tickets-queue-ui-contract.test.ts` — **2 arquivos / 6 testes aprovados**.
+- Conclusão: não há falha de seleção ou de publicação. O comportamento observado é uma restrição de integridade, não uma exclusão quebrada. A remoção de dados de teste já executados exige rotina administrativa controlada/homologação, não exclusão física pela fila de produção.
+
