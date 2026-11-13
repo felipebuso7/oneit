@@ -232,3 +232,10 @@ Não foi aplicado bypass no frontend nem no Supabase. Chamados ainda não atendi
 - **Verificação:** contratos responsivos e de despacho passaram (`3/3` testes). `tsc` foi iniciado, mas excedeu o limite de execução local sem emitir diagnóstico; deve ser repetido no CI/ambiente de build.
 - **Publicação:** commit `9b0a580` foi enviado com sucesso para `origin/main`. O endpoint público `/api/version` ainda responde o commit `eae0f44`; o webhook/deploy da Vercel ainda não propagou esta alteração. Não declarar a funcionalidade disponível em produção até o endpoint refletir `9b0a580`.
 
+### Smoke Cadastro de LPU — produção (13/11/2026)
+
+- A rota autenticada `/portal/settings/field-service/lpu` renderizou o cadastro de item com organização, código, descrição, tipo (Material/Mão de obra/Deslocamento), unidade, valor unitário e vigência.
+- A listagem exibiu 2 itens ativos reais (`MT-001` Cabo de Rede CAT 6 e `VIS-001` Visita Técnica - 3 Horas), com filtros por tipo e ações de **Editar** e **Desativar**.
+- A seção **Composições de LPU** renderizou seleção de item vigente, quantidade e ação de adicionar/salvar; o estado vazio foi honesto (`0 cadastrada(s)`).
+- Nenhuma criação, edição, desativação ou composição foi executada nesta validação para preservar dados reais. O CRUD completo continua pendente de teste controlado em homologação.
+
