@@ -9,7 +9,7 @@
 - Executar E2E autenticado do ciclo chamado → agendamento → técnico → validação → RTO/BM. Contratos automatizados aprovados; validação dinâmica ainda pendente. **Smoke autenticado em produção confirmado em 12/11/2026:** `/portal/review` carregou 2 OS aprovadas, uma com RTO pendente e outra com RTO baixável/encerramento disponível; isso não substitui o ciclo completo.
 - Confirmar em ambiente autenticado que os filtros de organização não expõem dados entre tenants.
 - **Correção preparada:** migration `20261113090000_harden_ticket_child_rls.sql` restringe leitura de checklist, execução, materiais, evidências, conclusões, revisões, relatórios e agendas a gestão da organização ou técnico atribuído. Testes contratuais aprovados; aplicação no Supabase ainda pendente de homologação.
-- Validar tecnicamente upload de evidências e armazenamento do RTO com dados sintéticos. Contratos automatizados aprovados; endpoint de prontidão de produção respondeu `200 {status:"ready", deploymentMode:"supabase"}` em 12/11/2026, mas ainda falta um upload sintético real autenticado.
+- Validar tecnicamente upload de evidências e armazenamento do RTO com dados sintéticos. **Storage confirmado pronto em produção (13/11/2026):** `/api/ready?storage=1` retornou `status: ready`, `deploymentMode: supabase`, `storage: ready`; ainda falta um upload sintético real autenticado.
 
 ## P2
 

@@ -17,6 +17,11 @@ Atualizado em 12/11/2026.
 - **Verificação:** TypeScript sem diagnósticos; contratos de Design System e navegação — 2 arquivos / 13 testes aprovados.
 - **Publicação:** commit `75bd769` enviado para `main`; acompanhamento do deployment feito pelo endpoint público.
 
+## Smoke de storage (13/11/2026)
+
+- `/api/ready?storage=1` em produção retornou `status: ready`, `deploymentMode: supabase` e `storage: ready`.
+- Isso confirma a disponibilidade do provedor, mas não substitui o upload autenticado de uma evidência sintética; esse passo segue pendente.
+
 ## Verificação desta retomada
 
 - **Fila de chamados — responsividade (12/11/2026):** a listagem agora troca a tabela horizontal por cartões operacionais abaixo de `lg`, mantendo chamado/ServiceNow, situação, cliente/local, técnico, visita e ação no mesmo viewport. Em desktop, a tabela permanece disponível para produtividade. Evidência: `src/components/tickets/tickets-table.tsx`; contrato `tests/portal-responsive-contract.test.ts`, `tests/tickets-queue-ui-contract.test.ts` — 3 arquivos / 6 testes aprovados; `npx tsc --noEmit` sem diagnósticos.
