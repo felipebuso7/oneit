@@ -386,3 +386,8 @@ Não foi aplicado bypass no frontend nem no Supabase. Chamados ainda não atendi
 - Teste adicional: `tests/ticket-cancel-after-execution.test.ts` junto ao contrato da fila — **2 arquivos / 5 testes aprovados**.
 - Publicação: commits locais `500ed76` e `a443108`; `git push`/deploy estão bloqueados nesta sessão por falha DNS ao resolver `github.com`.
 
+### Lote visual P2 — Planos de ação (13/11/2026)
+
+- `/portal/action-plans` foi reorganizada em fluxo de criação + acompanhamento, com cabeçalho OneIT, formulário contextual, estados sem dados e controles de atualização agrupados.
+- Verificação: `git diff --check` aprovado. ESLint/typecheck foram iniciados, mas o processo não encerrou dentro da janela disponível; resultado final permanece pendente.
+
