@@ -375,3 +375,10 @@ Não foi aplicado bypass no frontend nem no Supabase. Chamados ainda não atendi
 - Resultado: **9 arquivos / 16 testes aprovados**.
 - Cobertura: fluxo de validação, integridade e concorrência da revisão, histórico e imutabilidade de RTO, despacho atômico, mapeamento operacional e persistência de produção.
 
+### Correção de cancelamento seguro de chamados (13/11/2026)
+
+- Auditoria confirmou que o botão ficava desabilitado sempre que havia qualquer `field_progress`, inclusive em chamados de teste já concluídos. Isso divergia da regra operacional desejada de retirar o chamado da fila preservando histórico.
+- Migration criada: `supabase/migrations/20261113120000_allow_safe_ticket_cancellation_after_execution.sql`.
+- A função `cancel_ticket` continua exigindo perfil de gestão, versão otimista e bloqueia apenas chamados administrativamente encerrados; a operação é cancelamento lógico (`CANCELLED`) e mantém OS, evidências, RTO/BM e `audit_logs`.
+- **Pendência de infraestrutura:** a migration ainda precisa ser aplicada no Supabase de produção e confirmada por consulta; não foi executada automaticamente para evitar alteração não verificada no banco real.
+
