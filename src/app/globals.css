@@ -295,6 +295,23 @@ textarea {
   background: #fff1f2;
 }
 
+/* Revisão gerencial: decisões importantes precisam ser distinguíveis sem depender só do texto. */
+form[aria-label="Decisão do gestor sobre a OS"] button[value="APPROVE"] {
+  background: #047857;
+  box-shadow: 0 1px 2px rgb(6 78 59 / .18);
+}
+form[aria-label="Decisão do gestor sobre a OS"] button[value="APPROVE"]:hover:not(:disabled) {
+  background: #065f46;
+}
+form[aria-label="Decisão do gestor sobre a OS"] button[value="RETURN"] {
+  border-color: #f59e0b;
+  color: #92400e;
+  background: #fffbeb;
+}
+form[aria-label="Decisão do gestor sobre a OS"] button[value="RETURN"]:hover {
+  background: #fef3c7;
+}
+
 /* Acesso externo do técnico: as marcas precisam ser reconhecíveis em telas móveis. */
 img[alt="Servicia Facilities Services"] { height: 40px !important; width: auto !important; max-width: 52% !important; object-fit: contain; object-position: right center; }
 img[alt="OneIT"] { height: 48px !important; width: auto !important; max-width: 48% !important; object-fit: contain; }

@@ -47,5 +47,6 @@ Atualizado em 12/11/2026.
 - Navegação global refinada em `src/components/portal-sidebar-light.tsx`: grupos com rota ativa agora recebem marcador visual laranja e contraste textual reforçado, mantendo foco por teclado e seleção de página. Testes de navegação/responsividade: 2 arquivos e 12 testes aprovados.
 - Fila de chamados refinada em `src/app/globals.css`: coluna de ação ganhou largura mínima, alvos de toque consistentes e feedback contextual distinto para abrir/agendar/excluir, mantendo a tabela navegável em viewport estreito. Testes de fila/responsividade/navegação: 3 arquivos e 15 testes aprovados.
 - Ação primária do despacho refinada em `src/app/(portal)/portal/field-service/dispatch-workspace.tsx`: “Agendar visita e encaminhar por WhatsApp” agora usa destaque laranja, alvo de toque maior, hover e estado desabilitado explícito. Testes de despacho/WhatsApp/concorrência: 4 arquivos e 6 testes aprovados.
+- Decisão gerencial refinada em `src/app/globals.css`: aprovar OS usa estado verde semântico e devolver para correção usa estado âmbar, mantendo foco na conferência e sem alterar as ações do backend. Testes de revisão: 5 arquivos e 9 testes aprovados.
 
 Após o deployment de `main` ficar Ready, validar dinamicamente as rotas de chamados, agendamento, agenda, validação e RTO no domínio oficial; depois tratar o primeiro P1 reproduzível.
