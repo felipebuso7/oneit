@@ -355,3 +355,10 @@ Não foi aplicado bypass no frontend nem no Supabase. Chamados ainda não atendi
 - Verificação: `operational-page-header-contract.test.ts` — **1/1 aprovado**.
 - Publicação: pendente sincronização do commit deste lote e confirmação via `/api/version`.
 
+### Regressão direcionada — Field Service / RTO / BM (13/11/2026)
+
+- Comando: `npx vitest run tests/field-service-end-to-end-contract.test.ts tests/field-service-closure-contract.test.ts tests/field-service-review-api.test.ts tests/field-service-rto-api.test.ts tests/field-service-rto-storage.test.ts tests/field-partner-evidence-upload.test.ts tests/measurement-generation-contract.test.ts tests/measurement-pdf-route-contract.test.ts --reporter=dot`.
+- Resultado: **8 arquivos / 13 testes aprovados**.
+- Cobertura: fila de revisão, pré-condições de encerramento, API de revisão, geração/armazenamento/download de RTO, upload de evidências e rotas de geração/PDF do BM.
+- Limitação: o runner reporta timeout de encerramento do processo do Vitest após os testes, mas os 13 testes finalizaram aprovados; ciclo autenticado sintético com mutação real continua pendente.
+
