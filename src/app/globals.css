@@ -244,6 +244,16 @@ textarea {
   transition: background-color 140ms ease, box-shadow 140ms ease, transform 140ms ease;
 }
 
+.oneit-btn:focus-visible {
+  outline: 3px solid rgb(14 116 144 / 0.35);
+  outline-offset: 2px;
+}
+.oneit-page-header:focus-within,
+.oneit-card:focus-within {
+  border-color: #7dd3fc;
+  box-shadow: 0 0 0 3px rgb(14 165 233 / 0.1), var(--oneit-shadow-sm);
+}
+
 .oneit-btn:active { transform: translateY(1px); }
 .oneit-btn--primary { background: var(--oneit-petrol-900); color: white; }
 .oneit-btn--primary:hover { background: var(--oneit-petrol-950); box-shadow: 0 3px 8px rgb(6 43 53 / 0.18); }
