@@ -23,6 +23,7 @@ const operationalRoutes = [
   "pending",
   "operational-reports",
   "announcements",
+  "audit",
 ] as const;
 
 describe("cabeçalho compartilhado das rotas operacionais", () => {
