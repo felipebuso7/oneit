@@ -6,6 +6,7 @@ Atualizado em 12/11/2026.
 
 - Em andamento: redesign estrutural da Home autenticada. O estado anterior foi capturado no domínio oficial; a nova composição está implementada localmente e aguarda publicação em preview para comparação pós-deploy.
 - O componente compartilhado `OneitKpiGrid` foi refinado com estados visualmente distinguíveis para indicadores normais, atenção e positivos; testes de navegação/design system passaram.
+- URL do preview da branch: `https://oneit-git-preview-home-redesign-okaa1.vercel.app/portal`. A Vercel publicou o artefato, mas o ambiente de Preview redireciona para `error=environment` por não possuir as variáveis de autenticação; a validação visual autenticada pós-redesign permanece bloqueada.
 
 - Padronização de nomenclatura do despacho: **Agendamento de OS**.
 - Padronização da agenda do técnico: **Agenda Técnicos**.
