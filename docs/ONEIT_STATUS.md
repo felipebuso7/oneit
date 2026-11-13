@@ -9,6 +9,7 @@ Atualizado em 12/11/2026.
 - **Smoke autenticado da fila (12/11/2026):** domínio oficial `oneit-omega.vercel.app/portal/tickets` carregou 6 registros; a leitura exibiu situação, chamado/ServiceNow, cliente/local, título/serviço, técnico, visita e ação contextual. Verificação somente leitura em viewport desktop; validação móvel autenticada permanece pendente.
 - **RLS de dados filhos (12/11/2026):** identificada e corrigida em migration aditiva a leitura ampla baseada somente na existência do `ticket_id`. `20261113090000_harden_ticket_child_rls.sql` exige papel de gestão da organização ou técnico atribuído, inclusive para objetos privados de evidência e relatório. Testes direcionados: 3 arquivos / 6 testes aprovados; TypeScript sem diagnósticos. A migration ainda não foi aplicada no Supabase remoto.
 - **Regressão após RLS (12/11/2026):** suíte completa `npm test -- --run --no-file-parallelism` aprovada — 166 arquivos / 394 testes.
+- **Auditoria estática de migrations (12/11/2026):** `npm run audit:migrations -- --strict` encontrou 196 migrations e nenhum alerta.
 
 - Regressão direcionada executada após a publicação `e202dd8`: 4 arquivos e 14 testes aprovados (`field-service-rto-render`, `measurement-pdf-visual`, `portal-navigation`, `auth-rbac-contract`). Nenhuma mutação foi feita em produção.
 - Regressão ampliada dos contratos operacionais: 15 arquivos e 23 testes aprovados, cobrindo despacho/WhatsApp, execução, validação, RTO, LPU e BM. A evidência é estática/contratual; o E2E autenticado com mutação e upload real continua pendente.
