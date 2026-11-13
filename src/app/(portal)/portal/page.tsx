@@ -3,7 +3,7 @@ import { OneitPageHeader } from "@/components/oneit";
 
 const actions = [
   { href: "/portal/tickets", icon: "▤", label: "Chamados", title: "Abrir e acompanhar chamados", description: "Consulte a fila, o ServiceNow, o técnico e a visita em uma única leitura.", tone: "border-sky-200 bg-sky-50 text-sky-950" },
-  { href: "/portal/field-service", icon: "◷", label: "Agendamento de OS", title: "Despachar atendimento", description: "Escolha técnico, janela e comunique o atendimento com o link seguro.", tone: "border-orange-200 bg-orange-50 text-orange-950" },
+   { href: "/portal/field-service", icon: "◷", label: "Agendamento de OS", title: "Abrir Agendamento de OS", description: "Escolha técnico, janela e comunique o atendimento com o link seguro.", tone: "border-orange-200 bg-orange-50 text-orange-950" },
   { href: "/portal/review", icon: "✓", label: "Validação de OS", title: "Validar execução", description: "Confira evidências, materiais, LPU e aprove ou devolva a OS.", tone: "border-emerald-200 bg-emerald-50 text-emerald-950" },
 ] as const;
 
