@@ -4,6 +4,8 @@ Atualizado em 12/11/2026.
 
 ## Último lote validado
 
+- Em andamento: redesign estrutural da Home autenticada. O estado anterior foi capturado no domínio oficial; a nova composição está implementada localmente e aguarda publicação em preview para comparação pós-deploy.
+
 - Padronização de nomenclatura do despacho: **Agendamento de OS**.
 - Padronização da agenda do técnico: **Agenda Técnicos**.
 - Horários do técnico formatados no fuso `America/Sao_Paulo`.
