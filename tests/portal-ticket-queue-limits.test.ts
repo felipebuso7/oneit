@@ -7,6 +7,11 @@ describe("limites adicionais das filas de chamados", () => {
     expect(source).toContain('.limit(500)');
   });
 
+  it("remove chamados cancelados da fila operacional após a exclusão segura", () => {
+    const source = readFileSync("src/app/(portal)/portal/tickets/page.tsx", "utf8");
+    expect(source).toContain('.neq("operational_status", "CANCELLED")');
+  });
+
   it("limita a fila de agendamento", () => {
     const source = readFileSync("src/app/(portal)/portal/scheduling/page.tsx", "utf8");
     expect(source).toContain('.limit(500)');
