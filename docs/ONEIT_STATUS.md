@@ -7,7 +7,7 @@ Atualizado em 12/11/2026.
 - **Implementado:** `OneitEmptyState`, `OneitLoadingState` e `OneitErrorState` agora usam uma superfície visual comum, faixa semântica lateral, ícone contextual e entrada suave respeitando `prefers-reduced-motion`.
 - **Arquivos:** `src/components/oneit-state.tsx`, `src/app/globals.css`.
 - **Verificação:** `npx tsc --noEmit` sem diagnósticos; contratos de Design System, agenda e responsividade — 2 arquivos / 5 testes aprovados.
-- **Publicação:** commit `5641075` enviado para `main`; o deployment de produção será acompanhado pelo endpoint de versão assim que a rede estiver disponível.
+- **Publicação:** commit `5641075` enviado para `main` e confirmado em produção pelo endpoint `/api/version` como `environment: production`; `/api/ready` retornou `status: ready` e `deploymentMode: supabase`.
 
 ## Verificação desta retomada
 
