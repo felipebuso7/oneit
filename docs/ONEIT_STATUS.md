@@ -141,6 +141,12 @@ Não foi aplicado bypass no frontend nem no Supabase. Chamados ainda não atendi
 - O registro selecionado `FSM-2026-000006` exibiu o botão desabilitado com a ajuda acessível: “Este chamado já iniciou o atendimento e não pode ser excluído”.
 - O mesmo registro mostrou situação **Aguardando validação**, técnico **Eder Ponciano**, visita `30/10/2026, 13:00` e ação **Validar OS**, confirmando que a regra visual corresponde ao estado operacional.
 - Nenhuma mutação foi executada durante o smoke.
+
+### Regressão visual/operacional direcionada (13/11/2026)
+
+- Contratos de navegação, responsividade da fila e estados visuais: **3 arquivos / 15 testes aprovados**.
+- A suíte completa foi iniciada duas vezes, mas não emitiu resultado dentro do limite local de 30 s; portanto não é considerada aprovada neste checkpoint.
+- Nenhuma alteração de código ou dado foi necessária neste lote.
 - **Segurança preservada:** a exclusão continua sendo cancelamento auditável via RPC `cancel_ticket`; não há remoção física nem bypass de RLS.
 - **Verificação:** contratos responsivos e de despacho passaram (`3/3` testes). `tsc` foi iniciado, mas excedeu o limite de execução local sem emitir diagnóstico; deve ser repetido no CI/ambiente de build.
 - **Publicação:** commit `9b0a580` foi enviado com sucesso para `origin/main`. O endpoint público `/api/version` ainda responde o commit `eae0f44`; o webhook/deploy da Vercel ainda não propagou esta alteração. Não declarar a funcionalidade disponível em produção até o endpoint refletir `9b0a580`.
