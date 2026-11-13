@@ -2,6 +2,10 @@
 
 Atualizado em 12/11/2026.
 
+## Verificação desta retomada
+
+- Regressão direcionada executada após a publicação `e202dd8`: 4 arquivos e 14 testes aprovados (`field-service-rto-render`, `measurement-pdf-visual`, `portal-navigation`, `auth-rbac-contract`). Nenhuma mutação foi feita em produção.
+
 ## Último lote validado
 
 - Redesign estrutural da Home autenticada publicado no preview Vercel do commit `1802818`; o deployment foi observado como **Ready**. A validação visual autenticada permanece limitada nesta execução porque a nova aba visível não pôde ser aberta.
