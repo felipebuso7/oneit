@@ -252,5 +252,5 @@ Não foi aplicado bypass no frontend nem no Supabase. Chamados ainda não atendi
 - Rota ajustada: `/portal/priority-matrix`.
 - Alterações visíveis: cabeçalho `OneitPageHeader`, formulário em cartão, labels acessíveis, campos com estados consistentes, mensagem semântica e tabela em superfície compartilhada `oneit-card`.
 - Verificação: `npx tsc --noEmit --pretty false` sem diagnósticos; `operational-page-header-contract.test.ts` — **1/1 teste aprovado**.
-- Publicação: commit local pendente de sincronização neste checkpoint.
+- Publicação: commit `eff94b2` sincronizado em `origin/main`; a propagação da Vercel deve ser confirmada pelo `/api/version` antes de declarar a rota em produção.
 
