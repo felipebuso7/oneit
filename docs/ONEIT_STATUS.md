@@ -396,3 +396,8 @@ Não foi aplicado bypass no frontend nem no Supabase. Chamados ainda não atendi
 - `/portal/internal-audits` recebeu cabeçalho OneIT, cartões de planejamento/listagem e feedback semântico, sem alteração nas actions de auditoria, constatações ou vínculo com NC.
 - Verificação: ESLint da rota concluído com exit code 0; `git diff --check` executado.
 
+### Lote visual P2 — Documentos controlados (13/11/2026)
+
+- `/portal/controlled-documents` recebeu cabeçalho OneIT, formulário/lista em cartões compartilhados e melhor hierarquia para versão, submissão e aprovação.
+- Verificação: ESLint da rota concluído com exit code 0; contratos de actions preservados.
+
