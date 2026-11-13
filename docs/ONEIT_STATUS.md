@@ -200,6 +200,12 @@ Não foi aplicado bypass no frontend nem no Supabase. Chamados ainda não atendi
 - SQL Editor autenticado no projeto `oneit-staging`/branch `main` retornou as políticas `read visible ticket evidences`, `read visible ticket execution` e `read visible ticket reports`.
 - Isso confirma que a migration de endurecimento está aplicada remotamente; não foi executado SQL de alteração nesta verificação.
 - Permanece pendente somente o teste negativo com dois usuários/organizações distintas.
+
+### Smoke visual da Agenda Técnicos — produção (13/11/2026)
+
+- A tela renderizou título, seletor de data, atualização, legenda de técnicos e as filas de compromissos/agendamento/atribuição.
+- Para `13/11/2026`, o estado vazio foi honesto e exibiu link para a última data com agenda; não foram apresentados dados fictícios.
+- Nenhuma mutação foi executada.
 - **Segurança preservada:** a exclusão continua sendo cancelamento auditável via RPC `cancel_ticket`; não há remoção física nem bypass de RLS.
 - **Verificação:** contratos responsivos e de despacho passaram (`3/3` testes). `tsc` foi iniciado, mas excedeu o limite de execução local sem emitir diagnóstico; deve ser repetido no CI/ambiente de build.
 - **Publicação:** commit `9b0a580` foi enviado com sucesso para `origin/main`. O endpoint público `/api/version` ainda responde o commit `eae0f44`; o webhook/deploy da Vercel ainda não propagou esta alteração. Não declarar a funcionalidade disponível em produção até o endpoint refletir `9b0a580`.
