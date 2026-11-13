@@ -90,4 +90,5 @@ Próxima ação: executar E2E autenticado do ciclo chamado → agendamento → t
 - **Limitação ainda aberta:** a migration `20261113090000_harden_ticket_child_rls.sql` segue preparada no repositório, mas ainda não aplicada remotamente no Supabase; o ciclo E2E autenticado com upload/RTO permanece pendente de homologação.
 - **Regressão completa após o checkpoint:** `npm test -- --run --no-file-parallelism` passou com `166` arquivos e `394` testes.
 - **Melhoria implementada:** a agenda agora agrupa os compromissos em blocos por técnico, com contagem de visitas, cor consistente e cards responsivos; cada card mantém o link direto para o chamado. Commit `fe6f6de`; typecheck e 14 contratos direcionados aprovados.
+- **Validação visual pós-deploy:** em produção, `?date=2026-10-29` exibiu o bloco `Agenda de Eder Ponciano`, `1 visita` e o compromisso `13:00–14:00` com link para o chamado. Nenhuma mutação foi executada.
 
