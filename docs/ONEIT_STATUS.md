@@ -4,7 +4,7 @@ Atualizado em 12/11/2026.
 
 ## Último lote validado
 
-- Em andamento: redesign estrutural da Home autenticada. O estado anterior foi capturado no domínio oficial; a nova composição está implementada localmente e aguarda publicação em preview para comparação pós-deploy.
+- Redesign estrutural da Home autenticada publicado no preview Vercel do commit `1802818`; o deployment foi observado como **Ready**. A validação visual autenticada permanece limitada nesta execução porque a nova aba visível não pôde ser aberta.
 - O componente compartilhado `OneitKpiGrid` foi refinado com estados visualmente distinguíveis para indicadores normais, atenção e positivos; testes de navegação/design system passaram.
 - URL do preview da branch: `https://oneit-git-preview-home-redesign-okaa1.vercel.app/portal`. A Vercel publicou o artefato, mas o ambiente de Preview redireciona para `error=environment` por não possuir as variáveis de autenticação; a validação visual autenticada pós-redesign permanece bloqueada.
 - Navegação lateral recebeu estados de foco visível, transições de 200 ms e deslocamento sutil no hover para links não ativos. Commit `2f6a79e` publicado na branch de preview; produção permanece intocada.
@@ -33,6 +33,7 @@ Atualizado em 12/11/2026.
 ## Estado conhecido
 
 - O worktree possui alterações anteriores do projeto; não fazer limpeza destrutiva.
+- O preview atual da branch `preview/home-redesign` está disponível em `https://oneit-2au3hl90o-okaa1.vercel.app/` e corresponde ao commit `1802818`.
 - Os commits `d9674ab`, `3cde5f6` e `fdfed79` foram publicados no GitHub nas branches `prep/cloud-staging` e `main`.
 - O GitHub foi conectado ao projeto Vercel (`felipebuso7/oneit`). O deployment de preview do commit `fdfed79` ficou **Ready** em `oneit-btgduul66-okaa1.vercel.app`, mas o ambiente de preview não possui as variáveis de autenticação e redireciona para `error=environment`.
 - O push para `main` disparou os deployments de produção `oneit-rf8jbd9p6-okaa1.vercel.app` e `oneit-lzcwvchao-okaa1.vercel.app`; ambos ficaram **Ready**. O domínio oficial `https://oneit-omega.vercel.app` foi recarregado e exibiu “Abrir Agendamento de OS”, “Agendamento de OS”, “Agenda Técnicos” e “RTO Encerrados”.
@@ -57,4 +58,4 @@ Atualizado em 12/11/2026.
 - Design System refinado em `src/app/globals.css`: botões compartilhados agora possuem foco visível consistente e cards/cabeçalhos evidenciam o contexto quando recebem foco interno, melhorando teclado e acessibilidade sem mudar layout estrutural. Testes do Design System: 1 arquivo e 10 testes aprovados.
 - Login refinado com foco automático no campo de e-mail, reduzindo um toque na entrada e mantendo a ordem de teclado e o contrato de autenticação. Teste RBAC: 1 aprovado.
 
-Após o deployment de `main` ficar Ready, validar dinamicamente as rotas de chamados, agendamento, agenda, validação e RTO no domínio oficial; depois tratar o primeiro P1 reproduzível.
+Próxima ação: executar E2E autenticado do ciclo chamado → agendamento → técnico → validação → RTO/BM em homologação, registrando cada etapa como aprovado, reprovado ou bloqueado; não promover o preview para `main` antes dessa verificação.
