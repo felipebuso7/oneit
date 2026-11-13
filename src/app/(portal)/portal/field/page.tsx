@@ -65,7 +65,7 @@ export default async function FieldPage({ searchParams }: PageProps) {
       const organizationTemplate = (templates ?? []).filter((item) => item.organization_id === ticket.organization_id);
       return { ...ticket, checklist: snapshot.length ? snapshot : organizationTemplate.length ? organizationTemplate : (templates ?? []).filter((item) => item.organization_id === null) };
     }) })} />
-    {message ? <p role="status" className="mt-4 rounded bg-sky-100 p-3 text-sm text-sky-900">{message}</p> : null}
+    {message ? <div role="status" className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-sky-200 bg-sky-50 p-3 text-sm text-sky-900"><span>{message}</span>{message.toLowerCase().includes("catálogo") ? <a href="/portal/field" className="rounded-lg bg-white px-3 py-2 text-xs font-semibold text-sky-900 shadow-sm ring-1 ring-sky-200 hover:bg-sky-100">Tentar novamente</a> : null}</div> : null}
     {!tickets?.length ? <div className="mt-6"><OneitEmptyState title="Nenhuma OS atribuída" description="Quando um atendimento for despachado para você, ele aparecerá aqui com as próximas ações disponíveis." /></div> : null}
     <div className="mt-6 space-y-4">{(tickets ?? []).map((ticket) => {
       const action = actions[ticket.operational_status as keyof typeof actions];
