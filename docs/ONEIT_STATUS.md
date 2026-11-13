@@ -82,3 +82,9 @@ Atualizado em 12/11/2026.
 - Regressão direcionada pós-checkpoint: 4 arquivos e 14 testes aprovados (`field-service-rto-render`, `measurement-pdf-visual`, `portal-navigation`, `auth-rbac-contract`).
 
 Próxima ação: executar E2E autenticado do ciclo chamado → agendamento → técnico → validação → RTO/BM em homologação, registrando cada etapa como aprovado, reprovado ou bloqueado. A fila autenticada foi verificada em produção no domínio oficial; o último código publicado confirmado como Ready antes deste lote foi `71c1305`, e o deployment do lote responsivo foi disparado após `9452d14`/`5c44734`. Não declarar o ciclo completo até validar mutações autenticadas e upload real.
+### Publicação e agenda (12/11/2026)
+
+- **Produção confirmada:** commit `c997a6d` (`docs: record migration audit`) aparece como **Ready** na Vercel, com deployment `oneit-4etrzufu1-okaa1.vercel.app`; o domínio oficial continua `https://oneit-omega.vercel.app`.
+- **Agenda/despacho:** contratos direcionados aprovados (`15/15` testes) e TypeScript sem erros. A tela usa `technicians` como fonte canônica, mantém o filtro por organização e apresenta agenda por data, técnico e cor.
+- **Limitação ainda aberta:** a migration `20261113090000_harden_ticket_child_rls.sql` segue preparada no repositório, mas ainda não aplicada remotamente no Supabase; o ciclo E2E autenticado com upload/RTO permanece pendente de homologação.
+
