@@ -275,3 +275,10 @@ Não foi aplicado bypass no frontend nem no Supabase. Chamados ainda não atendi
 - Verificação: `operational-page-header-contract.test.ts` — **1/1 aprovado**; typecheck executado sem diagnóstico reportado.
 - Publicação: pendente sincronização do commit deste lote e confirmação via `/api/version`.
 
+### Lote visual — Escalonamentos (13/11/2026)
+
+- Rota ajustada: `/portal/escalations`.
+- Alterações visíveis: cabeçalho compartilhado, formulário “Novo escalonamento” em cartão, labels acessíveis, feedback semântico e histórico padronizado.
+- Verificação: `operational-page-header-contract.test.ts` — **1/1 aprovado**; typecheck não reportou diagnóstico.
+- Publicação: pendente sincronização do commit deste lote e confirmação via `/api/version`.
+

@@ -17,6 +17,7 @@ const operationalRoutes = [
   "calendars",
   "sla",
   "support-groups",
+  "escalations",
 ] as const;
 
 describe("cabeçalho compartilhado das rotas operacionais", () => {
