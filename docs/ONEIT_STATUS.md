@@ -50,5 +50,6 @@ Atualizado em 12/11/2026.
 - Decisão gerencial refinada em `src/app/globals.css`: aprovar OS usa estado verde semântico e devolver para correção usa estado âmbar, mantendo foco na conferência e sem alterar as ações do backend. Testes de revisão: 5 arquivos e 9 testes aprovados.
 - Agenda Técnicos refinada em `src/app/(portal)/portal/scheduling/page.tsx`: legenda visual por técnico adicionada acima dos compromissos, preservando as cores usadas nos eventos e a navegação para o chamado. Testes de agenda/navegação: 3 arquivos e 14 testes aprovados.
 - Abertura de chamado refinada em `src/components/tickets/ticket-create-flow.tsx`: o drawer agora exibe progresso visual explícito entre referência/serviço e dados da solicitação, mantendo bloqueios e validações existentes. Testes de criação/fila/navegação: 2 arquivos e 13 testes aprovados.
+- BM refinado em `src/app/(portal)/portal/field-service/finance/measurement-panel.tsx` e `src/app/globals.css`: ação de iniciar fechamento ganhou destaque, totais ficaram mais evidentes e ações de PDF/validação receberam alvos e hover consistentes. Testes de PDF/BM: 2 arquivos e 2 testes aprovados.
 
 Após o deployment de `main` ficar Ready, validar dinamicamente as rotas de chamados, agendamento, agenda, validação e RTO no domínio oficial; depois tratar o primeiro P1 reproduzível.

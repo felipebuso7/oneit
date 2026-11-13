@@ -201,6 +201,21 @@ textarea {
 .oneit-bm-panel > section { box-shadow: 0 1px 3px rgb(15 23 42 / 0.06); }
 .oneit-bm-panel [data-oneit-data-table] tbody tr { transition: background-color 140ms ease; }
 .oneit-bm-panel [data-oneit-data-table] tbody tr:hover { background: #f8fafc; }
+.oneit-bm-panel [data-oneit-data-table] td:nth-child(4) {
+  color: #082f49;
+  font-size: 0.95rem;
+  font-weight: 700;
+}
+.oneit-bm-panel [data-oneit-data-table] td:last-child a,
+.oneit-bm-panel [data-oneit-data-table] td:last-child button {
+  min-height: 32px;
+  transition: background-color 160ms ease, border-color 160ms ease;
+}
+.oneit-bm-panel [data-oneit-data-table] td:last-child a:hover,
+.oneit-bm-panel [data-oneit-data-table] td:last-child button:hover {
+  border-color: #0b6171;
+  background: #ecfeff;
+}
 
 .oneit-card {
   border: 1px solid var(--oneit-line);
