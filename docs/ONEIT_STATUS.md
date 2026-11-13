@@ -13,6 +13,7 @@ Atualizado em 12/11/2026.
 - Fila de Chamados recebeu ajuste global de tabela: layout fixo, cabeçalho sticky, quebra segura de conteúdo e largura reduzida em viewport estreito. Commit `538a16b` publicado no preview; validação autenticada visual segue bloqueada pelo ambiente Preview.
 - Revisão da Agenda Técnicos: a tela consolida `ticket_schedules` e `service_orders`, colore compromissos por técnico e permite abrir o chamado. A regressão correta (`routes-agenda-ui-contract`, `portal-scheduling-technician-source` e `portal-navigation`) passou com 14 testes; a busca anterior por um nome de arquivo inexistente foi corrigida.
 - Dashboard operacional validado com os contratos de paleta, cabeçalho e navegação: 3 arquivos, 16 testes aprovados. Os cartões KPI usam o refinamento visual compartilhado do `OneitKpiGrid`, sem alterar as métricas reais.
+- PDFs operacionais validados por contrato: RTO/BM e branding passaram em 2 arquivos e 2 testes. A validação visual renderizada de páginas A4 ainda depende de dados autenticados disponíveis no ambiente de homologação.
 
 - Padronização de nomenclatura do despacho: **Agendamento de OS**.
 - Padronização da agenda do técnico: **Agenda Técnicos**.
