@@ -247,3 +247,10 @@ Não foi aplicado bypass no frontend nem no Supabase. Chamados ainda não atendi
 - Teste direcionado: `portal-ticket-queue-limits.test.ts` + `tickets-queue-ui-contract.test.ts` — **2 arquivos / 6 testes aprovados**.
 - Conclusão: não há falha de seleção ou de publicação. O comportamento observado é uma restrição de integridade, não uma exclusão quebrada. A remoção de dados de teste já executados exige rotina administrativa controlada/homologação, não exclusão física pela fila de produção.
 
+### Lote visual — Matriz de prioridade (13/11/2026)
+
+- Rota ajustada: `/portal/priority-matrix`.
+- Alterações visíveis: cabeçalho `OneitPageHeader`, formulário em cartão, labels acessíveis, campos com estados consistentes, mensagem semântica e tabela em superfície compartilhada `oneit-card`.
+- Verificação: `npx tsc --noEmit --pretty false` sem diagnósticos; `operational-page-header-contract.test.ts` — **1/1 teste aprovado**.
+- Publicação: commit local pendente de sincronização neste checkpoint.
+

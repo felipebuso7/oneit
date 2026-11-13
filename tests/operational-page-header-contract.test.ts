@@ -13,6 +13,7 @@ const operationalRoutes = [
   "technicians",
   "collaborators",
   "settings/field-service/lpu",
+  "priority-matrix",
 ] as const;
 
 describe("cabeçalho compartilhado das rotas operacionais", () => {
