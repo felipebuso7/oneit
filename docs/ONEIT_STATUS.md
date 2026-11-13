@@ -24,6 +24,7 @@ Atualizado em 12/11/2026.
 - `npm run audit:migrations -- --strict` foi reexecutado: 196 migrations, nenhum alerta estático.
 - Lint de UI central e Field Service reexecutado (`lint:core-ui` e `lint:field-service`) sem diagnósticos; o processo encerrou após as duas etapas.
 - Build local reexecutado após limpar somente `.next`: continua bloqueado por `EPERM` ao criar diretório em `.next/server/app/api/sgsti/master-plan/tasks`; não há diagnóstico de erro TypeScript ou de código, e o deployment remoto permanece a referência de produção.
+- Tentativa isolada com `ONEIT_NEXT_DIST_DIR=.next-ci` também falhou com `EPERM` ao criar `.next-ci/server/app/api/field-service`, mesmo após remover o atributo `ReadOnly` da rota que havia sido identificada; o bloqueio é de filesystem local e não de compilação tipada.
 
 ## Verificação desta retomada
 
