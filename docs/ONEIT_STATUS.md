@@ -64,5 +64,6 @@ Atualizado em 12/11/2026.
 - Lote de segurança e isolamento revalidado: 5 arquivos e 11 testes aprovados para RBAC, isolamento `/demo`, elegibilidade de técnicos e integridade de relacionamentos entre organizações.
 - Suíte completa após a publicação: 165 arquivos e 392 testes aprovados, sem falhas automatizadas detectadas.
 - Verificação dinâmica read-only em produção (12/11/2026): `/portal/review` carregou autenticado, exibindo 0 OS aguardando validação, 2 OS aprovadas; uma com RTO pendente e outra com RTO versão 3 registrada e ação de encerramento disponível. Essa evidência confirma leitura/renderização do fluxo, mas não substitui a mutação autenticada do E2E.
+- Regressão direcionada pós-checkpoint: 4 arquivos e 14 testes aprovados (`field-service-rto-render`, `measurement-pdf-visual`, `portal-navigation`, `auth-rbac-contract`).
 
 Próxima ação: executar E2E autenticado do ciclo chamado → agendamento → técnico → validação → RTO/BM em homologação, registrando cada etapa como aprovado, reprovado ou bloqueado. A produção já está promovida no commit `79ac3b1` (Ready); não declarar o ciclo completo até validar mutações autenticadas e upload real.
