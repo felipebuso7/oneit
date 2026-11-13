@@ -416,4 +416,5 @@ Não foi aplicado bypass no frontend nem no Supabase. Chamados ainda não atendi
 - Contratos da fila/cancelamento/cabeçalho: **3 arquivos / 6 testes aprovados**.
 - `npm run typecheck`: concluído com exit code 0.
 - Observação: o Vitest exibiu apenas o aviso conhecido de timeout de encerramento do processo após os testes; os testes finalizaram aprovados.
+- Auditoria adicional: `npm run audit:migrations:strict` — **197 migrations, nenhum alerta estático**; `git diff --check` limpo.
 
