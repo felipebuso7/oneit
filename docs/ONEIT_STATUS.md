@@ -391,3 +391,8 @@ Não foi aplicado bypass no frontend nem no Supabase. Chamados ainda não atendi
 - `/portal/action-plans` foi reorganizada em fluxo de criação + acompanhamento, com cabeçalho OneIT, formulário contextual, estados sem dados e controles de atualização agrupados.
 - Verificação: ESLint (formatter stylish) e `npm run typecheck` concluídos com exit code 0; `git diff --check` aprovado.
 
+### Lote visual P2 — Auditorias internas (13/11/2026)
+
+- `/portal/internal-audits` recebeu cabeçalho OneIT, cartões de planejamento/listagem e feedback semântico, sem alteração nas actions de auditoria, constatações ou vínculo com NC.
+- Verificação: ESLint da rota concluído com exit code 0; `git diff --check` executado.
+
