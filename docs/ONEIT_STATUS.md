@@ -64,4 +64,4 @@ Atualizado em 12/11/2026.
 - Lote de segurança e isolamento revalidado: 5 arquivos e 11 testes aprovados para RBAC, isolamento `/demo`, elegibilidade de técnicos e integridade de relacionamentos entre organizações.
 - Suíte completa após a publicação: 165 arquivos e 392 testes aprovados, sem falhas automatizadas detectadas.
 
-Próxima ação: executar E2E autenticado do ciclo chamado → agendamento → técnico → validação → RTO/BM em homologação, registrando cada etapa como aprovado, reprovado ou bloqueado; não promover o preview para `main` antes dessa verificação.
+Próxima ação: executar E2E autenticado do ciclo chamado → agendamento → técnico → validação → RTO/BM em homologação, registrando cada etapa como aprovado, reprovado ou bloqueado. A produção já está promovida no commit `79ac3b1` (Ready); não declarar o ciclo completo até validar mutações autenticadas e upload real.
