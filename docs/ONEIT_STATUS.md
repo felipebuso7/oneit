@@ -303,3 +303,10 @@ Não foi aplicado bypass no frontend nem no Supabase. Chamados ainda não atendi
 - Verificação: `operational-page-header-contract.test.ts` — **1/1 aprovado**.
 - Publicação: pendente sincronização do commit deste lote e confirmação via `/api/version`.
 
+### Lote visual — Relatórios operacionais (13/11/2026)
+
+- Rota ajustada: `/portal/operational-reports`.
+- Alterações visíveis: cabeçalho compartilhado, filtros de período com estado selecionado, cards KPI em `oneit-card` e aviso metodológico preservado.
+- Verificação: `operational-page-header-contract.test.ts` — **1/1 aprovado**.
+- Publicação: pendente sincronização do commit deste lote e confirmação via `/api/version`.
+
