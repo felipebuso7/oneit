@@ -427,6 +427,7 @@ Não foi aplicado bypass no frontend nem no Supabase. Chamados ainda não atendi
 - Testes direcionados adicionados para normalização do retorno e diagnóstico de migration ausente. Execução pendente nesta máquina: o processo Vitest encerrou com erro nativo `-1073741502` antes de iniciar o runner.
 - Pendência operacional: aplicar a migration `20261030080000_partner_order_material_usage.sql` no Supabase do ambiente publicado e repetir o fluxo com uma OS real de homologação.
 - Verificação adicional: `npm run audit:migrations:strict` aprovou 197 migrations; testes de materiais permaneceram em 5/5 aprovados após a normalização.
+- O fluxo autenticado `/portal/field` agora traduz os erros da RPC `add_ticket_material` em mensagens operacionais específicas (autorização, estado da OS, material inativo/fora da organização ou falha técnica), evitando o “Tente novamente” sem diagnóstico.
 
 ### Lote visual P2 — Contratos (13/11/2026)
 

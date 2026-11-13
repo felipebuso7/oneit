@@ -11,7 +11,14 @@ export async function addMaterial(formData: FormData) {
   if (!parsed.success) redirect("/portal/field?message=Material+ou+quantidade+inválidos.");
   const { supabase } = await requireUser();
   const { error } = await supabase.rpc("add_ticket_material", { target_ticket_id: parsed.data.ticketId, target_material_id: parsed.data.materialId, target_quantity: parsed.data.quantity });
-  if (error) redirect("/portal/field?message=Não+foi+possível+registrar+o+material.");
+  if (error) {
+    const code = String(error.message ?? "").toUpperCase();
+    const message = code.includes("MATERIAL_NOT_AUTHORIZED") ? "Você não está autorizado a lançar materiais nesta OS."
+      : code.includes("MATERIAL_INVALID_STATE") ? "A OS precisa estar em atendimento iniciado para receber materiais."
+      : code.includes("MATERIAL_INVALID_SELECTION") ? "O material selecionado não está mais ativo ou não pertence à organização da OS."
+      : "Não foi possível registrar o material. Tente novamente e, se persistir, informe o código MATERIAL_SAVE_FAILED.";
+    redirect(`/portal/field?message=${encodeURIComponent(message)}`);
+  }
   revalidatePath("/portal/field"); redirect("/portal/field?message=Material+registrado.");
 }
 
