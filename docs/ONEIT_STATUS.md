@@ -206,6 +206,11 @@ Não foi aplicado bypass no frontend nem no Supabase. Chamados ainda não atendi
 - A tela renderizou título, seletor de data, atualização, legenda de técnicos e as filas de compromissos/agendamento/atribuição.
 - Para `13/11/2026`, o estado vazio foi honesto e exibiu link para a última data com agenda; não foram apresentados dados fictícios.
 - Nenhuma mutação foi executada.
+
+### Agenda com dados reais — produção (13/11/2026)
+
+- Consulta autenticada em `?date=2026-10-29` exibiu o bloco **Agenda de Eder Ponciano**, `1 visita` e o compromisso `13:00–14:00` com link direto para o chamado `FSM-2026-000004`.
+- A composição por técnico e o estado vazio das filas de pendência/atribuição foram renderizados sem dados fictícios.
 - **Segurança preservada:** a exclusão continua sendo cancelamento auditável via RPC `cancel_ticket`; não há remoção física nem bypass de RLS.
 - **Verificação:** contratos responsivos e de despacho passaram (`3/3` testes). `tsc` foi iniciado, mas excedeu o limite de execução local sem emitir diagnóstico; deve ser repetido no CI/ambiente de build.
 - **Publicação:** commit `9b0a580` foi enviado com sucesso para `origin/main`. O endpoint público `/api/version` ainda responde o commit `eae0f44`; o webhook/deploy da Vercel ainda não propagou esta alteração. Não declarar a funcionalidade disponível em produção até o endpoint refletir `9b0a580`.
