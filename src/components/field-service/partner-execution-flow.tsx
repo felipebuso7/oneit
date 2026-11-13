@@ -101,8 +101,11 @@ export function PartnerExecutionFlow({ access, apiAccess, onLocalComplete }: { a
   useEffect(() => {
     if (!accessToken || !accessCode) return;
     let active = true;
+    const controller = new AbortController();
+    const timeout = window.setTimeout(() => controller.abort(), 8000);
     void fetch("/api/field-service/partner/materials", {
       method: "POST", headers: { "Content-Type": "application/json" },
+      signal: controller.signal,
       body: JSON.stringify({ token: accessToken, code: accessCode, action: "LIST" }),
     }).then(async (response) => {
       const payload = await response.json().catch(() => ({})) as { catalog?: CatalogMaterial[]; used?: UsedMaterial[]; code?: string };
@@ -123,7 +126,7 @@ export function PartnerExecutionFlow({ access, apiAccess, onLocalComplete }: { a
           : "Não foi possível carregar os materiais. Tente novamente antes de salvar o atendimento.");
       }
     });
-    return () => { active = false; };
+    return () => { active = false; controller.abort(); window.clearTimeout(timeout); };
   }, [accessToken, accessCode, materialReload]);
 
   const submitEvent = async (event: "ACCEPT" | "TRAVEL_STARTED" | "CHECK_IN" | "SUBMIT" | "CHECK_OUT") => {
