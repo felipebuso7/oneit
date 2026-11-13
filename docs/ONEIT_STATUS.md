@@ -420,6 +420,13 @@ Não foi aplicado bypass no frontend nem no Supabase. Chamados ainda não atendi
 - Regressão global de UI: `npm run lint:core-ui` concluído com exit code 0.
 - Suíte completa: `npm test -- --reporter=dot` — **167 arquivos / 397 testes aprovados**.
 
+### Correção do carregamento de materiais na OS pública (13/11/2026)
+
+- A rota `/api/field-service/partner/materials` agora normaliza retornos `jsonb` (objeto, string ou array) e traduz explicitamente a ausência da função RPC para `MATERIAL_SERVICE_NOT_DEPLOYED`, evitando o erro genérico “materiais não foram carregados”.
+- A tela do técnico reinicia corretamente o estado durante o retry e informa quando a atualização de banco ainda não foi aplicada; não usa materiais fictícios nem libera gravação sem a fonte oficial.
+- Testes direcionados adicionados para normalização do retorno e diagnóstico de migration ausente. Execução pendente nesta máquina: o processo Vitest encerrou com erro nativo `-1073741502` antes de iniciar o runner.
+- Pendência operacional: aplicar a migration `20261030080000_partner_order_material_usage.sql` no Supabase do ambiente publicado e repetir o fluxo com uma OS real de homologação.
+
 ### Lote visual P2 — Contratos (13/11/2026)
 
 - `/portal/contracts` recebeu cabeçalho OneIT, formulário e listagem em cartões compartilhados, mantendo alertas de vencimento e criação de contratos.

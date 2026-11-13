@@ -104,15 +104,22 @@ export function PartnerExecutionFlow({ access, apiAccess, onLocalComplete }: { a
       method: "POST", headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ token: accessToken, code: accessCode, action: "LIST" }),
     }).then(async (response) => {
-      if (!response.ok) throw new Error("MATERIAL_SERVICE_UNAVAILABLE");
-      return response.json() as Promise<{ catalog: CatalogMaterial[]; used: UsedMaterial[] }>;
+      const payload = await response.json().catch(() => ({})) as { catalog?: CatalogMaterial[]; used?: UsedMaterial[]; code?: string };
+      if (!response.ok) throw new Error(payload.code ?? "MATERIAL_SERVICE_UNAVAILABLE");
+      return payload;
     }).then((payload) => {
       if (!active) return;
-      setMaterialCatalog(payload.catalog);
-      setUsedMaterials(payload.used.map((item) => ({ ...item, quantity: Number(item.quantity) })));
+      setMaterialCatalog(Array.isArray(payload.catalog) ? payload.catalog : []);
+      setUsedMaterials((Array.isArray(payload.used) ? payload.used : []).map((item) => ({ ...item, quantity: Number(item.quantity) })));
       setMaterialsReady(true);
-    }).catch(() => {
-      if (active) { setMaterialsError(true); setNotice("Não foi possível carregar os materiais. Tente novamente antes de salvar o atendimento."); }
+    }).catch((error: unknown) => {
+      if (active) {
+        const code = error instanceof Error ? error.message : "MATERIAL_SERVICE_UNAVAILABLE";
+        setMaterialsError(true);
+        setNotice(code === "MATERIAL_SERVICE_NOT_DEPLOYED"
+          ? "O catálogo de materiais ainda não está disponível neste ambiente. Avise o gestor para aplicar a atualização do banco."
+          : "Não foi possível carregar os materiais. Tente novamente antes de salvar o atendimento.");
+      }
     });
     return () => { active = false; };
   }, [accessToken, accessCode, materialReload]);
@@ -205,7 +212,9 @@ export function PartnerExecutionFlow({ access, apiAccess, onLocalComplete }: { a
         }).catch(() => null);
         if (!response?.ok) {
           const payload = await response?.json().catch(() => ({})) as { code?: string } | undefined;
-          setNotice(`Não foi possível salvar os materiais: ${payload?.code ?? "erro de conexão"}.`);
+          setNotice(payload?.code === "MATERIAL_SERVICE_NOT_DEPLOYED"
+            ? "O catálogo de materiais ainda não está disponível neste ambiente. Avise o gestor para aplicar a atualização do banco."
+            : `Não foi possível salvar os materiais: ${payload?.code ?? "erro de conexão"}.`);
           return;
         }
       } finally { setBusy(false); }
@@ -257,8 +266,8 @@ export function PartnerExecutionFlow({ access, apiAccess, onLocalComplete }: { a
           </ul> : <p className="mt-3 text-xs text-slate-500">Nenhum material utilizado.</p>}
           {!materialCatalog.length && <p className="mt-2 text-xs text-amber-800">Não há materiais vigentes na LPU desta organização. Solicite o cadastro ao gestor.</p>}
         </> : materialsError ? <div className="mt-3 rounded-lg border border-amber-200 bg-amber-50 p-3">
-          <p className="text-xs text-amber-900">Não foi possível carregar os materiais.</p>
-          <button type="button" onClick={() => { setMaterialsError(false); setMaterialReload((value) => value + 1); }} className="mt-2 text-xs font-semibold text-cyan-900 underline">Tentar novamente</button>
+          <p className="text-xs text-amber-900">Não foi possível carregar os materiais. O lançamento fica bloqueado até a fonte oficial responder.</p>
+          <button type="button" onClick={() => { setMaterialsReady(false); setMaterialsError(false); setMaterialReload((value) => value + 1); }} className="mt-2 text-xs font-semibold text-cyan-900 underline">Tentar novamente</button>
         </div> : <p className="mt-3 text-xs text-slate-500">Carregando materiais cadastrados…</p>}
       </section>
       <div className="rounded-xl border border-cyan-200 bg-cyan-50 p-4"><p className="text-sm font-semibold text-cyan-950">Aceite do cliente</p><input value={name} onChange={(input) => { setName(input.target.value); setSignature(""); }} className="mt-3 w-full rounded-lg border bg-white px-3 py-2 text-sm" placeholder="Nome do responsável" /><button type="button" onClick={() => setSignatureOpen(true)} className="mt-2 w-full rounded-lg bg-cyan-700 px-3 py-2 text-sm font-semibold text-white">{signature ? "Assinatura confirmada ✓" : "Abrir assinatura"}</button></div>

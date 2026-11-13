@@ -40,4 +40,18 @@ describe("materiais utilizados pelo técnico", () => {
     rpc.mockResolvedValueOnce({ data: null, error: { message: "PARTNER_MATERIAL_INVALID_STATE" } });
     expect((await POST(request({ token, code, action: "SAVE", items: [] }))).status).toBe(409);
   });
+
+  it("normaliza o retorno jsonb quando o gateway o envolve em array ou string", async () => {
+    rpc.mockResolvedValue({ data: [JSON.stringify({ catalog: [{ id: lpuItemId }], used: [] })], error: null });
+    const response = await POST(request({ token, code, action: "LIST" }));
+    expect(response.status).toBe(200);
+    expect(await response.json()).toMatchObject({ catalog: [{ id: lpuItemId }], used: [] });
+  });
+
+  it("explicita quando a função de catálogo ainda não foi aplicada", async () => {
+    rpc.mockResolvedValue({ data: null, error: { message: "function public.get_partner_service_order_materials(text,text) does not exist" } });
+    const response = await POST(request({ token, code, action: "LIST" }));
+    expect(response.status).toBe(503);
+    expect(await response.json()).toEqual({ code: "MATERIAL_SERVICE_NOT_DEPLOYED" });
+  });
 });

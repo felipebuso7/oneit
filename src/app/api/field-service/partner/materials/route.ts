@@ -31,13 +31,30 @@ export async function POST(request: Request) {
     ? await supabase.rpc("get_partner_service_order_materials", { target_token: parsed.data.token, target_code: parsed.data.code })
     : await supabase.rpc("save_partner_service_order_materials", { target_token: parsed.data.token, target_code: parsed.data.code, target_items: parsed.data.items });
   if (error) {
-    const message = error.message ?? "";
+    const message = String(error.message ?? "").toUpperCase();
     if (message.includes("EXPIRED")) return reply(410, "ACCESS_EXPIRED");
     if (message.includes("LOCKED")) return reply(429, "ACCESS_LOCKED");
     if (message.includes("INVALID_STATE")) return reply(409, "MATERIAL_INVALID_STATE");
+    if (message.includes("MATERIAL_INVALID_SELECTION")) return reply(422, "MATERIAL_INVALID_SELECTION");
     if (message.includes("MATERIAL_INVALID")) return reply(422, "MATERIAL_INVALID_SELECTION");
     if (message.includes("PARTNER_ACCESS_INVALID")) return reply(401, "ACCESS_INVALID");
+    if (message.includes("DOES NOT EXIST") || message.includes("FUNCTION") && message.includes("NOT FOUND")) {
+      return reply(503, "MATERIAL_SERVICE_NOT_DEPLOYED");
+    }
     return reply(503, "MATERIAL_SERVICE_UNAVAILABLE");
   }
-  return Response.json(parsed.data.action === "LIST" ? { catalog: data?.catalog ?? [], used: data?.used ?? [] } : { ok: true }, { headers: { "Cache-Control": "no-store" } });
+  if (parsed.data.action === "SAVE") return Response.json({ ok: true }, { headers: { "Cache-Control": "no-store" } });
+  // Supabase returns jsonb as an object, but older gateways can wrap a scalar
+  // jsonb result in a one-item array or a JSON string. Normalize at the API
+  // boundary so the field UI never treats a valid catalog as a load failure.
+  let result: unknown = data;
+  if (Array.isArray(result)) result = result[0];
+  if (typeof result === "string") {
+    try { result = JSON.parse(result) as unknown; } catch { result = null; }
+  }
+  const catalog = result && typeof result === "object" && Array.isArray((result as { catalog?: unknown }).catalog)
+    ? (result as { catalog: unknown[] }).catalog : [];
+  const used = result && typeof result === "object" && Array.isArray((result as { used?: unknown }).used)
+    ? (result as { used: unknown[] }).used : [];
+  return Response.json({ catalog, used }, { headers: { "Cache-Control": "no-store" } });
 }
