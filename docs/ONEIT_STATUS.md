@@ -223,6 +223,11 @@ Não foi aplicado bypass no frontend nem no Supabase. Chamados ainda não atendi
 - A tela autenticada renderizou organização, competência, ação **Iniciar fechamento**, fluxo em quatro etapas e histórico real.
 - Foi exibido o BM `BM-2026-10`, competência `10/2026`, 1 OS, valor `R$ 750,00`, status `Rascunho`, ação de validação e link de prévia PDF.
 - Nenhum fechamento, validação ou envio foi executado.
+
+### Smoke Catálogo de Serviços — produção (13/11/2026)
+
+- A tela renderizou abas de categorias/subcategorias, contagens, edição inline, ações de salvar/excluir e formulário de nova categoria.
+- Foram exibidas 2 categorias ativas (`Cabling` e `Cabeamento Homologação`); a tela manteve o escopo organizacional e não executou mutações.
 - **Segurança preservada:** a exclusão continua sendo cancelamento auditável via RPC `cancel_ticket`; não há remoção física nem bypass de RLS.
 - **Verificação:** contratos responsivos e de despacho passaram (`3/3` testes). `tsc` foi iniciado, mas excedeu o limite de execução local sem emitir diagnóstico; deve ser repetido no CI/ambiente de build.
 - **Publicação:** commit `9b0a580` foi enviado com sucesso para `origin/main`. O endpoint público `/api/version` ainda responde o commit `eae0f44`; o webhook/deploy da Vercel ainda não propagou esta alteração. Não declarar a funcionalidade disponível em produção até o endpoint refletir `9b0a580`.
