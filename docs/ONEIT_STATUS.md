@@ -154,6 +154,13 @@ Não foi aplicado bypass no frontend nem no Supabase. Chamados ainda não atendi
 - **Correção:** a fila operacional agora exclui `CANCELLED` na consulta, mantendo o histórico no banco e a auditoria do cancelamento.
 - **Verificação:** 4 arquivos / 10 testes direcionados aprovados; o aviso de encerramento do Vitest não alterou o resultado.
 - **Commit:** `8b2c44c`.
+
+### Publicação e validação da correção (13/11/2026)
+
+- Commit publicado em `main`: `a6a6e537594ccf10b2eda78ae7152d23e4016153`.
+- `/api/version` confirmou produção em estado `Ready`, deployment `oneit-ace46e6bc0-20261113131254`.
+- Smoke autenticado na fila: a listagem caiu de `6 de 6` para `2 de 2`; os chamados cancelados deixaram de ser exibidos na fila operacional.
+- Os registros não foram apagados fisicamente: continuam preservados no banco com status `CANCELLED` e auditoria.
 - **Segurança preservada:** a exclusão continua sendo cancelamento auditável via RPC `cancel_ticket`; não há remoção física nem bypass de RLS.
 - **Verificação:** contratos responsivos e de despacho passaram (`3/3` testes). `tsc` foi iniciado, mas excedeu o limite de execução local sem emitir diagnóstico; deve ser repetido no CI/ambiente de build.
 - **Publicação:** commit `9b0a580` foi enviado com sucesso para `origin/main`. O endpoint público `/api/version` ainda responde o commit `eae0f44`; o webhook/deploy da Vercel ainda não propagou esta alteração. Não declarar a funcionalidade disponível em produção até o endpoint refletir `9b0a580`.
