@@ -317,6 +317,7 @@ Não foi aplicado bypass no frontend nem no Supabase. Chamados ainda não atendi
 - Os commits posteriores (`59ead9c` e seguintes) estão sincronizados no Git, mas ainda não estavam refletidos pela Vercel no momento da verificação; não declarar esses lotes como disponíveis em produção até nova confirmação.
 - Revalidação posterior manteve o mesmo resultado: produção continua em `b9771ce`.
 - Nova verificação no navegador mostrou deployment `oneit-e5c9f0c8bd-20261113140203` com commit efetivo `c4dcd9e`; os commits posteriores ainda aguardam propagação.
+- Nova verificação mostrou deployment `oneit-4a2ed7482a-20261113140609` com commit efetivo `d3cfe01`; `f1952ab` e posteriores ainda aguardam propagação.
 
 ### Lote visual — Avisos operacionais (13/11/2026)
 
@@ -336,6 +337,13 @@ Não foi aplicado bypass no frontend nem no Supabase. Chamados ainda não atendi
 
 - Rota ajustada: `/portal/governance-dashboard`.
 - Alterações visíveis: cabeçalho compartilhado, cards KPI em `oneit-card`, links contextuais e microinteração discreta; métricas reais preservadas.
+- Verificação: `operational-page-header-contract.test.ts` — **1/1 aprovado**.
+- Publicação: pendente sincronização do commit deste lote e confirmação via `/api/version`.
+
+### Lote visual — Registro de riscos (13/11/2026)
+
+- Rota ajustada: `/portal/risks`.
+- Alterações visíveis: cabeçalho compartilhado e feedback semântico padronizado, mantendo os estados e o fluxo de tratamento existentes.
 - Verificação: `operational-page-header-contract.test.ts` — **1/1 aprovado**.
 - Publicação: pendente sincronização do commit deste lote e confirmação via `/api/version`.
 

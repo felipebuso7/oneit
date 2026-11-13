@@ -27,6 +27,7 @@
 - **Lote P2 concluído:** `/portal/announcements` recebeu `OneitPageHeader`, formulário de publicação agrupado, labels acessíveis, feedback semântico e cartões de avisos padronizados; contrato de cabeçalho aprovado.
 - **Lote P2 concluído:** `/portal/audit` recebeu `OneitPageHeader`, tabela de eventos em superfície compartilhada e estado vazio padronizado; trilha somente leitura e fingerprint preservados.
 - **Lote P2 concluído:** `/portal/governance-dashboard` recebeu `OneitPageHeader`, cards KPI em superfície compartilhada e microinteração acessível, mantendo métricas reais e links contextuais.
+- **Lote P2 concluído:** `/portal/risks` recebeu `OneitPageHeader` e feedback semântico padronizado, preservando o fluxo de avaliação e tratamento de riscos.
 - **Estados operacionais compartilhados — concluído neste lote:** `OneitEmptyState`, `OneitLoadingState` e `OneitErrorState` receberam tokens visuais, faixa semântica, ícone contextual e movimento acessível; typecheck e regressão completa aprovados nos commits `5641075`/`14809cc`.
 - **Badges de status — concluído neste lote:** contornos semânticos foram adicionados aos cinco tons de `OneitStatusBadge`, reforçando a distinção visual sem depender apenas da cor; 13 testes direcionados aprovados no commit `75bd769`.
 - ~~Comparar dados cadastrais de LPU com o tipo exibido na interface.~~ **Verificado neste lote:** API, UI e migrations usam `kind`, `unit`, `unit_price`, vigência e `active` de forma consistente; 14 testes de CRUD/composição/validação aprovados.
