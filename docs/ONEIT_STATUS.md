@@ -8,6 +8,7 @@ Atualizado em 12/11/2026.
 - **Arquivos:** `src/components/oneit-state.tsx`, `src/app/globals.css`.
 - **Verificação:** `npx tsc --noEmit` sem diagnósticos; contratos de Design System, agenda e responsividade — 2 arquivos / 5 testes aprovados.
 - **Publicação:** commit `5641075` enviado para `main` e confirmado em produção pelo endpoint `/api/version` como `environment: production`; `/api/ready` retornou `status: ready` e `deploymentMode: supabase`.
+- **Regressão ampliada:** `npm test -- --run --no-file-parallelism` — 166 arquivos / 394 testes aprovados.
 
 ## Verificação desta retomada
 
