@@ -58,17 +58,25 @@ export async function GET(_: Request, { params }: { params: Promise<{ id: string
     page.drawLine({ start: { x: 42, y: size[1] - 70 }, end: { x: size[0] - 42, y: size[1] - 70 }, thickness: 1.4, color: navy });
     page.drawText(title, { x: 42, y: size[1] - 96, size: 15, font: bold, color: navy });
   };
+  const footer = (page: ReturnType<typeof pdf.addPage>, pageNumber: number, totalPages: number) => {
+    page.drawLine({ start: { x: 42, y: 40 }, end: { x: size[0] - 42, y: 40 }, thickness: 0.7, color: rgb(0.78, 0.82, 0.86) });
+    page.drawText("OneIT · Boletim de Medição", { x: 42, y: 25, size: 7.5, font: regular, color: rgb(0.35, 0.4, 0.43) });
+    page.drawText(`Página ${pageNumber} de ${totalPages}`, { x: size[0] - 110, y: 25, size: 7.5, font: regular, color: rgb(0.35, 0.4, 0.43) });
+  };
   const cover = pdf.addPage(size);
   header(cover, "BOLETIM DE MEDIÇÃO");
   cover.drawText(sheet.sheet_number, { x: 42, y: 728, size: 11, font: regular, color: blue });
   cover.drawText("COMPETÊNCIA", { x: 42, y: 682, size: 8, font: bold, color: blue });
-  cover.drawText(String(period?.competence ?? "Não informada"), { x: 150, y: 682, size: 11, font: regular, color: navy });
+  cover.drawText(String(period?.competence ?? "Não informada").slice(0, 20), { x: 150, y: 682, size: 11, font: regular, color: navy });
   cover.drawText("OS CONSOLIDADAS", { x: 42, y: 654, size: 8, font: bold, color: blue });
   cover.drawText(String(sheet.total_orders), { x: 150, y: 654, size: 11, font: regular, color: navy });
   cover.drawText("STATUS", { x: 42, y: 626, size: 8, font: bold, color: blue });
   cover.drawText(String(period?.status ?? "DRAFT"), { x: 150, y: 626, size: 11, font: regular, color: navy });
   cover.drawRectangle({ x: 42, y: 540, width: 511, height: 28, color: navy });
   cover.drawText("RESUMO CONSOLIDADO", { x: 50, y: 550, size: 10, font: bold, color: rgb(1, 1, 1) });
+  cover.drawText("ITEM", { x: 44, y: 520, size: 7.5, font: bold, color: blue });
+  cover.drawText("QTD.", { x: 390, y: 520, size: 7.5, font: bold, color: blue });
+  cover.drawText("TOTAL", { x: 470, y: 520, size: 7.5, font: bold, color: blue });
   const groups = new Map<string, { quantity: number; total: number }>();
   for (const line of lines ?? []) {
     const key = line.line_kind === "EXTRA" ? "EXTRAS" : line.lpu_code || line.description;
@@ -77,7 +85,7 @@ export async function GET(_: Request, { params }: { params: Promise<{ id: string
     current.total += Number(line.total_price);
     groups.set(key, current);
   }
-  let summaryY = 514;
+  let summaryY = 494;
   for (const [key, value] of groups) {
     cover.drawText(key.slice(0, 56), { x: 44, y: summaryY, size: 9, font: regular, color: navy });
     cover.drawText(String(value.quantity), { x: 390, y: summaryY, size: 9, font: regular, color: navy });
@@ -87,7 +95,7 @@ export async function GET(_: Request, { params }: { params: Promise<{ id: string
   cover.drawRectangle({ x: 340, y: 125, width: 223, height: 90, color: light });
   cover.drawText("VALOR TOTAL", { x: 355, y: 185, size: 9, font: bold, color: navy });
   cover.drawText(money(Number(sheet.total_amount)), { x: 400, y: 150, size: 15, font: bold, color: blue });
-  cover.drawText("Documento gerado a partir dos dados persistidos do BM.", { x: 42, y: 48, size: 8, font: regular, color: rgb(0.35, 0.4, 0.43) });
+  cover.drawText("Documento gerado a partir dos dados persistidos do BM.", { x: 42, y: 58, size: 8, font: regular, color: rgb(0.35, 0.4, 0.43) });
 
   let page = pdf.addPage(size);
   header(page, "DETALHAMENTO DAS OS");
@@ -105,7 +113,9 @@ export async function GET(_: Request, { params }: { params: Promise<{ id: string
     page.drawText(money(Number(line.unit_price)), { x: 465, y, size: 8, font: regular, color: navy });
     y -= 28;
   }
-  page.drawText(`TOTAL GERAL: ${money(Number(sheet.total_amount))}`, { x: 350, y: 45, size: 10, font: bold, color: blue });
+  page.drawText(`TOTAL GERAL: ${money(Number(sheet.total_amount))}`, { x: 350, y: 58, size: 10, font: bold, color: blue });
+  const pages = pdf.getPages();
+  pages.forEach((current, index) => footer(current, index + 1, pages.length));
   const bytes = await pdf.save();
   return new Response(Buffer.from(bytes), { headers: { "Content-Type": "application/pdf", "Content-Disposition": `inline; filename="${sheet.sheet_number}.pdf"`, "Cache-Control": "private, no-store" } });
 }
