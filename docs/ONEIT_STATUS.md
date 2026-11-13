@@ -167,6 +167,11 @@ Não foi aplicado bypass no frontend nem no Supabase. Chamados ainda não atendi
 - `/portal` autenticado renderizou hero operacional, ação primária “Abrir fila de chamados”, três jornadas (“Chamados”, “Agendamento de OS”, “Validação de OS”), fluxo em cinco etapas e acessos rápidos para Agenda, BM e Catálogo.
 - A navegação global exibiu os destinos operacionais atuais, sem links órfãos observados nesta leitura.
 - Evidência dinâmica obtida por snapshot DOM autenticado; nenhuma mutação executada.
+
+### Readiness de produção — storage (13/11/2026)
+
+- `GET /api/ready?storage=1` retornou `status: ready`, `deploymentMode: supabase` e `storage: ready`.
+- Isso confirma a disponibilidade da infraestrutura de storage, mas não substitui upload autenticado de evidência sintética.
 - **Segurança preservada:** a exclusão continua sendo cancelamento auditável via RPC `cancel_ticket`; não há remoção física nem bypass de RLS.
 - **Verificação:** contratos responsivos e de despacho passaram (`3/3` testes). `tsc` foi iniciado, mas excedeu o limite de execução local sem emitir diagnóstico; deve ser repetido no CI/ambiente de build.
 - **Publicação:** commit `9b0a580` foi enviado com sucesso para `origin/main`. O endpoint público `/api/version` ainda responde o commit `eae0f44`; o webhook/deploy da Vercel ainda não propagou esta alteração. Não declarar a funcionalidade disponível em produção até o endpoint refletir `9b0a580`.
