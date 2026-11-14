@@ -8,3 +8,4 @@ export { OneitPageHeader } from "@/components/oneit-page-header";
 export { OneitSection } from "@/components/oneit-section";
 export { OneitStatusBadge } from "@/components/oneit-status-badge";
 export { OneitNavIcon, navIconName } from "@/components/oneit-nav-icon";
+export { OneitMaskedInput } from "@/components/oneit-masked-input";
