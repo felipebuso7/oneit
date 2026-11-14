@@ -11,7 +11,12 @@ export async function GET(request: NextRequest) {
 
   if (code) {
     const supabase = await createClient();
-    await supabase.auth.exchangeCodeForSession(code);
+    const { error } = await supabase.auth.exchangeCodeForSession(code);
+    if (error) {
+      const fallback = new URL("/forgot-password", request.url);
+      fallback.searchParams.set("message", "O link expirou ou é inválido. Solicite uma nova redefinição.");
+      return NextResponse.redirect(fallback);
+    }
   }
 
   return NextResponse.redirect(new URL(next, request.url));
