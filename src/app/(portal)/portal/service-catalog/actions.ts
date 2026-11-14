@@ -46,18 +46,21 @@ export async function updateServiceCatalogItem(formData: FormData) {
 export async function deleteServiceCatalogItem(formData: FormData) {
   const id = String(formData.get("id") ?? "");
   const kind = formData.get("kind");
-  if (!id || (kind !== "category" && kind !== "subcategory")) redirect("/portal/service-catalog?message=Item+inválido.");
+  if (!id || (kind !== "category" && kind !== "subcategory" && kind !== "offering")) redirect("/portal/service-catalog?message=Item+inválido.");
   const { supabase } = await requireUser();
   if (kind === "category") {
     const { count } = await supabase.from("service_subcategories").select("id", { count: "exact", head: true }).eq("category_id", id);
     if ((count ?? 0) > 0) redirect("/portal/service-catalog?message=Não+é+possível+excluir+uma+categoria+com+subcategorias.+Inative+os+itens+dependentes+primeiro.");
     const { error } = await supabase.from("service_categories").delete().eq("id", id);
     if (error) redirect("/portal/service-catalog?message=Não+foi+possível+excluir+a+categoria.+Ela+pode+estar+em+uso+no+histórico.");
-  } else {
+  } else if (kind === "subcategory") {
     const { count } = await supabase.from("service_offerings").select("id", { count: "exact", head: true }).eq("subcategory_id", id);
     if ((count ?? 0) > 0) redirect("/portal/service-catalog?message=Não+é+possível+excluir+uma+subcategoria+com+serviços.+Inative+os+itens+dependentes+primeiro.");
     const { error } = await supabase.from("service_subcategories").delete().eq("id", id);
     if (error) redirect("/portal/service-catalog?message=Não+foi+possível+excluir+a+subcategoria.+Ela+pode+estar+em+uso+no+histórico.");
+  } else {
+    const { error } = await supabase.from("service_offerings").delete().eq("id", id);
+    if (error) redirect("/portal/service-catalog?message=Não+foi+possível+excluir+o+serviço.+Ele+pode+estar+em+uso+no+histórico.");
   }
   revalidatePath("/portal/service-catalog");
   revalidatePath("/portal/tickets");

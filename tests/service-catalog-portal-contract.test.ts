@@ -40,6 +40,14 @@ describe("catálogo autenticado", () => {
     expect(actions).toContain("update_service_catalog_item");
   });
 
+  it("expõe a manutenção de serviços no catálogo autenticado", () => {
+    expect(page).toContain('tab=offerings');
+    expect(page).toContain('action={createServiceOffering}');
+    expect(page).toContain('kind="offering"');
+    expect(actions).toContain('kind !== "offering"');
+    expect(actions).toContain('from("service_offerings").delete()');
+  });
+
   it("revalida o SLA também após manutenção de item existente", () => {
     const updateAction = actions.slice(actions.indexOf("export async function updateServiceCatalogItem"));
     expect(updateAction).toContain('revalidatePath("/portal/sla")');
