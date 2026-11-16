@@ -12,10 +12,21 @@ describe("retomada do atendimento do técnico", () => {
   });
 
   it("leva o status retornado pelo contexto seguro até a tela mobile", () => {
-    const page = readFileSync("src/app/demo/field-service/partner/page.tsx", "utf8");
+    const page = readFileSync("src/components/field-service/secure-partner-page.tsx", "utf8");
     expect(page).toContain("status: context.status");
     expect(page).toContain("accepted: context.partner_accepted");
-    expect(page).toContain("expiresAt: context.access_expires_at");
+    expect(page).toContain("const expiresAt = context.access_expires_at");
+    expect(page).toContain("expiresAt,");
+  });
+
+  it("recupera o rascunho persistido do servidor ao reabrir o atendimento", () => {
+    const contextRoute = readFileSync("src/app/api/field-service/partner/context/route.ts", "utf8");
+    const flow = readFileSync("src/components/field-service/partner-execution-flow.tsx", "utf8");
+    expect(contextRoute).toContain("get_partner_service_order_draft");
+    expect(contextRoute).toContain("draft: draft?.[0] ?? null");
+    expect(flow).toContain("access.draft?.execution_report");
+    expect(flow).toContain("access.draft?.customer_signature_name");
+    expect(flow).toContain("access.draft?.customer_signature_data_url");
   });
 
   it("isola o aceite e a validade ao acesso validado", () => {
