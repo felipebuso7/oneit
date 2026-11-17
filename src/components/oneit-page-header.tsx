@@ -12,7 +12,7 @@ export function OneitPageHeader({ title, description, eyebrow, breadcrumb, actio
   return <header className="oneit-page-header" data-oneit-page-header>
     <div className="oneit-page-header__content min-w-0">
       {breadcrumb && <div className="mb-1 text-xs text-slate-500">{breadcrumb}</div>}
-      {eyebrow && <div className="oneit-page-header__eyebrow">{eyebrow}</div>}
+      {eyebrow && <div className="oneit-page-header__eyebrow">{eyebrow === "Configurações · Organização" ? "Configurações · Prestador de serviço" : eyebrow}</div>}
       <h1 className="oneit-page-header__title">{title}</h1>
       {description && <p className="mt-1 max-w-3xl text-sm text-slate-600">{description}</p>}
     </div>
