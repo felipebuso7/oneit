@@ -4,8 +4,16 @@ import { redirect } from "next/navigation";
 import { requireUser } from "@/lib/auth/current-user";
 import { serviceCategorySchema, serviceOfferingSchema, serviceSubcategorySchema, updateServiceCatalogItemSchema } from "@/lib/validation/service-catalog";
 async function persist(formData: FormData, kind: "category" | "subcategory" | "offering") {
-  const input = { code: formData.get("code"), name: formData.get("name") };
   const { supabase } = await requireUser();
+  let code = String(formData.get("code") ?? "").trim();
+  if (!code && kind !== "category") {
+    const table = kind === "subcategory" ? "service_subcategories" : "service_offerings";
+    const parentColumn = kind === "subcategory" ? "category_id" : "subcategory_id";
+    const { data: siblings } = await supabase.from(table).select("code").eq(parentColumn, String(formData.get("parentId") ?? ""));
+    const max = (siblings ?? []).reduce((value, row) => { const numeric = Number.parseInt(String(row.code).match(/\d+$/)?.[0] ?? "0", 10); return Number.isFinite(numeric) ? Math.max(value, numeric) : value; }, 0);
+    code = String(max + 1).padStart(2, "0");
+  }
+  const input = { code, name: formData.get("name") };
   let error;
   if (kind === "category") {
     const parsed = serviceCategorySchema.safeParse({ ...input, organizationId: formData.get("organizationId") }); if (!parsed.success) redirect("/portal/service-catalog?message=Dados+inválidos.");
