@@ -34,7 +34,7 @@ export default async function CollaboratorsPage({ searchParams }: PageProps) {
       .order("full_name"),
     supabase
       .from("organization_units")
-      .select("id,organization_id,unit_type,code,name")
+      .select("id,organization_id,customer_id,unit_type,code,name")
       .in("organization_id", organizationIds)
       .order("name"),
     supabase
@@ -83,17 +83,11 @@ export default async function CollaboratorsPage({ searchParams }: PageProps) {
           </form>
 
           <form action={createOrganizationUnit} className="space-y-3 rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-            <h2 className="font-semibold text-slate-950">Nova unidade</h2>
-            <select name="organizationId" required aria-label="Organização da unidade" className="w-full rounded border border-slate-300 bg-white p-2 text-sm text-slate-900">
-              <option value="">Organização</option>
-              {(organizations ?? []).map((organization) => <option key={organization.id} value={organization.id}>{organization.display_name}</option>)}
-            </select>
-            <select name="type" required aria-label="Tipo da unidade" className="w-full rounded border border-slate-300 bg-white p-2 text-sm text-slate-900">
-              <option value="COMPANY">Empresa</option><option value="DEPARTMENT">Departamento</option><option value="COST_CENTER">Centro de custo</option><option value="WORK_SITE">Local de trabalho</option>
-            </select>
-            <input name="code" required maxLength={80} placeholder="Código" aria-label="Código da unidade" className="w-full rounded border border-slate-300 bg-white p-2 text-sm text-slate-900" />
-            <input name="name" required maxLength={180} placeholder="Nome" aria-label="Nome da unidade" className="w-full rounded border border-slate-300 bg-white p-2 text-sm text-slate-900" />
-            <button className="rounded bg-sky-950 px-3 py-2 text-sm font-semibold text-white">Criar unidade</button>
+            <h2 className="font-semibold text-slate-950">Novo departamento</h2>
+            <select name="customerId" required aria-label="Cliente do departamento" className="w-full rounded border border-slate-300 bg-white p-2 text-sm text-slate-900"><option value="">Cliente</option>{(customers ?? []).map((customer) => <option key={customer.id} value={customer.id}>{customer.name}</option>)}</select>
+            <input name="name" required maxLength={180} placeholder="Nome do departamento" aria-label="Nome do departamento" className="w-full rounded border border-slate-300 bg-white p-2 text-sm text-slate-900" />
+            <p className="text-xs text-slate-500">O departamento ficará vinculado ao cliente selecionado.</p>
+            <button className="rounded bg-sky-950 px-3 py-2 text-sm font-semibold text-white">Criar departamento</button>
           </form>
 
           <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-600"><strong className="text-slate-900">Vínculos no cadastro</strong><p className="mt-1">O e-mail principal, o polo e o gestor imediato são definidos no cadastro do solicitante. E-mails adicionais não são necessários para a operação.</p></div>
