@@ -40,6 +40,24 @@ export async function updateLocation(formData: FormData) {
   redirect("/portal/locations?message=Localidade+atualizada.");
 }
 
+export async function deleteLocation(formData: FormData) {
+  const locationId = formData.get("locationId");
+  const organizationId = formData.get("organizationId");
+  if (typeof locationId !== "string" || typeof organizationId !== "string") redirect("/portal/locations?message=Localidade+inválida.");
+  const { supabase } = await requireUser();
+  const [{ data: tickets }, { data: orders }, { data: collaborators }, { data: assets }] = await Promise.all([
+    supabase.from("tickets").select("id").eq("location_id", locationId).limit(1),
+    supabase.from("service_orders").select("id").eq("location_id", locationId).limit(1),
+    supabase.from("collaborators").select("id").eq("location_id", locationId).limit(1),
+    supabase.from("assets").select("id").eq("location_id", locationId).limit(1),
+  ]);
+  if ((tickets?.length ?? 0) || (orders?.length ?? 0) || (collaborators?.length ?? 0) || (assets?.length ?? 0)) redirect("/portal/locations?message=Este+polo+está+vinculado+a+registros+operacionais.+Edite+ou+desative+o+polo+em+vez+de+excluí-lo.");
+  const { error } = await supabase.from("customer_locations").delete().eq("id", locationId).eq("organization_id", organizationId);
+  if (error) redirect("/portal/locations?message=Não+foi+possível+excluir+o+polo.");
+  revalidatePath("/portal/locations"); revalidatePath("/portal/tickets");
+  redirect("/portal/locations?message=Polo+excluído.");
+}
+
 export async function createLocationContact(formData: FormData) {
   const parsed = locationContactSchema.safeParse({ locationId: formData.get("locationId"), name: formData.get("name"), contactType: formData.get("contactType"), email: formData.get("email") || undefined, phone: formData.get("phone") || undefined });
   if (!parsed.success) redirect("/portal/locations?message=Dados+do+contato+inválidos.");
