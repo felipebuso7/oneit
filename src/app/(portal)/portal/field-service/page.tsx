@@ -30,7 +30,7 @@ export default async function FieldServicePage({ searchParams }: PageProps) {
     // inativação explícita e recuperar apenas técnicos legados sem vínculo.
     supabase.from("field_service_technicians").select("organization_id,operational_technician_id,phone,mobile,active")
       .in("organization_id", organizationIds).limit(300),
-    supabase.from("customer_locations").select("id,organization_id,customer_id,name,street,street_number,city,state_code,active")
+    supabase.from("customer_locations").select("id,organization_id,customer_id,name,street,street_number,complement,district,postal_code,city,state_code,active")
       .in("organization_id", organizationIds).eq("active", true).order("name").limit(500),
     supabase.from("field_service_review_queue").select("id,organization_id,service_order_id,status")
       .in("organization_id", organizationIds).eq("status", "PENDING").limit(300),

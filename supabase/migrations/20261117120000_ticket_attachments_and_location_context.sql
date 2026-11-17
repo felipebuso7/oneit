@@ -25,7 +25,7 @@ declare access_record public.service_order_partner_accesses%rowtype;
 begin
   access_record := public.assert_partner_access(target_token, target_code);
   return query select so.id, so.order_number, t.ticket_number, t.title, so.scheduled_at, so.status, loc.name,
-    concat_ws(', ', loc.street, loc.street_number, loc.complement, loc.district, loc.city, loc.state_code),
+    concat_ws(', ', loc.street, loc.street_number, loc.complement, loc.district, loc.city, loc.state_code, loc.postal_code),
     coalesce(so.local_contact_name, contact.name), coalesce(so.local_contact_phone, coalesce(contact.mobile, contact.phone)),
     coalesce((select jsonb_agg(jsonb_build_object('name', tm.material_name, 'quantity', tm.quantity, 'unit', tm.unit) order by tm.created_at) from public.ticket_materials tm where tm.ticket_id=t.id), '[]'::jsonb),
     coalesce((select jsonb_agg(jsonb_build_object('id', a.id, 'name', a.file_name, 'storagePath', a.storage_path, 'mime', a.mime_type, 'size', a.size_bytes) order by a.created_at) from public.ticket_attachments a where a.ticket_id=t.id), '[]'::jsonb)

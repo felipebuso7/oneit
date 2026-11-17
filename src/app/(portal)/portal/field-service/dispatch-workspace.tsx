@@ -9,7 +9,7 @@ import { isShareableAccessLink, whatsappRecipient } from "@/lib/field-service/di
 type Ticket = { id: string; organization_id: string; customer_id: string; location_id: string; ticket_number: string; title: string; priority: number; operational_status: string; opened_at: string };
 type Order = { id: string; organization_id: string; ticket_id: string; order_number: string; status: string; technician_id: string | null; scheduled_at: string | null };
 type Technician = { id: string; organization_id: string; full_name: string; phone?: string | null; mobile?: string | null; status: string; base_city: string | null; active: boolean };
-type Location = { id: string; organization_id: string; customer_id: string; name: string; street: string | null; street_number: string | null; city: string; state_code: string | null; active: boolean };
+type Location = { id: string; organization_id: string; customer_id: string; name: string; street: string | null; street_number: string | null; complement?: string | null; district?: string | null; postal_code?: string | null; city: string; state_code: string | null; active: boolean };
 type LocationContact = { id: string; location_id: string; name: string; phone: string | null; mobile: string | null; active: boolean };
 
 function formatPhone(value: string) {
@@ -127,10 +127,10 @@ export function DispatchWorkspace({ tickets, orders, technicians, locations, loc
       if (!phoneForWhatsApp) phoneForWhatsApp = globalThis.window.prompt("Informe o WhatsApp do técnico externo com DDD:", "") ?? "";
       const recipient = whatsappRecipient(phoneForWhatsApp);
       if (recipient) {
-        const address = dispatchedLocation ? `${dispatchedLocation.name} · ${dispatchedLocation.street ?? ""} ${dispatchedLocation.street_number ?? ""} · ${dispatchedLocation.city}`.replace(/\s+/g, " ").trim() : "Localidade não informada";
+        const address = dispatchedLocation ? `${dispatchedLocation.name} · ${[dispatchedLocation.street, dispatchedLocation.street_number, dispatchedLocation.complement, dispatchedLocation.district, dispatchedLocation.postal_code, dispatchedLocation.city, dispatchedLocation.state_code].filter(Boolean).join(", ")}` : "Localidade não informada";
         const contact = dispatchedContact;
         const waze = dispatchedLocation ? `https://waze.com/ul?q=${encodeURIComponent(`${dispatchedLocation.street ?? ""} ${dispatchedLocation.street_number ?? ""}, ${dispatchedLocation.city}, ${dispatchedLocation.state_code ?? "SP"}`)}` : "";
-        const body = [`ONEIT · OS ${dispatchedTicket.ticket_number}`, `Serviço: ${dispatchedTicket.title}`, `Local: ${address}`, `Quem procurar: ${contact?.name ?? "Contato da localidade"}${contact?.mobile || contact?.phone ? ` · ${contact.mobile || contact.phone}` : ""}`, `Agendamento: ${new Date(`${scheduledDate}T12:00:00`).toLocaleDateString("pt-BR")} · ${shiftWindow.label}`, ...(waze ? [`Abrir rota no Waze: ${waze}`] : []), `Acesso público seguro: ${accessUrl}`, ...(accessCode ? [`Código temporário: ${accessCode}`] : []), "Mensagem preparada pelo OneIT. Confirme o envio no WhatsApp."].join("\n");
+        const body = [`ONEIT · ORDEM DE SERVIÇO ${dispatchedTicket.ticket_number}`, "", `📍 ONDE IR`, address, ...(waze ? [`Rota Waze: ${waze}`] : []), "", `📅 AGENDAMENTO`, `${new Date(`${scheduledDate}T12:00:00`).toLocaleDateString("pt-BR")} · ${shiftWindow.label}`, "", `👤 QUEM PROCURAR`, `${contact?.name ?? "Contato da localidade"}${contact?.mobile || contact?.phone ? ` · ${contact.mobile || contact.phone}` : ""}`, "", `🔧 SERVIÇO A EXECUTAR`, dispatchedTicket.title, "", `🔗 ABRIR OS NO ONEIT`, accessUrl, ...(accessCode ? [`Código temporário: ${accessCode}`] : []), "Mensagem preparada pelo OneIT. Confirme o envio no WhatsApp."].join("\n");
         const whatsappWindow = globalThis.window.open(`https://wa.me/${recipient}?text=${encodeURIComponent(body)}`, "_blank", "noopener,noreferrer");
         if (!whatsappWindow) void navigator.clipboard?.writeText(body);
       }

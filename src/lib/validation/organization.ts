@@ -57,6 +57,7 @@ export const locationSchema = z.object({
   streetNumber: z.string().trim().max(40).optional(),
   complement: z.string().trim().max(120).optional(),
   district: z.string().trim().max(120).optional(),
+  postalCode: z.string().trim().regex(/^\d{5}-?\d{3}$/).optional(),
 });
 
 export const locationContactSchema = z.object({
