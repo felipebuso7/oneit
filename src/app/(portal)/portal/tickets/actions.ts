@@ -112,6 +112,7 @@ export async function cancelTicket(formData: FormData) {
   if (error) {
     if (error.message.includes("TICKET_VERSION_CONFLICT")) redirect("/portal/tickets?message=O chamado foi alterado por outra pessoa. Recarregue a fila e tente novamente.");
     if (error.message.includes("TICKET_CANCEL_NOT_ALLOWED")) redirect("/portal/tickets?message=Este chamado já iniciou o atendimento e não pode ser removido da fila.");
+    if (error.message.includes("TICKET_CLOSED_MASTER_ONLY")) redirect("/portal/tickets?message=Chamados encerrados só podem ser excluídos pelo Administrador Master.");
     if (error.message.includes("TICKET_NOT_AUTHORIZED")) redirect("/portal/tickets?message=Seu perfil não pode remover este chamado da fila.");
     redirect("/portal/tickets?message=Não foi possível remover o chamado da fila.");
   }
