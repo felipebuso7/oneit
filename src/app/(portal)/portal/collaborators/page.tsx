@@ -23,7 +23,7 @@ export default async function CollaboratorsPage({ searchParams }: PageProps) {
   const canManage = (roles ?? []).some((role) => ["SUPER_ADMIN", "ORG_ADMIN", "MANAGER"].includes(role.role));
   const canVerifyAlias = (roles ?? []).some((role) => ["SUPER_ADMIN", "ORG_ADMIN"].includes(role.role));
 
-  const [{ data: organizations }, { data: collaborators }, { data: units }, { data: aliases }] = await Promise.all([
+  const [{ data: organizations }, { data: collaborators }, { data: units }, { data: aliases }, { data: locations }] = await Promise.all([
     supabase.from("organizations").select("id,display_name").in("id", organizationIds).order("display_name"),
     supabase
       .from("collaborators")
@@ -41,6 +41,7 @@ export default async function CollaboratorsPage({ searchParams }: PageProps) {
       .in("organization_id", organizationIds)
       .eq("active", true)
       .order("email"),
+    supabase.from("customer_locations").select("id,organization_id,name,city").in("organization_id", organizationIds).eq("active", true).order("name"),
   ]);
 
   const primaryEmail = new Map(
@@ -68,6 +69,9 @@ export default async function CollaboratorsPage({ searchParams }: PageProps) {
             </select>
             <input name="employeeNumber" required maxLength={80} placeholder="Matrícula" aria-label="Matrícula" className="w-full rounded border border-slate-300 bg-white p-2 text-sm text-slate-900" />
             <input name="fullName" required maxLength={180} placeholder="Nome completo" aria-label="Nome completo" className="w-full rounded border border-slate-300 bg-white p-2 text-sm text-slate-900" />
+            <input name="phone" maxLength={30} placeholder="Telefone de contato" aria-label="Telefone de contato" className="w-full rounded border border-slate-300 bg-white p-2 text-sm text-slate-900" />
+            <select name="locationId" aria-label="Polo do solicitante" className="w-full rounded border border-slate-300 bg-white p-2 text-sm text-slate-900"><option value="">Polo / localidade</option>{(locations ?? []).map((location) => <option key={location.id} value={location.id}>{location.name} · {location.city}</option>)}</select>
+            <select name="managerCollaboratorId" aria-label="Gestor imediato" className="w-full rounded border border-slate-300 bg-white p-2 text-sm text-slate-900"><option value="">Gestor imediato</option>{(collaborators ?? []).map((collaborator) => <option key={collaborator.id} value={collaborator.id}>{collaborator.full_name}</option>)}</select>
             <input name="primaryEmail" type="email" maxLength={320} placeholder="E-mail principal (opcional)" aria-label="E-mail principal" className="w-full rounded border border-slate-300 bg-white p-2 text-sm text-slate-900" />
             <button className="rounded bg-sky-950 px-3 py-2 text-sm font-semibold text-white">Cadastrar</button>
           </form>
