@@ -9,10 +9,11 @@ type OneitPageHeaderProps = {
 };
 
 export function OneitPageHeader({ title, description, eyebrow, breadcrumb, actions }: OneitPageHeaderProps) {
+  const displayEyebrow = eyebrow?.replace(/organização/gi, "prestador de serviço");
   return <header className="oneit-page-header" data-oneit-page-header>
     <div className="oneit-page-header__content min-w-0">
       {breadcrumb && <div className="mb-1 text-xs text-slate-500">{breadcrumb}</div>}
-      {eyebrow && <div className="oneit-page-header__eyebrow">{eyebrow === "Configurações · Organização" ? "Configurações · Prestador de serviço" : eyebrow}</div>}
+      {displayEyebrow && <div className="oneit-page-header__eyebrow">{displayEyebrow}</div>}
       <h1 className="oneit-page-header__title">{title}</h1>
       {description && <p className="mt-1 max-w-3xl text-sm text-slate-600">{description}</p>}
     </div>
