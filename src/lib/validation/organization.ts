@@ -55,6 +55,8 @@ export const locationSchema = z.object({
   externalCode: optionalExternalCode,
   street: z.string().trim().max(200).optional(),
   streetNumber: z.string().trim().max(40).optional(),
+  complement: z.string().trim().max(120).optional(),
+  district: z.string().trim().max(120).optional(),
 });
 
 export const locationContactSchema = z.object({

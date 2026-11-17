@@ -5,6 +5,8 @@ import { redirect } from "next/navigation";
 import { assertTransition, type OperationalStatus } from "@/domain/tickets/state-machine";
 import { requireUser } from "@/lib/auth/current-user";
 import { createTicketSchema, transitionTicketSchema } from "@/lib/validation/ticket";
+import { createStorageAdmin } from "@/lib/supabase/storage-admin";
+import { MAX_EVIDENCE_BYTES, validateEvidenceBytes } from "@/lib/validation/evidence";
 
 function ticketCreationMessage(message: string | undefined): string {
   if (message?.includes("TICKET_INITIAL_STATE_REQUIRED")) return "O chamado não pôde ser aberto porque o estado inicial está inconsistente. Recarregue a tela e tente novamente.";
@@ -40,6 +42,10 @@ export async function createTicket(formData: FormData) {
   });
   if (!parsed.success) redirect(`/portal/tickets?message=${encodeURIComponent(ticketValidationMessage(parsed.error.issues))}`);
 
+  const files = formData.getAll("attachments").filter((value): value is File => value instanceof File && value.size > 0);
+  if (files.length > 5 || files.some((file) => file.size > MAX_EVIDENCE_BYTES)) redirect("/portal/tickets?message=Envie+até+5+fotos+de+até+4+MB+cada.");
+  if (files.length && !process.env.SUPABASE_SERVICE_ROLE_KEY) redirect("/portal/tickets?message=O+armazenamento+de+fotos+do+chamado+não+está+configurado.");
+
   const { supabase } = await requireUser();
   const { data: createdTicket, error } = await supabase.from("tickets").insert({
     organization_id: parsed.data.organizationId, servicenow_number: parsed.data.servicenowNumber || null, customer_id: parsed.data.customerId,
@@ -48,6 +54,20 @@ export async function createTicket(formData: FormData) {
     urgency: parsed.data.urgency, ticket_type: parsed.data.ticketType,
   }).select("id,ticket_number").single();
   if (error || !createdTicket) redirect(`/portal/tickets?message=${encodeURIComponent(ticketCreationMessage(error?.message))}`);
+  if (files.length) {
+    const storage = createStorageAdmin("ticket-attachments");
+    for (const file of files) {
+      const bytes = new Uint8Array(await file.arrayBuffer());
+      let mime: string;
+      try { mime = validateEvidenceBytes(bytes, file.type); } catch { redirect("/portal/tickets?message=Uma+das+fotos+é+inválida.+Use+JPEG,+PNG+ou+WebP."); }
+      const extension = mime === "image/jpeg" ? "jpg" : mime === "image/png" ? "png" : "webp";
+      const storagePath = `${parsed.data.organizationId}/${createdTicket.id}/${crypto.randomUUID()}.${extension}`;
+      const uploaded = await storage.upload(storagePath, bytes, { contentType: mime, upsert: false });
+      if (uploaded.error) redirect("/portal/tickets?message=O+chamado+foi+salvo,+mas+não+foi+possível+salvar+uma+das+fotos.");
+      const { error: attachmentError } = await supabase.from("ticket_attachments").insert({ ticket_id: createdTicket.id, organization_id: parsed.data.organizationId, storage_path: storagePath, file_name: file.name.slice(0, 180), mime_type: mime, size_bytes: bytes.length });
+      if (attachmentError) { await storage.remove([storagePath]); redirect("/portal/tickets?message=O+chamado+foi+salvo,+mas+não+foi+possível+registrar+uma+das+fotos."); }
+    }
+  }
   revalidatePath("/portal/tickets");
   redirect(`/portal/tickets?message=${encodeURIComponent(`Chamado ${createdTicket.ticket_number} aberto e salvo na fila.`)}`);
 }

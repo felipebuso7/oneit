@@ -14,6 +14,7 @@ type SecureAccess = {
   contactName?: string | null;
   contactPhone?: string | null;
   materials?: Array<{ name: string; quantity: number | string; unit: string }> | null;
+  attachments?: Array<{ id?: string; name: string; storagePath: string; mime?: string; size?: number }> | null;
   address?: string;
   technician: string;
   expiresAt: string;
@@ -49,14 +50,14 @@ export function SecurePartnerPage() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(handoff),
     }).then(async (response) => {
-      const payload = await response.json().catch(() => ({})) as { context?: { ticket_number?: string; order_number?: string; service_order_id?: string; title?: string; scheduled_at?: string | null; access_expires_at?: string; location_address?: string; local_contact_name?: string | null; local_contact_phone?: string | null; materials?: Array<{ name: string; quantity: number | string; unit: string }> | null; status?: string; partner_accepted?: boolean; travel_started_at?: string | null; checked_in_at?: string | null; checked_out_at?: string | null; draft?: SecureAccess["draft"] }; code?: string };
+      const payload = await response.json().catch(() => ({})) as { context?: { ticket_number?: string; order_number?: string; service_order_id?: string; title?: string; scheduled_at?: string | null; access_expires_at?: string; location_address?: string; local_contact_name?: string | null; local_contact_phone?: string | null; materials?: Array<{ name: string; quantity: number | string; unit: string }> | null; requester_attachments?: SecureAccess["attachments"]; status?: string; partner_accepted?: boolean; travel_started_at?: string | null; checked_in_at?: string | null; checked_out_at?: string | null; draft?: SecureAccess["draft"] }; code?: string };
       if (!response.ok || !payload.context?.access_expires_at) {
         setNotice(payload.code === "ACCESS_EXPIRED" ? "Este link expirou. Solicite um novo acesso ao gestor." : "Não foi possível validar este acesso. Solicite um novo link.");
         return;
       }
       const context = payload.context;
       const expiresAt = context.access_expires_at as string;
-      setAccess({ ticket: context.ticket_number ?? context.order_number ?? "OS", code: handoff.code as string, token: handoff.token as string, orderId: context.service_order_id, title: context.title, scheduledAt: context.scheduled_at, address: context.location_address, contactName: context.local_contact_name, contactPhone: context.local_contact_phone, materials: context.materials, technician: "Técnico autorizado", expiresAt, status: context.status, accepted: context.partner_accepted, travel_started_at: context.travel_started_at, checked_in_at: context.checked_in_at, checked_out_at: context.checked_out_at, draft: context.draft });
+      setAccess({ ticket: context.ticket_number ?? context.order_number ?? "OS", code: handoff.code as string, token: handoff.token as string, orderId: context.service_order_id, title: context.title, scheduledAt: context.scheduled_at, address: context.location_address, contactName: context.local_contact_name, contactPhone: context.local_contact_phone, materials: context.materials, attachments: context.requester_attachments, technician: "Técnico autorizado", expiresAt, status: context.status, accepted: context.partner_accepted, travel_started_at: context.travel_started_at, checked_in_at: context.checked_in_at, checked_out_at: context.checked_out_at, draft: context.draft });
       setNotice("");
     }).catch(() => setNotice("Não foi possível conectar ao servidor. Verifique a conexão e tente novamente."));
   }, []);
