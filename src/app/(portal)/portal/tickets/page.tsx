@@ -13,7 +13,7 @@ export default async function TicketsPage({ searchParams }: PageProps) {
   const organizationIds = organizations.map((item) => item.id);
   const [{ data: contracts }, { data: locations }, { data: categories }, { data: collaborators }, { data: departments }, ticketResult] = await Promise.all([
     organizationIds.length ? supabase.from("contracts").select("id, organization_id, customer_id, code, name").in("organization_id", organizationIds).eq("active", true).order("name") : Promise.resolve({ data: [] }),
-    organizationIds.length ? supabase.from("customer_locations").select("id, organization_id, customer_id, name, city").in("organization_id", organizationIds).eq("active", true).order("name") : Promise.resolve({ data: [] }),
+    organizationIds.length ? supabase.from("customer_locations").select("id, organization_id, customer_id, name, street, street_number, complement, district, city, state_code, postal_code").in("organization_id", organizationIds).eq("active", true).order("name") : Promise.resolve({ data: [] }),
     organizationIds.length ? supabase.from("service_categories").select("id, organization_id, name").in("organization_id", organizationIds).eq("active", true).order("name") : Promise.resolve({ data: [] }),
     organizationIds.length ? supabase.from("collaborators").select("id, organization_id, full_name").in("organization_id", organizationIds).eq("status", "ACTIVE").order("full_name") : Promise.resolve({ data: [] }),
     organizationIds.length ? supabase.from("organization_units").select("id, organization_id, name").in("organization_id", organizationIds).eq("unit_type", "DEPARTMENT").eq("active", true).order("name") : Promise.resolve({ data: [] }),

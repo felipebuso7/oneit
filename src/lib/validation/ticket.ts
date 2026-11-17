@@ -17,6 +17,7 @@ export const createTicketSchema = z.object({
   locationId: z.uuid(),
   title: z.string().trim().min(5).max(240),
   description: z.string().trim().min(10).max(10_000),
+  requesterContactPhone: z.string().trim().max(40).optional(),
   impact: ticketImpactSchema,
   urgency: ticketImpactSchema,
 });
