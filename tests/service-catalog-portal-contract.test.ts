@@ -45,7 +45,8 @@ describe("catálogo autenticado", () => {
     expect(page).toContain('action={createServiceOffering}');
     expect(page).toContain('kind="offering"');
     expect(actions).toContain('kind !== "offering"');
-    expect(actions).toContain('from("service_offerings").delete()');
+    expect(actions).toContain('update_service_catalog_item');
+    expect(actions).not.toContain('from("service_offerings").delete()');
   });
 
   it("revalida o SLA também após manutenção de item existente", () => {

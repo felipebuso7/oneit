@@ -48,19 +48,22 @@ export async function deleteServiceCatalogItem(formData: FormData) {
   const kind = formData.get("kind");
   if (!id || (kind !== "category" && kind !== "subcategory" && kind !== "offering")) redirect("/portal/service-catalog?message=Item+inválido.");
   const { supabase } = await requireUser();
-  if (kind === "category") {
-    const { count } = await supabase.from("service_subcategories").select("id", { count: "exact", head: true }).eq("category_id", id);
-    if ((count ?? 0) > 0) redirect("/portal/service-catalog?message=Não+é+possível+excluir+uma+categoria+com+subcategorias.+Inative+os+itens+dependentes+primeiro.");
-    const { error } = await supabase.from("service_categories").delete().eq("id", id);
-    if (error) redirect("/portal/service-catalog?message=Não+foi+possível+excluir+a+categoria.+Ela+pode+estar+em+uso+no+histórico.");
-  } else if (kind === "subcategory") {
-    const { count } = await supabase.from("service_offerings").select("id", { count: "exact", head: true }).eq("subcategory_id", id);
-    if ((count ?? 0) > 0) redirect("/portal/service-catalog?message=Não+é+possível+excluir+uma+subcategoria+com+serviços.+Inative+os+itens+dependentes+primeiro.");
-    const { error } = await supabase.from("service_subcategories").delete().eq("id", id);
-    if (error) redirect("/portal/service-catalog?message=Não+foi+possível+excluir+a+subcategoria.+Ela+pode+estar+em+uso+no+histórico.");
-  } else {
-    const { error } = await supabase.from("service_offerings").delete().eq("id", id);
-    if (error) redirect("/portal/service-catalog?message=Não+foi+possível+excluir+o+serviço.+Ele+pode+estar+em+uso+no+histórico.");
+  // O catálogo é referenciado por chamados e histórico. A exclusão física é
+  // bloqueada pelo banco; “Excluir” na interface significa retirar do catálogo
+  // ativo, preservando a rastreabilidade. A mesma função transacional usada na
+  // edição aplica autorização, hierarquia e auditoria.
+  const table = kind === "category" ? "service_categories" : kind === "subcategory" ? "service_subcategories" : "service_offerings";
+  const { data: item, error: readError } = await supabase.from(table).select("code,name,active").eq("id", id).maybeSingle();
+  if (readError || !item) redirect("/portal/service-catalog?message=Item+não+encontrado+ou+sem+permissão.");
+  if (!item.active) redirect("/portal/service-catalog?message=Este+item+já+está+inativo.");
+  const { error } = await supabase.rpc("update_service_catalog_item", { target_kind: kind, target_id: id, target_code: item.code, target_name: item.name, target_active: false });
+  if (error) {
+    const message = error.message.includes("SERVICE_CATALOG_ACTIVE_CHILDREN")
+      ? "Inative primeiro os itens filhos ativos para retirar este item do catálogo."
+      : error.message.includes("SERVICE_CATALOG_NOT_AUTHORIZED")
+        ? "Seu perfil não pode excluir itens deste catálogo."
+        : "Não foi possível excluir o item. Ele pode estar em uso no histórico.";
+    redirect(`/portal/service-catalog?message=${encodeURIComponent(message)}`);
   }
   revalidatePath("/portal/service-catalog");
   revalidatePath("/portal/tickets");
