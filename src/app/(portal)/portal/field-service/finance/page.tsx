@@ -15,8 +15,13 @@ export default async function FieldServiceFinancePage() {
     ? await supabase.from("measurement_sheets").select("id,organization_id,sheet_number,total_orders,total_amount,created_at,billing_period_id,billing_periods!inner(competence,status)").in("organization_id", organizationIds).order("created_at", { ascending: false }).limit(100)
     : { data: [], error: null };
   if (sheetsError) throw new Error("Não foi possível carregar os boletins de medição.");
+  const sheetIds = (sheets ?? []).map((sheet) => sheet.id);
+  const { data: blockedLines } = sheetIds.length
+    ? await supabase.from("measurement_sheet_lines").select("measurement_sheet_id,ticket_id,tickets!inner(operational_status)").in("measurement_sheet_id", sheetIds).eq("tickets.operational_status", "CANCELLED")
+    : { data: [] };
+  const blockedSheetIds = new Set((blockedLines ?? []).map((line) => line.measurement_sheet_id));
   const now = new Date();
   const defaultCompetence = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
-  const normalizedSheets = (sheets ?? []).map((sheet) => { const period = Array.isArray(sheet.billing_periods) ? sheet.billing_periods[0] : sheet.billing_periods; return { ...sheet, competence: period?.competence ?? "", status: period?.status ?? "DRAFT" }; });
+  const normalizedSheets = (sheets ?? []).filter((sheet) => !blockedSheetIds.has(sheet.id)).map((sheet) => { const period = Array.isArray(sheet.billing_periods) ? sheet.billing_periods[0] : sheet.billing_periods; return { ...sheet, competence: period?.competence ?? "", status: period?.status ?? "DRAFT" }; });
   return <section className="mx-auto max-w-7xl p-5 sm:p-8"><OneitPageHeader eyebrow="Financeiro" title="Boletim de medição" description="Feche a competência com os serviços de Field Service aprovados e acompanhe o BM antes do envio ao cliente." /><MeasurementPanel organizations={organizations ?? []} initialSheets={normalizedSheets} defaultCompetence={defaultCompetence} /></section>;
 }

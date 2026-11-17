@@ -16,12 +16,12 @@ export default async function FieldServiceReportsPage({ searchParams }: PageProp
   const ticketIds = (reports ?? []).map((report) => report.ticket_id);
   const [{ data: orders }, { data: tickets }] = await Promise.all([
     orderIds.length ? supabase.from("service_orders").select("id,technician_id").in("id", orderIds) : Promise.resolve({ data: [] }),
-    ticketIds.length ? supabase.from("tickets").select("id,ticket_number").in("id", ticketIds) : Promise.resolve({ data: [] }),
+    ticketIds.length ? supabase.from("tickets").select("id,ticket_number,operational_status").in("id", ticketIds) : Promise.resolve({ data: [] }),
   ]);
   const technicianIds = [...new Set((orders ?? []).map((order) => order.technician_id).filter(Boolean))];
   const { data: technicians } = technicianIds.length ? await supabase.from("technicians").select("id,full_name").in("id", technicianIds) : { data: [] };
   const orderById = new Map((orders ?? []).map((order) => [order.id, order]));
-  const ticketById = new Map((tickets ?? []).map((ticket) => [ticket.id, ticket]));
+  const ticketById = new Map((tickets ?? []).filter((ticket) => ticket.operational_status !== "CANCELLED").map((ticket) => [ticket.id, ticket]));
   const technicianById = new Map((technicians ?? []).map((technician) => [technician.id, technician.full_name]));
   const normalizedTicket = (filters.ticket ?? "").trim().toLocaleLowerCase("pt-BR");
   const normalizedTechnician = (filters.technician ?? "").trim().toLocaleLowerCase("pt-BR");
