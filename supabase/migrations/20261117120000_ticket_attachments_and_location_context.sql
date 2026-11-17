@@ -17,6 +17,7 @@ on conflict (id) do nothing;
 create policy "read registered ticket attachments" on storage.objects for select to authenticated
 using (bucket_id = 'ticket-attachments' and exists (select 1 from public.ticket_attachments a where a.storage_path = name));
 
+-- audit:allow-drop-function-replacement (return shape is extended without deleting data)
 drop function if exists public.get_partner_service_order_context(text, text);
 create or replace function public.get_partner_service_order_context(target_token text, target_code text)
 returns table(service_order_id uuid, order_number text, ticket_number text, title text, scheduled_at timestamptz, status text, location_name text, location_address text, local_contact_name text, local_contact_phone text, materials jsonb, requester_attachments jsonb)
