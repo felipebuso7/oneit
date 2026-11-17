@@ -24,8 +24,9 @@ export default async function CollaboratorsPage({ searchParams }: PageProps) {
   const canManage = (roles ?? []).some((role) => ["SUPER_ADMIN", "ORG_ADMIN", "MANAGER"].includes(role.role));
   const canVerifyAlias = (roles ?? []).some((role) => ["SUPER_ADMIN", "ORG_ADMIN"].includes(role.role));
 
-  const [{ data: organizations }, { data: collaborators }, { data: units }, { data: aliases }, { data: rawLocations }] = await Promise.all([
+  const [{ data: organizations }, { data: customers }, { data: collaborators }, { data: units }, { data: aliases }, { data: rawLocations }] = await Promise.all([
     supabase.from("organizations").select("id,display_name").in("id", organizationIds).order("display_name"),
+    supabase.from("customers").select("id,organization_id,name").in("organization_id", organizationIds).order("name"),
     supabase
       .from("collaborators")
       .select("id,organization_id,employee_number,full_name,status,location_id,created_at")
@@ -70,11 +71,7 @@ export default async function CollaboratorsPage({ searchParams }: PageProps) {
         <section className="grid gap-4 xl:grid-cols-3">
           <form action={createCollaborator} className="space-y-3 rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
             <h2 className="font-semibold text-slate-950">Novo colaborador</h2>
-            <select name="organizationId" required aria-label="Organização do colaborador" className="w-full rounded border border-slate-300 bg-white p-2 text-sm text-slate-900">
-              <option value="">Organização</option>
-              {(organizations ?? []).map((organization) => <option key={organization.id} value={organization.id}>{organization.display_name}</option>)}
-            </select>
-            <input name="employeeNumber" required maxLength={80} placeholder="Matrícula" aria-label="Matrícula" className="w-full rounded border border-slate-300 bg-white p-2 text-sm text-slate-900" />
+            <select name="customerId" required aria-label="Cliente do colaborador" className="w-full rounded border border-slate-300 bg-white p-2 text-sm text-slate-900"><option value="">Cliente</option>{(customers ?? []).map((customer) => <option key={customer.id} value={customer.id}>{customer.name}</option>)}</select>
             <input name="fullName" required maxLength={180} placeholder="Nome completo" aria-label="Nome completo" className="w-full rounded border border-slate-300 bg-white p-2 text-sm text-slate-900" />
             <input name="phone" maxLength={30} placeholder="Telefone de contato" aria-label="Telefone de contato" className="w-full rounded border border-slate-300 bg-white p-2 text-sm text-slate-900" />
             <select name="locationId" aria-label="Polo do solicitante" className="w-full rounded border border-slate-300 bg-white p-2 text-sm text-slate-900"><option value="">Polo / localidade</option>{(locations ?? []).map((location) => <option key={location.id} value={location.id}>{location.name} · {location.city}</option>)}</select>
