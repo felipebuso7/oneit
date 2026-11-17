@@ -16,7 +16,7 @@ export default async function ServiceCatalogPage({ searchParams }: PageProps) {
   const { data: roles } = await supabase.from("user_roles").select("organization_id").eq("user_id", user.id).in("role", ["ORG_ADMIN", "SUPER_ADMIN"]);
   const organizationIds = [...new Set((roles ?? []).map((role) => role.organization_id))];
   if (!organizationIds.length) return <section className="p-8"><h1 className="text-2xl font-semibold">Catálogo de serviços</h1><p className="mt-3">Somente administradores organizacionais mantêm o catálogo.</p></section>;
-  // A exclusão física não é permitida: inactive items remain in the database for audit/history, but are retired
+  // a exclusão física não é permitida: inactive items remain in the database for audit/history, but are retired
   // from the operational catalog and therefore must not be rendered here.
   const [{ data: organizations }, { data: categories }] = await Promise.all([supabase.from("organizations").select("id,display_name").in("id", organizationIds).eq("active", true).order("display_name"), supabase.from("service_categories").select("id,organization_id,code,name,active").in("organization_id", organizationIds).eq("active", true).order("name")]);
   const categoryIds = (categories ?? []).map((item) => item.id);
