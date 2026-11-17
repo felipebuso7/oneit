@@ -28,6 +28,11 @@ export function PwaStatus() {
     };
     const onInstalled = () => { setInstallEvent(null); setNotice("Aplicativo instalado."); };
     const onSubmit = (event: SubmitEvent) => {
+      const submitter = event.submitter instanceof HTMLButtonElement ? event.submitter : null;
+      if (submitter?.textContent?.trim() === "Excluir polo" && !window.confirm("Deseja realmente excluir este polo? Esta ação não pode ser desfeita.")) {
+        event.preventDefault();
+        return;
+      }
       const queuedCheckIn = event.target instanceof HTMLFormElement && event.target.dataset.offlineQueue === "true";
       if (!navigator.onLine && !queuedCheckIn) {
         event.preventDefault();
