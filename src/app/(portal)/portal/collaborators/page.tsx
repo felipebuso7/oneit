@@ -24,7 +24,7 @@ export default async function CollaboratorsPage({ searchParams }: PageProps) {
   const canManage = (roles ?? []).some((role) => ["SUPER_ADMIN", "ORG_ADMIN", "MANAGER"].includes(role.role));
   const canVerifyAlias = (roles ?? []).some((role) => ["SUPER_ADMIN", "ORG_ADMIN"].includes(role.role));
 
-  const [{ data: organizations }, { data: collaborators }, { data: units }, { data: aliases }, { data: locations }] = await Promise.all([
+  const [{ data: organizations }, { data: collaborators }, { data: units }, { data: aliases }, { data: rawLocations }] = await Promise.all([
     supabase.from("organizations").select("id,display_name").in("id", organizationIds).order("display_name"),
     supabase
       .from("collaborators")
@@ -45,6 +45,7 @@ export default async function CollaboratorsPage({ searchParams }: PageProps) {
     supabase.from("customer_locations").select("id,organization_id,name,city").in("organization_id", organizationIds).eq("active", true).order("name"),
   ]);
 
+  const locations = rawLocations ?? [];
   const filteredCollaborators = (collaborators ?? []).filter((item) => {
     const q = params.q?.trim().toLowerCase();
     return (!q || item.full_name.toLowerCase().includes(q) || item.employee_number.toLowerCase().includes(q)) &&
