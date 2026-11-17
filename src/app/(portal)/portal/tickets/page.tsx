@@ -11,7 +11,7 @@ type PageProps = { searchParams: Promise<{ message?: string }> };
 export default async function TicketsPage({ searchParams }: PageProps) {
   const [{ supabase }, organizations, customers, { message }] = await Promise.all([requireUser(), listAvailableOrganizations(), listAvailableCustomers(), searchParams]);
   const organizationIds = organizations.map((item) => item.id);
-  const [{ data: contracts }, { data: locations }, { data: categories }, { data: collaborators }, { data: departments }, { data: tickets, error: ticketsError }] = await Promise.all([
+  const [{ data: contracts }, { data: locations }, { data: categories }, { data: collaborators }, { data: departments }, ticketResult] = await Promise.all([
     organizationIds.length ? supabase.from("contracts").select("id, organization_id, customer_id, code, name").in("organization_id", organizationIds).eq("active", true).order("name") : Promise.resolve({ data: [] }),
     organizationIds.length ? supabase.from("customer_locations").select("id, organization_id, customer_id, name, city").in("organization_id", organizationIds).eq("active", true).order("name") : Promise.resolve({ data: [] }),
     organizationIds.length ? supabase.from("service_categories").select("id, organization_id, name").in("organization_id", organizationIds).eq("active", true).order("name") : Promise.resolve({ data: [] }),
@@ -19,6 +19,17 @@ export default async function TicketsPage({ searchParams }: PageProps) {
     organizationIds.length ? supabase.from("organization_units").select("id, organization_id, name").in("organization_id", organizationIds).eq("unit_type", "DEPARTMENT").eq("active", true).order("name") : Promise.resolve({ data: [] }),
     organizationIds.length ? supabase.from("tickets").select("id, ticket_number, servicenow_number, servicenow_opened_at, customer_id, location_id, assigned_technician_id, scheduled_at, title, ticket_type, priority, operational_status, administrative_status, created_at, category_code, service_type_code, version").in("organization_id", organizationIds).neq("operational_status", "CANCELLED").order("created_at", { ascending: false }).limit(500) : Promise.resolve({ data: [], error: null }),
   ]);
+  // Keep the operational queue available while an older production schema is
+  // being upgraded. The optional ServiceNow opening-date column was added
+  // later; if that one column is not present yet, retry the same tenant-scoped
+  // query without it instead of presenting an empty/broken queue.
+  let tickets = ticketResult.data;
+  let ticketsError = ticketResult.error;
+  if (ticketsError && organizationIds.length) {
+    const fallback = await supabase.from("tickets").select("id, ticket_number, servicenow_number, customer_id, location_id, assigned_technician_id, scheduled_at, title, ticket_type, priority, operational_status, administrative_status, created_at, category_code, service_type_code, version").in("organization_id", organizationIds).neq("operational_status", "CANCELLED").order("created_at", { ascending: false }).limit(500);
+    tickets = (fallback.data ?? []).map((ticket) => ({ ...ticket, servicenow_opened_at: null }));
+    ticketsError = fallback.error;
+  }
   // O catálogo é hierárquico. Carregar os níveis inferiores sem restringir pelos
   // IDs do nível anterior permitia que opções de outra organização aparecessem
   // no formulário (e falhassem somente ao salvar). Cada seletor agora consome
