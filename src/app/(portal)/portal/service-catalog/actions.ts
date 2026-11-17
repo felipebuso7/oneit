@@ -24,7 +24,7 @@ async function persist(formData: FormData, kind: "category" | "subcategory" | "o
   revalidatePath("/portal/service-catalog");
   revalidatePath("/portal/tickets");
   revalidatePath("/portal/sla");
-  redirect("/portal/service-catalog?message=Catálogo+atualizado.");
+  redirect(`/portal/service-catalog?tab=${kind === "subcategory" ? "subcategories" : kind === "offering" ? "offerings" : "categories"}&message=Catálogo+atualizado.`);
 }
 export async function createServiceCategory(formData: FormData) { await persist(formData, "category"); }
 export async function createServiceSubcategory(formData: FormData) { await persist(formData, "subcategory"); }
