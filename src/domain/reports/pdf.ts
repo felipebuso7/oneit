@@ -29,6 +29,12 @@ export const fieldServiceRtoSnapshotSchema = z.object({
 });
 export type FieldServiceRtoSnapshot = z.infer<typeof fieldServiceRtoSnapshotSchema>;
 
+const operationalStatusLabel: Record<string, string> = {
+  VALIDATED: "Validada", COMPLETED: "Concluída", CHECKED_IN: "Em atendimento",
+  IN_SERVICE: "Em atendimento", ON_SITE: "No local", TRAVEL_STARTED: "Em deslocamento",
+  ASSIGNED: "Atribuída", DISPATCHED: "Despachada", CANCELLED: "Cancelada",
+};
+
 export async function renderFieldServiceRtoPdf(snapshot: FieldServiceRtoSnapshot, evidenceImages: ReportEvidenceImage[] = []): Promise<Uint8Array> {
   const document = await PDFDocument.create();
   const font = await document.embedFont(StandardFonts.Helvetica); const bold = await document.embedFont(StandardFonts.HelveticaBold);
@@ -48,7 +54,7 @@ export async function renderFieldServiceRtoPdf(snapshot: FieldServiceRtoSnapshot
     if (oneitLogo) drawLogoContain(oneitLogo, margin, height - 24, 112, 34);
     if (serviciaLogo) drawLogoContain(serviciaLogo, width - margin - 154, height - 24, 154, 34);
     page.drawLine({ start: { x: margin, y: height - 70 }, end: { x: width - margin, y: height - 70 }, thickness: 1.4, color: rgb(0.02, 0.17, 0.35) });
-    page.drawText(safeText("RELATÓRIO TÉCNICO OPERACIONAL · FIELD SERVICE"), { x: margin, y: height - 86, size: 9, font: bold, color: rgb(0.02, 0.17, 0.35) });
+    page.drawText(safeText("RELATÓRIO TÉCNICO OPERACIONAL · ATENDIMENTO EM CAMPO"), { x: margin, y: height - 86, size: 9, font: bold, color: rgb(0.02, 0.17, 0.35) });
   };
   header();
   const ensureSpace = (required: number) => { if (y < 62 + required) { page = document.addPage([width, height]); y = height - 116; header(); } };
@@ -62,7 +68,7 @@ export async function renderFieldServiceRtoPdf(snapshot: FieldServiceRtoSnapshot
     const days = Math.floor(seconds / 86400); const hours = Math.floor((seconds % 86400) / 3600); const minutes = Math.floor((seconds % 3600) / 60);
     return `${days ? `${days}d ` : ""}${hours}h ${minutes}min`;
   };
-  text(`OS ${snapshot.order_number}`, 15, true); text(`Status: ${snapshot.status}`); text(`Chamado: ${snapshot.ticket_number ?? snapshot.ticket_id}`); if (snapshot.title) text(`Título: ${snapshot.title}`); y -= 8;
+  text(`OS ${snapshot.order_number}`, 15, true); text(`Status: ${operationalStatusLabel[snapshot.status] ?? snapshot.status}`); text(`Chamado: ${snapshot.ticket_number ?? snapshot.ticket_id}`); if (snapshot.title) text(`Título: ${snapshot.title}`); y -= 8;
   section("DADOS DO ATENDIMENTO"); text(`Cliente: ${snapshot.customer_name ?? "Não informado"}`); text(`Local: ${snapshot.location_name ?? "Não informado"}`); text(`Endereço: ${snapshot.location_address ?? "Não informado"}`); text(`Técnico: ${snapshot.technician_name ?? "Não informado"}`); text(`Validador: ${snapshot.reviewer_name ?? "Não informado"}`); if (snapshot.local_contact_name || snapshot.local_contact_phone) text(`Contato local: ${snapshot.local_contact_name ?? "Não informado"}${snapshot.local_contact_phone ? ` · ${snapshot.local_contact_phone}` : ""}`); y -= 8;
   section("LINHA DO TEMPO"); text(`Abertura do chamado: ${snapshot.ticket_opened_at ?? "Não informado"}`); text(`Agendamento: ${snapshot.scheduled_at ?? "Não informado"}`); text(`Check-in: ${snapshot.checked_in_at ?? "Não informado"}`); text(`Checkout: ${snapshot.checked_out_at ?? "Não informado"}`); text(`Fechamento do chamado: ${snapshot.ticket_closed_at ?? "Não informado"}`); text(`Tempo total do chamado: ${duration(snapshot.ticket_opened_at, snapshot.ticket_closed_at)}`); text(`Tempo em atendimento: ${duration(snapshot.checked_in_at, snapshot.checked_out_at)}`); y -= 8;
   section("RELATO TÉCNICO"); text(snapshot.execution_report ?? "Não informado"); y -= 8;
@@ -126,7 +132,7 @@ export async function renderFieldServiceRtoPdf(snapshot: FieldServiceRtoSnapshot
   section("ASSINATURA DO RESPONSÁVEL");
   text(snapshot.customer_signature_name ?? "Não informada", 10, true);
   if (snapshot.customer_signature_data_url?.startsWith("data:image/png;base64,")) { try { const bytes = Uint8Array.from(atob(snapshot.customer_signature_data_url.split(",")[1]), (c) => c.charCodeAt(0)); const image = await document.embedPng(bytes); ensureSpace(80); const scale = Math.min(190 / image.width, 58 / image.height); page.drawImage(image, { x: margin, y: y - image.height * scale, width: image.width * scale, height: image.height * scale }); y -= image.height * scale + 14; } catch { text("Imagem da assinatura não pôde ser incorporada."); } }
-  document.getPages().forEach((item, index, pages) => item.drawText(`RTO Field Service · ${index + 1}/${pages.length}`, { x: margin, y: 28, size: 8, font, color: rgb(0.4, 0.4, 0.4) }));
+  document.getPages().forEach((item, index, pages) => item.drawText(`RTO Atendimento em Campo · ${index + 1}/${pages.length}`, { x: margin, y: 28, size: 8, font, color: rgb(0.4, 0.4, 0.4) }));
   document.setTitle(`RTO ${snapshot.order_number}`); return document.save();
 }
 
