@@ -22,6 +22,7 @@ function ticketCreationMessage(message: string | undefined): string {
   if (message?.includes("foreign key") || message?.includes("ticket_service_offering")) return "Cliente, localidade, contrato ou serviço não pertence à organização selecionada.";
   if (message?.includes("duplicate key") || message?.includes("unique constraint")) return "Já existe um registro com a mesma referência. Confira o número externo e tente novamente.";
   if (message?.includes("permission denied") || message?.includes("row-level security")) return "Seu perfil não tem permissão para abrir chamados nesta organização.";
+  if (message?.includes("servicenow_opened_at") || message?.includes("requester_contact_phone") || message?.includes("department_unit_id")) return "A base de dados ainda não está com as últimas colunas do chamado. Aplique as migrations pendentes antes de abrir chamados.";
   return "Não foi possível abrir o chamado. Revise os dados e tente novamente.";
 }
 
@@ -47,12 +48,13 @@ export async function createTicket(formData: FormData) {
   if (files.length && !process.env.SUPABASE_SERVICE_ROLE_KEY) redirect("/portal/tickets?message=O+armazenamento+de+fotos+do+chamado+não+está+configurado.");
 
   const { supabase } = await requireUser();
-  const { data: createdTicket, error } = await supabase.from("tickets").insert({
+  const ticketPayload = {
     organization_id: parsed.data.organizationId, servicenow_number: parsed.data.servicenowNumber || null, servicenow_opened_at: parsed.data.servicenowOpenedAt || null, customer_id: parsed.data.customerId,
     contract_id: parsed.data.contractId, service_offering_id: parsed.data.serviceOfferingId, requester_collaborator_id: parsed.data.requesterCollaboratorId, department_unit_id: parsed.data.departmentUnitId, location_id: parsed.data.locationId,
     title: parsed.data.title, description: parsed.data.description, requester_contact_phone: parsed.data.requesterContactPhone || null, impact: parsed.data.impact,
     urgency: parsed.data.urgency, ticket_type: parsed.data.ticketType,
-  }).select("id,ticket_number").single();
+  };
+  const { data: createdTicket, error } = await supabase.from("tickets").insert(ticketPayload).select("id,ticket_number").single();
   if (error || !createdTicket) redirect(`/portal/tickets?message=${encodeURIComponent(ticketCreationMessage(error?.message))}`);
   if (files.length) {
     const storage = createStorageAdmin("ticket-attachments");

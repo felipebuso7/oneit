@@ -85,7 +85,7 @@ export default async function ReviewPage({ searchParams }: PageProps) {
   const start = (page - 1) * reviewPageSize;
   const queueQuery = (status: string) => {
     const activeApproved = status === "APPROVED" && !orderId;
-    let query = supabase.from("field_service_review_queue").select("id,organization_id,service_order_id,ticket_id,submission_id,status,created_at,review_reason,reviewed_at,tickets!inner(administrative_status)", { count: "exact" }).in("organization_id", organizationIds).eq("status", status);
+    let query = supabase.from("field_service_review_queue").select("id,organization_id,service_order_id,ticket_id,submission_id,status,created_at,review_reason,reviewed_at,tickets!inner(administrative_status,operational_status)", { count: "exact" }).in("organization_id", organizationIds).eq("status", status).neq("tickets.operational_status", "CANCELLED");
     if (activeApproved) query = query.neq("tickets.administrative_status", "CLOSED");
     if (orderId) query = query.eq("service_order_id", orderId);
     return query.order(status === "PENDING" ? "created_at" : "reviewed_at", { ascending: status === "PENDING" }).order("id").range(start, start + reviewPageSize - 1);
