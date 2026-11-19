@@ -33,7 +33,7 @@ export async function GET(_: Request, { params }: { params: Promise<{ id: string
   if (!role) return Response.json({ code: "MEASUREMENT_NOT_AUTHORIZED" }, { status: 403 });
   const { data: lines, error: linesError } = await supabase
     .from("measurement_sheet_lines")
-    .select("ticket_number,lpu_code,description,quantity,unit_price,total_price,line_kind,service_date,service_location,order_reference")
+    .select("ticket_number,lpu_code,description,quantity,unit_price,total_price,line_kind,service_date,service_location,order_reference,customer_id,contract_id,location_id,department_unit_id,service_offering_id,competence,customer:customers(name),contract:contracts(code,name),location:customer_locations(name,street,street_number,city),department:organization_units(name),service:service_offerings(name)")
     .eq("measurement_sheet_id", sheet.id)
     .order("ticket_number")
     .order("service_date");
@@ -66,17 +66,30 @@ export async function GET(_: Request, { params }: { params: Promise<{ id: string
   const cover = pdf.addPage(size);
   header(cover, "BOLETIM DE MEDIÇÃO");
   cover.drawText(sheet.sheet_number, { x: 42, y: 728, size: 11, font: regular, color: blue });
-  cover.drawText("COMPETÊNCIA", { x: 42, y: 682, size: 8, font: bold, color: blue });
-  cover.drawText(String(period?.competence ?? "Não informada").slice(0, 20), { x: 150, y: 682, size: 11, font: regular, color: navy });
-  cover.drawText("OS CONSOLIDADAS", { x: 42, y: 654, size: 8, font: bold, color: blue });
-  cover.drawText(String(sheet.total_orders), { x: 150, y: 654, size: 11, font: regular, color: navy });
-  cover.drawText("STATUS", { x: 42, y: 626, size: 8, font: bold, color: blue });
-  cover.drawText(String(period?.status ?? "DRAFT"), { x: 150, y: 626, size: 11, font: regular, color: navy });
-  cover.drawRectangle({ x: 42, y: 540, width: 511, height: 28, color: navy });
-  cover.drawText("RESUMO CONSOLIDADO", { x: 50, y: 550, size: 10, font: bold, color: rgb(1, 1, 1) });
-  cover.drawText("ITEM", { x: 44, y: 520, size: 7.5, font: bold, color: blue });
-  cover.drawText("QTD.", { x: 390, y: 520, size: 7.5, font: bold, color: blue });
-  cover.drawText("TOTAL", { x: 470, y: 520, size: 7.5, font: bold, color: blue });
+  const firstLine = lines?.[0] as typeof lines[number] & { customer?: { name?: string } | null; contract?: { code?: string; name?: string } | null; location?: { name?: string; street?: string; street_number?: string; city?: string } | null; department?: { name?: string } | null; service?: { name?: string } | null } | undefined;
+  const context = [
+    ["CLIENTE", firstLine?.customer?.name ?? "Não informado"],
+    ["EMPRESA / PRESTADOR", "Servicia · OneIT"],
+    ["OBRA / DEPARTAMENTO", [firstLine?.location?.name, firstLine?.department?.name].filter(Boolean).join(" · ") || "Não informado"],
+    ["CONTRATO", firstLine?.contract ? `${firstLine.contract.code ?? ""} ${firstLine.contract.name ?? ""}`.trim() : "Não informado"],
+  ] as const;
+  let contextY = 704;
+  for (const [label, value] of context) {
+    cover.drawText(label, { x: 42, y: contextY, size: 7.5, font: bold, color: blue });
+    cover.drawText(value.slice(0, 72), { x: 150, y: contextY, size: 9, font: regular, color: navy });
+    contextY -= 18;
+  }
+  cover.drawText("COMPETÊNCIA", { x: 42, y: 632, size: 8, font: bold, color: blue });
+  cover.drawText(String(period?.competence ?? "Não informada").slice(0, 20), { x: 150, y: 632, size: 10, font: regular, color: navy });
+  cover.drawText("OS CONSOLIDADAS", { x: 42, y: 610, size: 8, font: bold, color: blue });
+  cover.drawText(String(sheet.total_orders), { x: 150, y: 610, size: 10, font: regular, color: navy });
+  cover.drawText("STATUS", { x: 42, y: 588, size: 8, font: bold, color: blue });
+  cover.drawText(String(period?.status ?? "DRAFT"), { x: 150, y: 588, size: 10, font: regular, color: navy });
+  cover.drawRectangle({ x: 42, y: 520, width: 511, height: 28, color: navy });
+  cover.drawText("RESUMO CONSOLIDADO", { x: 50, y: 530, size: 10, font: bold, color: rgb(1, 1, 1) });
+  cover.drawText("ITEM", { x: 44, y: 500, size: 7.5, font: bold, color: blue });
+  cover.drawText("QTD.", { x: 390, y: 500, size: 7.5, font: bold, color: blue });
+  cover.drawText("TOTAL", { x: 470, y: 500, size: 7.5, font: bold, color: blue });
   const groups = new Map<string, { quantity: number; total: number }>();
   for (const line of lines ?? []) {
     const key = line.line_kind === "EXTRA" ? "EXTRAS" : line.lpu_code || line.description;
@@ -85,7 +98,7 @@ export async function GET(_: Request, { params }: { params: Promise<{ id: string
     current.total += Number(line.total_price);
     groups.set(key, current);
   }
-  let summaryY = 494;
+  let summaryY = 474;
   for (const [key, value] of groups) {
     cover.drawText(key.slice(0, 56), { x: 44, y: summaryY, size: 9, font: regular, color: navy });
     cover.drawText(String(value.quantity), { x: 390, y: summaryY, size: 9, font: regular, color: navy });
