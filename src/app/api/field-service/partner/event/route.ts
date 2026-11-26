@@ -32,14 +32,7 @@ export async function POST(request: Request) {
       target_token: parsed.data.token,
       target_code: parsed.data.code,
     })
-    : await supabase.rpc(parsed.data.event === "CHECK_IN" ? "arrive_and_start_partner_service_order" : "submit_partner_service_order_event", parsed.data.event === "CHECK_IN" ? {
-      target_token: parsed.data.token,
-      target_code: parsed.data.code,
-      target_location: parsed.data.location ?? null,
-      target_evidence: parsed.data.evidence ?? [],
-      target_signature_name: parsed.data.signatureName ?? null,
-      target_signature_data_url: parsed.data.signatureDataUrl ?? null,
-    } : {
+    : await supabase.rpc("submit_partner_service_order_event", {
       target_token: parsed.data.token,
       target_code: parsed.data.code,
       target_event: parsed.data.event,

@@ -25,12 +25,11 @@ describe("deslocamento do técnico parceiro", () => {
 
   it("usa uma transação única para chegada e início do atendimento", () => {
     const route = readFileSync("src/app/api/field-service/partner/event/route.ts", "utf8");
-    const migration = readFileSync("supabase/migrations/20261126220000_unify_partner_arrival_service_start.sql", "utf8");
-    expect(route).toContain('"arrive_and_start_partner_service_order"');
+    const migration = readFileSync("supabase/migrations/20261126210000_persist_partner_travel_location.sql", "utf8");
+    expect(route).toContain('"submit_partner_service_order_event"');
     expect(migration).toContain("'CHECK_IN'");
     expect(migration).toContain("'SERVICE_STARTED'");
-    expect(migration).toContain("combined_action");
-    expect(migration).toContain("status = 'IN_SERVICE'");
+    expect(migration).toContain("status = 'CHECKED_IN'");
   });
 
   it("impõe a sequência no banco", () => {
