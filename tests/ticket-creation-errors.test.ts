@@ -9,5 +9,6 @@ describe("ticket creation error contract", () => {
     expect(actions).toContain("Ticket customer must belong");
     expect(actions).toContain("Ticket contract must belong");
     expect(actions).toContain("Ticket location must belong");
+    expect(actions).toContain("não vinculado ao cliente selecionado");
   });
 });

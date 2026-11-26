@@ -10,8 +10,8 @@ import { MAX_EVIDENCE_BYTES, validateEvidenceBytes } from "@/lib/validation/evid
 
 function ticketCreationMessage(message: string | undefined): string {
   if (message?.includes("TICKET_INITIAL_STATE_REQUIRED")) return "O chamado não pôde ser aberto porque o estado inicial está inconsistente. Recarregue a tela e tente novamente.";
-  if (message?.includes("TICKET_REQUESTER_INVALID")) return "Solicitante inválido ou inativo para esta organização.";
-  if (message?.includes("TICKET_DEPARTMENT_INVALID")) return "Departamento inválido ou inativo para esta organização.";
+  if (message?.includes("TICKET_REQUESTER_INVALID")) return "Solicitante inválido, inativo ou não vinculado ao cliente selecionado.";
+  if (message?.includes("TICKET_DEPARTMENT_INVALID")) return "Departamento inválido, inativo ou não vinculado ao cliente selecionado.";
   if (message?.includes("TICKET_SERVICE_OFFERING_INVALID")) return "O serviço selecionado está inativo ou não pertence à organização do chamado.";
   if (message?.includes("TICKET_CATEGORY_INVALID")) return "A categoria do serviço está inativa ou não pertence à organização do chamado.";
   if (message?.includes("TICKET_SUBCATEGORY_INVALID")) return "A subcategoria do serviço está inativa ou não pertence à categoria selecionada.";
