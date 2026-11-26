@@ -1,0 +1,9 @@
+gate,name,deliverables,prerequisites,objective_criteria,tests,evidence,blocking_risks,acceptable_pending,approver,status
+G01,Fundação técnica,Arquitetura schema segurança infraestrutura,Diff e migrations auditadas,Build typecheck RLS e migrations sem falha,Lint typecheck build audit:migrations,ARCHITECTURE.md SECURITY.md logs,RLS/build crítico,Nenhuma P0,Tech Lead,PARTIAL
+G02,Integração sistêmica,Cadastros APIs relacionamentos,Fundação aprovada,Contratos API e persistência verificadas,Integração e regressão,Matriz e testes,Isolamento tenant ausente,Nenhum P0,Tech Lead,PARTIAL
+G03,Completude funcional,Fluxos implementados,Integração aprovada,Critérios de aceite por requisito,Unitários integração regressão,REQUIREMENTS_MATRIX.csv,Função essencial incompleta,P2 documentada,Product/Tech,PARTIAL
+G04,Homologação operacional,Jornada ponta a ponta,Ambiente e credenciais autorizados,Técnico e gestor concluem fluxo,E2E navegador mobile,QA-001 MTX-001,Fluxo não reproduzível,P2 não impeditiva,Operação,AGUARDANDO_APROVAÇÃO_HUMANA
+G05,Integridade financeira,Contratos LPU RTO BM,Regras comerciais definidas,Somente itens aprovados medidos,Precisão duplicidade concorrência,FIN-001,Quantidade aprovada ausente,Nenhuma,Financeiro,NO-GO
+G06,Production readiness,Deploy backup observabilidade,Stages 1-5,Versão domínio health rollback,Pipeline smoke backup,GOV-001 OPS-001,Deployment/backup não confirmados,Nenhuma,Tech Lead,NO-GO
+G07,UAT,Aceite humano registrado,Homologação técnica aprovada,Usuários reais aprovam cenários,UAT documentado,Ata de aceite,Sem usuários/ata,Nenhuma,Product Owner,AGUARDANDO_APROVAÇÃO_HUMANA
+G08,Go-live,Liberação formal,Todos gates anteriores,Go/No-Go assinado e smoke pós deploy,Smoke produção,RELEASE_REGISTER.md,Aprovações pendentes,Nenhuma,Comitê executivo,NO-GO

@@ -16,6 +16,7 @@ Estabelecer uma fonte única de governança para escopo, qualidade, riscos, depe
 - Baseline e mudanças: [SCOPE_BASELINE.md](SCOPE_BASELINE.md) e [CHANGE_CONTROL.md](CHANGE_CONTROL.md)
 - Roadmap e caminho crítico: [ROADMAP.md](ROADMAP.md) e [CRITICAL_PATH.md](CRITICAL_PATH.md)
 - Qualidade e releases: [QUALITY_GATES.md](QUALITY_GATES.md) e [RELEASE_MANAGEMENT.md](RELEASE_MANAGEMENT.md)
+- Stage gates e Go/No-Go: [STAGE_GATES.csv](STAGE_GATES.csv), [EXECUTIVE_REPORT.md](EXECUTIVE_REPORT.md) e [GO_NO_GO.md](GO_NO_GO.md)
 
 ## Governança
 
