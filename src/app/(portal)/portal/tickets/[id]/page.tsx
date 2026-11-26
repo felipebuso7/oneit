@@ -16,7 +16,7 @@ const operationalLabels: Record<string, string> = {
 
 export default async function TicketCaseFilePage({ params, searchParams }: PageProps) {
   const [{ id }, { message }, { supabase, user }] = await Promise.all([params, searchParams, requireUser()]);
-  const { data: ticket, error } = await supabase.from("tickets").select("id,ticket_number,servicenow_number,ticket_type,title,description,category_code,service_type_code,impact,urgency,priority,operational_status,administrative_status,opened_at,scheduled_at,closed_at,support_level,resolver_group_id,organization_id,source,requester_collaborator_id,department_unit_id,service_offering_id,assigned_technician_id,first_response_at").eq("id", id).maybeSingle();
+  const { data: ticket, error } = await supabase.from("tickets").select("id,ticket_number,servicenow_number,ticket_type,title,description,category_code,service_type_code,impact,urgency,priority,operational_status,administrative_status,opened_at,scheduled_at,closed_at,support_level,requester_contact_phone,resolver_group_id,organization_id,source,requester_collaborator_id,department_unit_id,service_offering_id,assigned_technician_id,first_response_at").eq("id", id).maybeSingle();
   if (error || !ticket) notFound();
 
   const [{ data: statuses }, { data: levels }, { data: pauses }, { data: escalations }, { data: groups }, { data: assets }, { data: ticketAssets }, { data: collaborators }, { data: departments }, { data: offerings }, { data: communications }, { data: relationships }] = await Promise.all([

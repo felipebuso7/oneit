@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { OneitPageHeader, OneitStatusBadge } from "@/components/oneit";
+import { formatPhone } from "@/lib/format-phone";
 
 type Ticket = {
   id: string;
@@ -20,6 +21,7 @@ type Ticket = {
   scheduled_at: string | null;
   closed_at: string | null;
   support_level: string;
+  requester_contact_phone: string | null;
 };
 
 type Level = { response_minutes: number; resolution_minutes: number; ola_minutes: number; response_due_at: string | null; resolution_due_at: string | null; ola_due_at: string | null; response_met_at: string | null; ola_met_at: string | null; paused_seconds: number };
@@ -56,7 +58,7 @@ export function TicketCaseFileView({ ticket, requesterName, groupLabel, level, c
     </nav>
 
     <section id="principal" className="mt-5 scroll-mt-5 space-y-5">
-      <div className="rounded-xl border border-slate-200 bg-white p-5"><h2 className="text-sm font-semibold text-slate-900">Descrição da solicitação</h2><p className="mt-3 whitespace-pre-wrap text-sm leading-6 text-slate-700">{ticket.description || "Sem descrição informada."}</p></div>
+      <div className="rounded-xl border border-slate-200 bg-white p-5"><h2 className="text-sm font-semibold text-slate-900">Descrição da solicitação</h2><p className="mt-3 whitespace-pre-wrap text-sm leading-6 text-slate-700">{ticket.description || "Sem descrição informada."}</p><div className="mt-4 border-t border-slate-100 pt-3"><p className="text-xs font-medium uppercase tracking-wide text-slate-500">Telefone de contato</p><p className="mt-1 text-sm font-semibold text-slate-900">{formatPhone(ticket.requester_contact_phone)}</p></div></div>
       <div className="grid gap-5 lg:grid-cols-2">
         <section className="rounded-xl border border-slate-200 bg-white p-5"><h2 className="font-semibold">Resumo</h2><dl className="mt-4 grid grid-cols-2 gap-x-5 gap-y-4 text-sm"><Data label="Serviço" value={ticket.category_code && ticket.service_type_code ? `${ticket.category_code} / ${ticket.service_type_code}` : "Não classificado"} /><Data label="Solicitante" value={requesterName} /><Data label="Situação" value={<OneitStatusBadge tone={ticket.operational_status === "CANCELLED" ? "danger" : awaitingValidation ? "warning" : "info"}>{statusLabel}</OneitStatusBadge>} /><Data label="Administrativo" value={ticket.administrative_status} /><Data label="Abertura" value={formatDate(ticket.opened_at)} />{ticket.scheduled_at ? <Data label="Agendamento" value={formatDate(ticket.scheduled_at)} /> : null}{ticket.closed_at ? <Data label="Fechamento" value={formatDate(ticket.closed_at)} /> : null}</dl>{awaitingValidation ? <p className="mt-5 rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900">Atendimento técnico encerrado. Aguardando validação do gestor.</p> : null}</section>
         <section className="rounded-xl border border-slate-200 bg-white p-5"><h2 className="font-semibold">SLA / OLA</h2>{level ? <div className="mt-4 space-y-2 text-sm text-slate-700"><p>Resposta: {level.response_met_at ? `atingida em ${formatDate(level.response_met_at)}` : `prazo ${formatDate(level.response_due_at)}`}</p><p>Resolução: prazo {formatDate(level.resolution_due_at)}</p><p>OLA: {level.ola_met_at ? `atingida em ${formatDate(level.ola_met_at)}` : `prazo ${formatDate(level.ola_due_at)}`}</p><p className="text-slate-500">Pausas acumuladas: {level.paused_seconds} s</p></div> : <p className="mt-4 text-sm text-slate-600">Não há política de SLA/OLA para este chamado.</p>}</section>
