@@ -14,6 +14,7 @@ Estabelecer uma fonte única de governança para escopo, qualidade, riscos, depe
 - Testes: [TEST_MATRIX.md](TEST_MATRIX.md)
 - Releases: [RELEASE_CHECKLIST.md](RELEASE_CHECKLIST.md) e [RELEASE_REGISTER.md](RELEASE_REGISTER.md)
 - Baseline e mudanças: [SCOPE_BASELINE.md](SCOPE_BASELINE.md) e [CHANGE_CONTROL.md](CHANGE_CONTROL.md)
+- Roadmap e caminho crítico: [ROADMAP.md](ROADMAP.md) e [CRITICAL_PATH.md](CRITICAL_PATH.md)
 
 ## Governança
 

@@ -2,3 +2,8 @@ id,from,to,reason,status,owner
 DEP-001,FIN-001,MTX-001,Financeiro depende de dados operacionais persistidos,READY,Engenharia
 DEP-002,GOV-001,Vercel,Confirmação exige acesso ao projeto e domínio,BLOCKED_EXTERNAL,Administrador
 DEP-003,QA-001,Credenciais de teste,E2E e RLS bilateral exigem usuários autorizados,BLOCKED_EXTERNAL,Administrador
+DEP-004,Cadastros,Contratos,OS exige referências de cliente contrato e local,ACTIVE,Engenharia
+DEP-005,Contratos,LPU,Preço precisa de contrato e vigência,ACTIVE,Engenharia
+DEP-006,Execução,Validação,Gestor só valida OS concluída com submissão,ACTIVE,Engenharia
+DEP-007,Validação,RTO,RTO só pode ser gerado após aprovação,ACTIVE,Engenharia
+DEP-008,RTO,BM,Medida usa OS fechada e linhas LPU snapshot,ACTIVE,Engenharia
