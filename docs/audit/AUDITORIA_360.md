@@ -14,6 +14,7 @@ Não foi possível comprovar, nesta execução, uma sessão autenticada completa
 |---|---|---|---|---|
 | FE-001 | P1 | Abertura de chamados | Solicitantes eram filtrados apenas por organização, permitindo opções de outra empresa | Corrigido em `e7fbabb`; filtro por cliente e busca adicionados |
 | DB-001 | P1 | Integridade | Trigger aceitava solicitante ativo da mesma organização, sem exigir o mesmo cliente | Corrigido pela migration `20261127110000_ticket_requester_customer_guard.sql`, aplicada no Supabase |
+| DB-002 | P2 | Performance | Consultas operacionais por empresa/cliente/status não tinham índice composto dedicado | Corrigido pela migration `20261127120000_operational_lookup_indexes.sql`, aplicada no Supabase |
 | FUNC-001 | P1 | Solicitantes | Atualização de status não enviava motivo nem a nova assinatura RPC | Corrigido em `e7fbabb`; motivo obrigatório para inativação |
 | QA-001 | P1 | Release | Deployment público comprovado ainda aponta para `e25949b` | Aberto: aguardar/acionar deployment Vercel |
 | QA-002 | P1 | Quality gate | `tsc`, build e Vitest não concluíram no limite operacional | Aberto: executar em CI ou ambiente com limite maior |

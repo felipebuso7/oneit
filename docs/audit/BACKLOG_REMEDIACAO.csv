@@ -1,6 +1,7 @@
 id,categoria,titulo,severidade,prioridade,status,evidencia,criterio_aceite
 FE-001,FE,Filtro de solicitante por empresa no chamado,P1,P1,DONE,e7fbabb,"Somente solicitantes ativos da empresa aparecem e busca funciona"
 DB-001,DB,Guard de solicitante contra cliente divergente,P1,P1,DONE,20261127110000,"Insert/update cruzado retorna TICKET_REQUESTER_INVALID"
+DB-002,DB,Índices para consultas operacionais tenant-scoped,P2,P2,DONE,20261127120000,"Consultas por empresa/cliente/status usam índices incrementais"
 FUNC-001,FUNC,Inativação auditável com motivo,P1,P1,DONE,e7fbabb,"INACTIVE exige motivo e grava ator/data"
 QA-001,OPS,Publicar e confirmar commit e7fbabb,P1,P1,BLOCKED_EXTERNAL,"api/version ainda retorna e25949b","Deployment público retorna e7fbabb"
 QA-002,QA,Concluir quality gate local/CI,P1,P1,BLOCKED_EXTERNAL,"typecheck/build/test ultrapassaram limite","Comandos concluem com código 0"
