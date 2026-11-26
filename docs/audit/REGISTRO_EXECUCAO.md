@@ -15,3 +15,4 @@
 - Aplicada a migration `20261127120000_operational_lookup_indexes.sql` no Supabase, criando índices compostos não destrutivos para colaboradores, localidades e chamados.
 - Não foi executado saneamento automático: não há evidência suficiente para corrigir registros incompletos sem decisão de negócio.
 - Ajustado o contrato de erro de abertura de chamados para informar vínculo do solicitante/departamento ao cliente, sem expor stack trace; adicionados testes de contrato e executados 3 testes com sucesso.
+- Melhorada a listagem de solicitantes com pesquisa por nome/e-mail/empresa/polo e filtros por empresa, polo e status; testes de contrato executados com 4 testes aprovados (Vitest apresentou aviso de encerramento tardio do processo).

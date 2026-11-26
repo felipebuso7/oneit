@@ -10,7 +10,7 @@ import {
 import { OneitPageHeader } from "@/components/oneit";
 import { NewRequesterForm } from "./new-requester-form";
 
-type PageProps = { searchParams: Promise<{ message?: string; q?: string; locationId?: string; status?: string }> };
+type PageProps = { searchParams: Promise<{ message?: string; q?: string; customerId?: string; locationId?: string; status?: string }> };
 const collaboratorStatusLabel: Record<string, string> = { ACTIVE: "Ativo", INACTIVE: "Inativo" };
 
 export default async function CollaboratorsPage({ searchParams }: PageProps) {
@@ -30,7 +30,7 @@ export default async function CollaboratorsPage({ searchParams }: PageProps) {
     supabase.from("customers").select("id,organization_id,name").in("organization_id", organizationIds).order("name"),
     supabase
       .from("collaborators")
-      .select("id,organization_id,employee_number,full_name,status,location_id,department_unit_id,created_at")
+      .select("id,organization_id,customer_id,employee_number,full_name,status,phone,location_id,department_unit_id,created_at")
       .in("organization_id", organizationIds)
       .order("full_name"),
     supabase
@@ -51,7 +51,9 @@ export default async function CollaboratorsPage({ searchParams }: PageProps) {
   const departments = (units ?? []).filter((unit) => unit.unit_type === "DEPARTMENT");
   const filteredCollaborators = (collaborators ?? []).filter((item) => {
     const q = params.q?.trim().toLowerCase();
-    return (!q || item.full_name.toLowerCase().includes(q) || item.employee_number.toLowerCase().includes(q)) &&
+    const email = (aliases ?? []).find((alias) => alias.collaborator_id === item.id)?.email ?? "";
+    return (!q || item.full_name.toLowerCase().includes(q) || item.employee_number.toLowerCase().includes(q) || email.includes(q) || (customers ?? []).find((customer) => customer.id === item.customer_id)?.name.toLowerCase().includes(q) || locations.find((location) => location.id === item.location_id)?.name.toLowerCase().includes(q)) &&
+      (!params.customerId || item.customer_id === params.customerId) &&
       (!params.locationId || item.location_id === params.locationId) && (!params.status || item.status === params.status);
   });
   const primaryEmail = new Map(
@@ -85,7 +87,7 @@ export default async function CollaboratorsPage({ searchParams }: PageProps) {
         </section>
       )}
 
-      <form className="grid gap-3 rounded-xl border border-slate-200 bg-white p-4 shadow-sm md:grid-cols-[1fr_220px_180px_auto]" method="get"><input name="q" defaultValue={params.q ?? ""} placeholder="Buscar por nome ou matrícula" className="rounded border border-slate-300 bg-white p-2 text-sm text-slate-900"/><select name="locationId" defaultValue={params.locationId ?? ""} className="rounded border border-slate-300 bg-white p-2 text-sm text-slate-900"><option value="">Todos os polos</option>{(locations ?? []).map((location) => <option key={location.id} value={location.id}>{location.name}</option>)}</select><select name="status" defaultValue={params.status ?? ""} className="rounded border border-slate-300 bg-white p-2 text-sm text-slate-900"><option value="">Todos os status</option><option value="ACTIVE">Ativos</option><option value="INACTIVE">Inativos</option></select><button className="rounded bg-sky-950 px-3 py-2 text-sm font-semibold text-white">Filtrar</button></form>
+      <form className="grid gap-3 rounded-xl border border-slate-200 bg-white p-4 shadow-sm md:grid-cols-[1fr_220px_220px_180px_auto]" method="get"><input name="q" defaultValue={params.q ?? ""} placeholder="Buscar por nome, e-mail, empresa ou polo" className="rounded border border-slate-300 bg-white p-2 text-sm text-slate-900"/><select name="customerId" defaultValue={params.customerId ?? ""} className="rounded border border-slate-300 bg-white p-2 text-sm text-slate-900"><option value="">Todas as empresas</option>{(customers ?? []).map((customer) => <option key={customer.id} value={customer.id}>{customer.name}</option>)}</select><select name="locationId" defaultValue={params.locationId ?? ""} className="rounded border border-slate-300 bg-white p-2 text-sm text-slate-900"><option value="">Todos os polos</option>{(locations ?? []).filter((location) => !params.customerId || (collaborators ?? []).some((item) => item.customer_id === params.customerId && item.location_id === location.id)).map((location) => <option key={location.id} value={location.id}>{location.name}</option>)}</select><select name="status" defaultValue={params.status ?? ""} className="rounded border border-slate-300 bg-white p-2 text-sm text-slate-900"><option value="">Todos os status</option><option value="ACTIVE">Ativos</option><option value="INACTIVE">Inativos</option></select><button className="rounded bg-sky-950 px-3 py-2 text-sm font-semibold text-white">Filtrar</button></form>
 
       <section className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
         <div className="mb-3 flex flex-wrap gap-4 text-sm text-slate-600"><span>Total: <strong>{collaborators?.length ?? 0}</strong></span><span>Ativos: <strong>{(collaborators ?? []).filter((item) => item.status === "ACTIVE").length}</strong></span><span>Inativos: <strong>{(collaborators ?? []).filter((item) => item.status === "INACTIVE").length}</strong></span></div><h2 className="font-semibold text-slate-950">Solicitantes cadastrados</h2>
