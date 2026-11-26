@@ -6,7 +6,7 @@ const inputSchema = z.object({
   token: z.string().min(32).max(128),
   code: z.string().regex(/^\d{6}$/),
   event: z.enum(["ACCEPT", "TRAVEL_STARTED", "CHECK_IN", "CHECK_OUT", "SUBMIT"]),
-  location: z.record(z.string(), z.unknown()).nullable().optional(),
+  location: z.object({ latitude: z.number().finite().min(-90).max(90), longitude: z.number().finite().min(-180).max(180), accuracy: z.number().finite().min(0).max(100000) }).nullable().optional(),
   report: z.string().max(10000).optional(),
   evidence: z.array(z.object({ name: z.string().trim().min(1).max(180), storagePath: z.string().regex(/^partner\/[0-9a-f-]+\/[0-9a-f-]+\.(jpg|png|webp)$/i), mime: z.enum(["image/jpeg", "image/png", "image/webp"]), size: z.number().int().positive().max(4 * 1024 * 1024) })).max(8).optional(),
   signatureName: z.string().trim().min(2).max(160).optional(),

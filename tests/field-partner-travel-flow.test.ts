@@ -27,6 +27,8 @@ describe("deslocamento do técnico parceiro", () => {
     const route = readFileSync("src/app/api/field-service/partner/event/route.ts", "utf8");
     const migration = readFileSync("supabase/migrations/20261126210000_persist_partner_travel_location.sql", "utf8");
     expect(route).toContain('"submit_partner_service_order_event"');
+    expect(route).toContain("latitude: z.number().finite().min(-90).max(90)");
+    expect(route).toContain("longitude: z.number().finite().min(-180).max(180)");
     expect(migration).toContain("'CHECK_IN'");
     expect(migration).toContain("'SERVICE_STARTED'");
     expect(migration).toContain("status = 'CHECKED_IN'");
