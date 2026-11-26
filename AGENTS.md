@@ -43,3 +43,13 @@ Toda operação deve ter persistência real, autorização no backend, isolament
 ### Continuidade entre sessões
 
 Ao iniciar uma atividade, consulte `MASTER_PLAN.md`, `BACKLOG.md` e os documentos especializados listados nesses índices. Ao concluir, atualize o status e as evidências no backlog e no documento de domínio correspondente. Bloqueios externos devem conter causa objetiva e ação mínima necessária, sem impedir trabalho independente.
+
+## Diretriz permanente de execução
+
+Prompts encaminhados pelo responsável contendo missões, requisitos, correções, auditorias, testes ou implementações são solicitações de execução, salvo indicação expressa de que sejam apenas informativos. Não solicitar confirmações redundantes para atividades claramente autorizadas.
+
+Para diagnóstico, correção, melhoria ou validação, executar o ciclo investigação → implementação → testes → correção → evidência. Não encerrar com recomendações quando a implementação estiver dentro do escopo. Após cada atividade, avançar para pendências autorizadas, respeitando prioridades e dependências.
+
+Utilizar as ferramentas disponíveis para inspecionar arquivos, modificar código, executar comandos, testar integrações, atualizar documentação, manter o backlog e registrar o ponto de continuidade. Se faltar autorização técnica, credencial ou decisão de negócio, solicitar somente o elemento indispensável e continuar tarefas independentes.
+
+Preservar segurança, integridade de dados, regras de negócio e controles de autorização. Não realizar operações destrutivas, expor credenciais ou contornar restrições. Não declarar conclusão sem evidências, nem publicação sem confirmar deployment e versão efetivamente disponibilizada. Quando houver ordem explícita de execução, iniciar diretamente sem perguntar se deve executar.
