@@ -4,6 +4,7 @@ DB-001,DB,Guard de solicitante contra cliente divergente,P1,P1,DONE,202611271100
 DB-002,DB,Índices para consultas operacionais tenant-scoped,P2,P2,DONE,20261127120000,"Consultas por empresa/cliente/status usam índices incrementais"
 BE-001,BE,Mensagem de erro do solicitante refletir vínculo com cliente,P2,P2,DONE,465ce83,"Erro TICKET_REQUESTER_INVALID orienta correção sem expor detalhes internos"
 FE-002,FE,Filtros de solicitantes por empresa e busca contextual,P2,P2,DONE,0be9aec,"Listagem pesquisa nome/e-mail/empresa/polo e filtra empresa/polo/status"
+UX-002,UX,Base mobile de legibilidade e toque nos controles OneIT,P2,P2,DONE,69f8c95,"Campos usam 16px e botões OneIT têm área mínima de 48px em telas móveis"
 FUNC-001,FUNC,Inativação auditável com motivo,P1,P1,DONE,e7fbabb,"INACTIVE exige motivo e grava ator/data"
 QA-001,OPS,Publicar e confirmar commit e7fbabb,P1,P1,BLOCKED_EXTERNAL,"api/version ainda retorna e25949b","Deployment público retorna e7fbabb"
 QA-002,QA,Concluir quality gate local/CI,P1,P1,BLOCKED_EXTERNAL,"typecheck/build/test ultrapassaram limite","Comandos concluem com código 0"

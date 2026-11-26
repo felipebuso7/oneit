@@ -296,6 +296,15 @@ textarea {
 .oneit-btn--secondary { border: 1px solid var(--oneit-line); background: white; color: var(--oneit-petrol-900); }
 .oneit-btn--secondary:hover { background: #f4f8f8; }
 
+/* Mobile touch/readability baseline: prevent browser zoom on form controls and
+   keep primary actions comfortable for one-handed field use. */
+@media (max-width: 640px) {
+  input:not([type="checkbox"]):not([type="radio"]),
+  select,
+  textarea { font-size: 16px; }
+  .oneit-btn { min-height: 48px; padding-inline: 16px; }
+}
+
 [data-oneit-status] { border: 1px solid transparent; letter-spacing: .01em; }
 [data-oneit-status="neutral"] { border-color: #cbd5e1; }
 [data-oneit-status="info"] { border-color: #7dd3fc; }
