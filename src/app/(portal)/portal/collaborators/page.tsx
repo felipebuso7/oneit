@@ -36,7 +36,7 @@ export default async function CollaboratorsPage({ searchParams }: PageProps) {
       .order("full_name"),
     supabase
       .from("organization_units")
-      .select("id,organization_id,customer_id,unit_type,code,name")
+      .select("id,organization_id,customer_id,unit_type,code,name,active")
       .in("organization_id", organizationIds)
       .order("name"),
     supabase
