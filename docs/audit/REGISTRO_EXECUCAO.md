@@ -11,3 +11,4 @@
 - `npm run build`: prebuild concluiu; `next build` não finalizou no limite.
 - Deployment público consultado: commit `e25949b`, anterior ao commit auditado `e7fbabb`.
 - Nenhuma alteração destrutiva executada.
+- Revalidação de CODE-001: `src/proxy.ts` já bloqueia as rotas `/demo` e `/api/demo` com HTTP 404 em produção; item marcado como mitigado/concluído sem remover dados de demonstração usados em preview.

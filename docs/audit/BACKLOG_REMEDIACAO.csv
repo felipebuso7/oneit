@@ -4,6 +4,6 @@ DB-001,DB,Guard de solicitante contra cliente divergente,P1,P1,DONE,202611271100
 FUNC-001,FUNC,Inativação auditável com motivo,P1,P1,DONE,e7fbabb,"INACTIVE exige motivo e grava ator/data"
 QA-001,OPS,Publicar e confirmar commit e7fbabb,P1,P1,BLOCKED_EXTERNAL,"api/version ainda retorna e25949b","Deployment público retorna e7fbabb"
 QA-002,QA,Concluir quality gate local/CI,P1,P1,BLOCKED_EXTERNAL,"typecheck/build/test ultrapassaram limite","Comandos concluem com código 0"
-CODE-001,CODE,Separar demos com fallback da produção,P2,P2,READY,"src/app/demo contém arrays locais","Demos não são referenciadas pelo portal produtivo"
+CODE-001,CODE,Separar demos com fallback da produção,P2,P2,DONE,"src/proxy.ts bloqueia /demo e /api/demo em NODE_ENV=production; fallback permanece isolado","Demos inacessíveis no deployment produtivo e identificadas como preview"
 SEC-001,SEC,Teste bilateral de tenant e RLS,P1,P1,BLOCKED_EXTERNAL,"requer duas sessões autorizadas","Acesso cruzado retorna 403/404"
 UX-001,UX,Inspeção mobile autenticada,P2,P2,BLOCKED_EXTERNAL,"navegador autenticado não disponível nesta execução","Sem overflow horizontal e ações utilizáveis"

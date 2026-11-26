@@ -17,7 +17,7 @@ Não foi possível comprovar, nesta execução, uma sessão autenticada completa
 | FUNC-001 | P1 | Solicitantes | Atualização de status não enviava motivo nem a nova assinatura RPC | Corrigido em `e7fbabb`; motivo obrigatório para inativação |
 | QA-001 | P1 | Release | Deployment público comprovado ainda aponta para `e25949b` | Aberto: aguardar/acionar deployment Vercel |
 | QA-002 | P1 | Quality gate | `tsc`, build e Vitest não concluíram no limite operacional | Aberto: executar em CI ou ambiente com limite maior |
-| CODE-001 | P2 | Código | Rotas demo contém arrays/fallbacks locais; não devem ser tratadas como produção | Aberto: delimitar ou remover exposição de demos |
+| CODE-001 | P2 | Código | Rotas demo contém arrays/fallbacks locais | Mitigado: `src/proxy.ts` responde 404 para `/demo` e `/api/demo` em produção; permanece como dívida de separação para ambiente de desenvolvimento |
 
 ## Limitações
 
