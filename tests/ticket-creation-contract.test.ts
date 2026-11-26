@@ -14,6 +14,7 @@ describe("abertura de chamado", () => {
     expect(flow).toContain('name="requesterCollaboratorId"');
     expect(flow).toContain("Buscar nome, e-mail ou polo");
     expect(flow).toContain("customerCollaborators");
+    expect(flow).toContain("Cadastros antigos sem empresa não são exibidos");
     expect(flow).toContain('name="departmentUnitId"');
     expect(flow).toContain('name="serviceOfferingId"');
     expect(flow).toContain("Salvar chamado");
