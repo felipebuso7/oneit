@@ -5,8 +5,8 @@ import { PointerEvent, ReactNode, useEffect, useRef, useState } from "react";
 import Image from "next/image";
 
 type Evidence = { name: string; storagePath?: string; mime?: "image/jpeg" | "image/png" | "image/webp"; size?: number; dataUrl?: string };
-type CatalogMaterial = { id: string; code: string; name: string; unit: string };
-type UsedMaterial = { lpuItemId: string; code: string; name: string; unit: string; quantity: number };
+type CatalogMaterial = { id: string; code: string; name: string; unit: string; unitPrice: number };
+type UsedMaterial = { lpuItemId: string; code: string; name: string; unit: string; quantity: number; unitPrice: number };
 type AccessAttachment = { id?: string; name: string; storagePath: string; mime?: string; size?: number; url?: string };
 type Access = { ticket: string; technician: string; expiresAt: string; title?: string; address?: string; scheduledAt?: string | null; contactName?: string | null; contactPhone?: string | null; materials?: Array<{ name: string; quantity: number | string; unit: string }> | null; attachments?: AccessAttachment[] | null; status?: string; accepted?: boolean; travel_started_at?: string | null; checked_in_at?: string | null; checked_out_at?: string | null; draft?: { execution_report?: string | null; evidence?: unknown; customer_signature_name?: string | null; customer_signature_data_url?: string | null } | null };
 type ApiAccess = { token: string; code: string };
@@ -116,7 +116,7 @@ export function PartnerExecutionFlow({ access, apiAccess, onLocalComplete }: { a
     }).then((payload) => {
       if (!active) return;
       setMaterialCatalog(Array.isArray(payload.catalog) ? payload.catalog : []);
-      setUsedMaterials((Array.isArray(payload.used) ? payload.used : []).map((item) => ({ ...item, quantity: Number(item.quantity) })));
+      setUsedMaterials((Array.isArray(payload.used) ? payload.used : []).map((item) => ({ ...item, quantity: Number(item.quantity), unitPrice: Number(item.unitPrice ?? 0) })));
       setMaterialsReady(true);
     }).catch((error: unknown) => {
       if (active) {
@@ -211,7 +211,7 @@ export function PartnerExecutionFlow({ access, apiAccess, onLocalComplete }: { a
       const existing = current.find((material) => material.lpuItemId === item.id);
       return existing
         ? current.map((material) => material.lpuItemId === item.id ? { ...material, quantity: Number((material.quantity + quantity).toFixed(3)) } : material)
-        : [...current, { lpuItemId: item.id, code: item.code, name: item.name, unit: item.unit, quantity }];
+        : [...current, { lpuItemId: item.id, code: item.code, name: item.name, unit: item.unit, quantity, unitPrice: item.unitPrice }];
     });
     setSelectedMaterialId("");
     setMaterialQuantity("1");
@@ -274,7 +274,7 @@ export function PartnerExecutionFlow({ access, apiAccess, onLocalComplete }: { a
             <label className="text-xs font-medium text-slate-700">Material
               <select value={selectedMaterialId} onChange={(input) => setSelectedMaterialId(input.target.value)} className="mt-1 w-full rounded-lg border border-slate-300 bg-white px-2 py-2 text-sm">
                 <option value="">Selecione</option>
-                {materialCatalog.map((item) => <option key={item.id} value={item.id}>{item.name} ({item.unit})</option>)}
+                {materialCatalog.map((item) => <option key={item.id} value={item.id}>{item.name} ({item.unit}) · R$ {item.unitPrice.toFixed(2).replace(".", ",")}</option>)}
               </select>
             </label>
             <label className="text-xs font-medium text-slate-700">Quantidade
@@ -284,7 +284,7 @@ export function PartnerExecutionFlow({ access, apiAccess, onLocalComplete }: { a
           <button type="button" onClick={addUsedMaterial} disabled={!selectedMaterialId || usedMaterials.length >= 30} className="mt-2 rounded-lg border border-cyan-800 px-3 py-2 text-sm font-semibold text-cyan-900 disabled:opacity-50">Adicionar material</button>
           {usedMaterials.length ? <ul className="mt-3 divide-y divide-slate-100 rounded-lg border border-slate-200">
             {usedMaterials.map((item) => <li key={item.lpuItemId} className="flex items-center justify-between gap-2 px-3 py-2 text-sm">
-              <span>{item.name} · <strong>{item.quantity} {item.unit}</strong></span>
+              <span>{item.name} · <strong>{item.quantity} {item.unit}</strong> · R$ {(item.quantity * item.unitPrice).toFixed(2).replace(".", ",")}</span>
               <button type="button" onClick={() => setUsedMaterials((current) => current.filter((material) => material.lpuItemId !== item.lpuItemId))} aria-label={`Remover ${item.name}`} className="text-xs font-semibold text-red-700">Remover</button>
             </li>)}
           </ul> : <p className="mt-3 text-xs text-slate-500">Nenhum material utilizado.</p>}
