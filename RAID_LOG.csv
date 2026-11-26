@@ -1,0 +1,7 @@
+id,type,statement,probability,impact,owner,status,response,evidence
+RAID-R001,RISK,Deployment efetivo não verificável,Média,Alto,Administrador,BLOCKED_EXTERNAL,Confirmar Vercel domínio e commit,BACKLOG.md
+RAID-R002,RISK,Quilometragem aprovada não separada da calculada,Média,Alto,Produto/Financeiro,OPEN,Definir aprovação transacional antes do BM,REQUIREMENTS_MATRIX.csv
+RAID-R003,RISK,E2E real e RLS bilateral não executados,Média,Alto,QA,BLOCKED_EXTERNAL,Disponibilizar tenants e credenciais,BACKLOG.md
+RAID-A001,ASSUMPTION,Alterações de LPU devem preservar snapshots históricos,,,Produto,ACTIVE,Revalidar em cada migration,BUSINESS_RULES.md
+RAID-I001,ISSUE,Não há integração rodoviária autorizada para distância financeira,Alta,Alto,Engenharia,OPEN,Registrar distância como pendente e não faturar automaticamente,CRITICAL_PATH.md
+RAID-D001,DEPENDENCY,Credenciais e dispositivo para homologação real,,,Administrador,BLOCKED_EXTERNAL,Fornecer acesso autorizado,MTX-001/QA-001
