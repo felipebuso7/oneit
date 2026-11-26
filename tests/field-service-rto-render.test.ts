@@ -24,4 +24,13 @@ describe("RTO Field Service", () => {
     const document = await PDFDocument.load(await renderFieldServiceRtoPdf(snapshot));
     expect(document.getPages().length).toBeGreaterThan(0);
   });
+
+  it("explicita deslocamento pendente sem inventar quilometragem", async () => {
+    const snapshot = fieldServiceRtoSnapshotSchema.parse({
+      service_order_id: "00000000-0000-4000-8000-000000000001", ticket_id: "00000000-0000-4000-8000-000000000002", order_number: "OS-003", status: "VALIDATED",
+      travel_calculation_status: "PENDING", distance_one_way_km: null, estimated_return_km: null, estimated_total_km: null,
+    });
+    const pdf = await renderFieldServiceRtoPdf(snapshot);
+    expect(pdf.byteLength).toBeGreaterThan(0);
+  });
 });
