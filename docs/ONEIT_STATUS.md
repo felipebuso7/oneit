@@ -449,3 +449,15 @@ Não foi aplicado bypass no frontend nem no Supabase. Chamados ainda não atendi
 - Commit de segurança enviado ao GitHub: `c0852b5`.
 - Bloqueio externo: domínio Vercel ainda serve commit antigo `1d9212b3`; deployment automático não foi confirmado.
 
+### Auditoria de completude funcional (26/11/2026)
+
+| Módulo | Funcionalidade | Evidência | Severidade | Critério de aceite | Status |
+|---|---|---|---|---|---|
+| Field Service | Materiais vinculados à LPU | RPC, migration e testes direcionados | P1 | Selecionar, quantificar e preservar preço da LPU | Concluído |
+| Travel Management | Regras de deslocamento por contrato | Migration `20261125220000` e testes determinísticos | P1 | Regra explícita, sem valores hardcoded | Infraestrutura concluída |
+| Portal técnico | GPS e feedback de captura | Fluxo mobile, typecheck e testes GPS | P1 | Informar captura/indisponibilidade sem coordenada fictícia | Concluído |
+| Rotas externas | Rota rodoviária na RTO/BM | Credencial/provedor e E2E real ausentes | P1 | Rota persistida, aprovada e refletida em RTO/BM | Pendente externo |
+| `/demo` | Dados demonstrativos | Rotas isoladas sob `/demo` | P2 | Não aparecer na navegação produtiva | Validado por escopo |
+
+Regressão independente: **173 arquivos / 416 testes aprovados**. A inspeção produtiva não encontrou `href="#"`, TODO/FIXME crítico ou botão sem ação. Provedor de rotas e E2E multi-tenant permanecem explicitamente não executados, não aprovados.
+
