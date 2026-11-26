@@ -34,4 +34,11 @@ describe("deslocamento do técnico parceiro", () => {
     expect(migration).toContain("target_event not in ('TRAVEL_STARTED','CHECK_IN','CHECK_OUT','SUBMIT')");
     expect(migration).toContain("status = 'COMPLETED'");
   });
+
+  it("persiste a localização capturada ao iniciar o deslocamento", () => {
+    const migration = readFileSync("supabase/migrations/20261126210000_persist_partner_travel_location.sql", "utf8");
+    expect(migration).toContain("'location',coalesce(target_location, '{}'::jsonb)");
+    expect(migration).toContain("status = 'TRAVELING'");
+    expect(migration).toContain("target_event = 'TRAVEL_STARTED'");
+  });
 });
