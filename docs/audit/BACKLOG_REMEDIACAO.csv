@@ -6,7 +6,7 @@ BE-001,BE,Mensagem de erro do solicitante refletir vínculo com cliente,P2,P2,DO
 FE-002,FE,Filtros de solicitantes por empresa e busca contextual,P2,P2,DONE,0be9aec,"Listagem pesquisa nome/e-mail/empresa/polo e filtra empresa/polo/status"
 UX-002,UX,Base mobile de legibilidade e toque nos controles OneIT,P2,P2,DONE,69f8c95,"Campos usam 16px e botões OneIT têm área mínima de 48px em telas móveis"
 FUNC-001,FUNC,Inativação auditável com motivo,P1,P1,DONE,e7fbabb,"INACTIVE exige motivo e grava ator/data"
-QA-001,OPS,Publicar e confirmar commit e7fbabb,P1,P1,BLOCKED_EXTERNAL,"api/version ainda retorna e25949b","Deployment público retorna e7fbabb"
+QA-001,OPS,Publicar e confirmar commit a78d650,P1,P1,DONE,"/api/version retornou a78d650; deployment oneit-f81db7df31-20261126190937; health/readiness 200","Deployment público retorna o commit validado e health/readiness operacionais"
 QA-002,QA,Concluir quality gate local/CI,P1,P1,BLOCKED_EXTERNAL,"typecheck/build/test ultrapassaram limite","Comandos concluem com código 0"
 CODE-001,CODE,Separar demos com fallback da produção,P2,P2,DONE,"src/proxy.ts bloqueia /demo e /api/demo em NODE_ENV=production; fallback permanece isolado","Demos inacessíveis no deployment produtivo e identificadas como preview"
 SEC-001,SEC,Teste bilateral de tenant e RLS,P1,P1,BLOCKED_EXTERNAL,"requer duas sessões autorizadas","Acesso cruzado retorna 403/404"

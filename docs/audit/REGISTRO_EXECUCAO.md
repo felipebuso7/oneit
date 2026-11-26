@@ -16,4 +16,5 @@
 - Não foi executado saneamento automático: não há evidência suficiente para corrigir registros incompletos sem decisão de negócio.
 - Ajustado o contrato de erro de abertura de chamados para informar vínculo do solicitante/departamento ao cliente, sem expor stack trace; adicionados testes de contrato e executados 3 testes com sucesso.
 - Melhorada a listagem de solicitantes com pesquisa por nome/e-mail/empresa/polo e filtros por empresa, polo e status; testes de contrato executados com 4 testes aprovados (Vitest apresentou aviso de encerramento tardio do processo).
+- Deployment público confirmado em `https://oneit-okaa1.vercel.app`: commit `a78d650`, deployment `oneit-f81db7df31-20261126190937`; `/api/health` e `/api/ready` retornaram HTTP 200.
 - Aplicada melhoria global mobile em `src/app/globals.css`: controles de formulário passam a 16px e botões OneIT a 48px de altura mínima; contratos de Design System/responsividade executados com 5 testes aprovados.

@@ -17,7 +17,7 @@ Não foi possível comprovar, nesta execução, uma sessão autenticada completa
 | DB-002 | P2 | Performance | Consultas operacionais por empresa/cliente/status não tinham índice composto dedicado | Corrigido pela migration `20261127120000_operational_lookup_indexes.sql`, aplicada no Supabase |
 | BE-001 | P2 | Backend | Mensagem de erro de solicitante mencionava somente organização após guard por cliente | Corrigido e coberto por testes de contrato |
 | FUNC-001 | P1 | Solicitantes | Atualização de status não enviava motivo nem a nova assinatura RPC | Corrigido em `e7fbabb`; motivo obrigatório para inativação |
-| QA-001 | P1 | Release | Deployment público comprovado ainda aponta para `e25949b` | Aberto: aguardar/acionar deployment Vercel |
+| QA-001 | P1 | Release | Deployment público anterior apontava para `e25949b` | Resolvido: `/api/version` confirmou `a78d650`; deployment `oneit-f81db7df31-20261126190937`; health/readiness HTTP 200 |
 | QA-002 | P1 | Quality gate | `tsc`, build e Vitest não concluíram no limite operacional | Aberto: executar em CI ou ambiente com limite maior |
 | CODE-001 | P2 | Código | Rotas demo contém arrays/fallbacks locais | Mitigado: `src/proxy.ts` responde 404 para `/demo` e `/api/demo` em produção; permanece como dívida de separação para ambiente de desenvolvimento |
 
