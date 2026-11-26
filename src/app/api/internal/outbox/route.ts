@@ -1,6 +1,7 @@
 import { timingSafeEqual } from "node:crypto";
 import { processOutboxBatch } from "@/lib/outbox/worker";
 import { createOutboxStore } from "@/lib/supabase/outbox-admin";
+import { logger } from "@/lib/observability/logger";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -20,7 +21,7 @@ export async function POST(request: Request) {
     const result = await processOutboxBatch(createOutboxStore());
     return Response.json(result, { headers: { "Cache-Control": "no-store" } });
   } catch (error) {
-    console.error("outbox worker failure", error instanceof Error ? error.message : "unknown");
+    logger.error("outbox_worker_failure", { message: error instanceof Error ? error.message : "unknown" });
     return Response.json({ code: "OUTBOX_WORKER_UNAVAILABLE" }, { status: 503, headers: { "Cache-Control": "no-store" } });
   }
 }
