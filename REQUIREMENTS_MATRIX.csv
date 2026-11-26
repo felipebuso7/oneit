@@ -1,0 +1,5 @@
+id,module,requirement,acceptance,evidence,status
+REQ-OPS-001,Field Service,Encerramento técnico entra na fila gerencial,Fila e RPC com autorização e auditoria,tests/field-service-review-api.test.ts,IMPLEMENTED_TESTED
+REQ-RTO-001,RTO,Snapshot congela contexto operacional e deslocamento,RTO gera PDF sem valores fictícios,tests/field-service-rto-render.test.ts,IMPLEMENTED_TESTED
+REQ-FIN-001,BM,Deslocamento aprovado deve ser separado da quilometragem calculada,Quantidade aprovada persistida e usada no BM,,PENDING
+REQ-REL-001,Release,Versão publicada deve ser confirmada por endpoint e deployment,Commit e URL verificáveis,,BLOCKED_EXTERNAL

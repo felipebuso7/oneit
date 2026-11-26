@@ -1,0 +1,4 @@
+id,severity,risk,impact,mitigation,status,evidence
+RISK-001,High,Deployment não verificável,Versão efetiva desconhecida,Confirmar Vercel e domínio,BLOCKED_EXTERNAL,BACKLOG.md
+RISK-002,High,Quilometragem aprovada não separada da calculada,Cobrança indevida,Implementar aprovação financeira transacional,OPEN,REQUIREMENTS_MATRIX.csv
+RISK-003,Medium,E2E real não executado,Regressões de integração não observadas,Executar com credenciais autorizadas,BLOCKED_EXTERNAL,BACKLOG.md

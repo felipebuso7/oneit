@@ -48,6 +48,10 @@ Durante a homologação, cada correção deve reproduzir o defeito, comprovar a 
 
 Ao iniciar uma atividade, consulte `MASTER_PLAN.md`, `BACKLOG.md` e os documentos especializados listados nesses índices. Ao concluir, atualize o status e as evidências no backlog e no documento de domínio correspondente. Bloqueios externos devem conter causa objetiva e ação mínima necessária, sem impedir trabalho independente.
 
+### Governança PMO
+
+Para atividades de projeto, consulte também `PMO_MASTER_PLAN.md`, `PROJECT_CHARTER.md`, `MASTER_BACKLOG.csv`, `WBS.csv`, `REQUIREMENTS_MATRIX.csv`, `RISK_REGISTER.csv`, `DEPENDENCY_MATRIX.csv`, `DECISION_LOG.md`, `CHANGE_REGISTER.md`, `RELEASE_REGISTER.md` e `EXECUTIVE_STATUS.md`. Esses registros são a fonte oficial de rastreabilidade entre requisito, tarefa, evidência, commit, release e aceite. Atualize os registros afetados ao finalizar uma atividade; nunca invente responsáveis, percentuais, aceite humano ou status de publicação.
+
 ## Diretriz permanente de execução
 
 Prompts encaminhados pelo responsável contendo missões, requisitos, correções, auditorias, testes ou implementações são solicitações de execução, salvo indicação expressa de que sejam apenas informativos. Não solicitar confirmações redundantes para atividades claramente autorizadas.

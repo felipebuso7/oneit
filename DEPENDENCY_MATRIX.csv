@@ -1,0 +1,4 @@
+id,from,to,reason,status,owner
+DEP-001,FIN-001,MTX-001,Financeiro depende de dados operacionais persistidos,READY,Engenharia
+DEP-002,GOV-001,Vercel,Confirmação exige acesso ao projeto e domínio,BLOCKED_EXTERNAL,Administrador
+DEP-003,QA-001,Credenciais de teste,E2E e RLS bilateral exigem usuários autorizados,BLOCKED_EXTERNAL,Administrador

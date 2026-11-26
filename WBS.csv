@@ -1,0 +1,6 @@
+id,parent,type,name,acceptance,status,dependencies
+PMO-001,,program,Governança PMO,Registros oficiais versionados,DONE,
+ENG-001,PMO-001,workstream,Arquitetura e qualidade,Build testes e documentação rastreáveis,IN_PROGRESS,
+OPS-001,PMO-001,workstream,Operação Field Service,Fluxo técnico até validação persistido,IN_PROGRESS,QA-001
+FIN-001,PMO-001,workstream,RTO LPU e BM,Somente itens aprovados na medição,IN_PROGRESS,OPS-001
+REL-001,PMO-001,workstream,Release e produção,Deployment e smoke test confirmados,BLOCKED_EXTERNAL,GOV-001

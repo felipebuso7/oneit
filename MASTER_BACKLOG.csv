@@ -1,0 +1,6 @@
+id,priority,title,acceptance,dependencies,status,evidence
+GOV-001,P1,Confirmar deployment e smoke em produção,Commit e deployment associados ao domínio,Vercel,BLOCKED_EXTERNAL,BACKLOG.md
+QA-001,P1,E2E autenticado e RLS bilateral,Dois tenants isolados e fluxo completo,Credenciais de teste,BLOCKED_EXTERNAL,BACKLOG.md
+MTX-001,P1,Homologar portal móvel real,WhatsApp GPS upload checkout,Dispositivo e ambiente,BLOCKED_EXTERNAL,BACKLOG.md
+FIN-001,P1,Aprovar deslocamento antes do BM,Quantidade aprovada e snapshot financeiro,Decisão de negócio e schema,READY,
+CAL-001,P1,Aplicar calendários ao SLA,Deadlines usam calendário configurado,Regra comercial,BLOCKED_DEPENDENCY,BACKLOG.md
