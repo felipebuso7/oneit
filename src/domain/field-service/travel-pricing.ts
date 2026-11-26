@@ -21,6 +21,12 @@ export type TravelPrice = {
 const money = (value: number) => Math.round((value + Number.EPSILON) * 100) / 100;
 const nonNegative = (value: number | null | undefined) => Math.max(0, Number(value ?? 0));
 
+/** Retorno contratual estimado; não representa um trajeto físico capturado. */
+export function estimateRoundTripKm(distanceOneWayKm: number): { outboundKm: number; estimatedReturnKm: number; estimatedTotalKm: number } | null {
+  if (!Number.isFinite(distanceOneWayKm) || distanceOneWayKm < 0) return null;
+  return { outboundKm: distanceOneWayKm, estimatedReturnKm: distanceOneWayKm, estimatedTotalKm: distanceOneWayKm * 2 };
+}
+
 export function priceTravel(distanceOneWayKm: number, rule: TravelPricingRule | null, actualReturnKm?: number | null): TravelPrice {
   const oneWay = Math.max(0, Number(distanceOneWayKm) || 0);
   if (!rule || rule.mode === "INCLUDED" || rule.mode === "NON_BILLABLE") return { distanceOneWayKm: oneWay, returnKm: 0, consideredKm: oneWay, billableKm: 0, amount: 0, status: rule ? "NOT_BILLABLE" : "PENDING_RULE" };
