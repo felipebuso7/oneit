@@ -13,6 +13,7 @@ Estabelecer uma fonte única de governança para escopo, qualidade, riscos, depe
 - Segurança: [SECURITY.md](SECURITY.md)
 - Testes: [TEST_MATRIX.md](TEST_MATRIX.md)
 - Releases: [RELEASE_CHECKLIST.md](RELEASE_CHECKLIST.md) e [RELEASE_REGISTER.md](RELEASE_REGISTER.md)
+- Baseline e mudanças: [SCOPE_BASELINE.md](SCOPE_BASELINE.md) e [CHANGE_CONTROL.md](CHANGE_CONTROL.md)
 
 ## Governança
 
@@ -33,4 +34,4 @@ Os indicadores em `EXECUTIVE_STATUS.md` são contagens rastreáveis dos registro
 
 ## Ponto de continuidade
 
-Última versão local registrada: commit `c2a76c8`. Pendências bloqueadas permanecem no `BACKLOG.md`; a próxima atividade deve selecionar o item READY de maior prioridade após consultar este documento.
+Última versão local registrada: commit `fd4bb69`. Pendências bloqueadas permanecem no `BACKLOG.md`; a próxima atividade deve selecionar o item READY de maior prioridade após consultar este documento.

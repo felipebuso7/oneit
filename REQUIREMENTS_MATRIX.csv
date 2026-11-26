@@ -1,5 +1,5 @@
-id,module,requirement,acceptance,evidence,status
-REQ-OPS-001,Field Service,Encerramento técnico entra na fila gerencial,Fila e RPC com autorização e auditoria,tests/field-service-review-api.test.ts,IMPLEMENTED_TESTED
-REQ-RTO-001,RTO,Snapshot congela contexto operacional e deslocamento,RTO gera PDF sem valores fictícios,tests/field-service-rto-render.test.ts,IMPLEMENTED_TESTED
-REQ-FIN-001,BM,Deslocamento aprovado deve ser separado da quilometragem calculada,Quantidade aprovada persistida e usada no BM,,PENDING
-REQ-REL-001,Release,Versão publicada deve ser confirmada por endpoint e deployment,Commit e URL verificáveis,,BLOCKED_EXTERNAL
+id,origin,module,requirement,priority,dependencies,acceptance,implementation,test,evidence,commit,release,publication_status,human_acceptance,status
+REQ-OPS-001,solicitações Field Service,Field Service,Encerramento técnico entra na fila gerencial,P1,Credenciais E2E,Fila e RPC com autorização e auditoria,Implementado,Executado,tests/field-service-review-api.test.ts,61dcb25,,Não confirmado,Não realizado,IMPLEMENTED_TESTED
+REQ-RTO-001,solicitações RTO,RTO,Snapshot congela contexto operacional e deslocamento,P1,Migration aplicada,RTO gera PDF sem valores fictícios,Implementado,Executado,tests/field-service-rto-render.test.ts;c2a76c8,c2a76c8,,Não confirmado,Não realizado,IMPLEMENTED_TESTED
+REQ-FIN-001,solicitação financeira,BM,Deslocamento aprovado separado da calculada,P1,Decisão de negócio e schema,Quantidade aprovada persistida e usada no BM,Não implementado,Não executado,,,Não publicado,Não realizado,PENDING
+REQ-REL-001,governança,Release,Versão publicada confirmada por endpoint e deployment,P1,Acesso Vercel,Commit e URL verificáveis,Parcial,Não executado,,fd4bb69,,Não confirmado,Não realizado,BLOCKED_EXTERNAL
