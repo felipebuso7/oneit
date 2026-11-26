@@ -439,3 +439,13 @@ Não foi aplicado bypass no frontend nem no Supabase. Chamados ainda não atendi
 - Verificação: ESLint da rota concluído com exit code 0.
 - Build de produção: typecheck e lint passam, mas `npm run build` permanece bloqueado por `EPERM` do filesystem ao criar/remover diretórios dentro de `.next` (inclusive `server/chunks`); limpeza segura e remoção de atributo ReadOnly foram tentadas, sem processo Node ativo identificado.
 
+### Sprint de estabilização — Travel Management (26/11/2026)
+
+- Next.js atualizado de 16.4.3 para 16.4.6; `npm audit --omit=dev` sem vulnerabilidades.
+- Build de produção aprovado após a atualização; typecheck aprovado.
+- Lint direcionado de Field Service aprovado.
+- Regressão direcionada: 4 arquivos / 15 testes aprovados (geolocalização, precificação, materiais e máscara de telefone).
+- Supabase remoto vinculado confirmado atualizado (`supabase db push --linked`, nenhuma migration pendente).
+- Commit de segurança enviado ao GitHub: `c0852b5`.
+- Bloqueio externo: domínio Vercel ainda serve commit antigo `1d9212b3`; deployment automático não foi confirmado.
+
