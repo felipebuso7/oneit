@@ -40,6 +40,10 @@ Toda operação deve ter persistência real, autorização no backend, isolament
 - Documentação, backlog, changelog e evidências atualizados.
 - Commit rastreável criado; deployment confirmado ou bloqueio externo documentado.
 
+### Protocolo de homologação operacional
+
+Durante a homologação, cada correção deve reproduzir o defeito, comprovar a causa, implementar a solução, executar regressão, validar persistência e módulos consumidores, versionar e confirmar o deployment. Não declarar sucesso ou publicação sem evidência verificável; bloqueios externos devem ser registrados sem interromper atividades independentes.
+
 ### Continuidade entre sessões
 
 Ao iniciar uma atividade, consulte `MASTER_PLAN.md`, `BACKLOG.md` e os documentos especializados listados nesses índices. Ao concluir, atualize o status e as evidências no backlog e no documento de domínio correspondente. Bloqueios externos devem conter causa objetiva e ação mínima necessária, sem impedir trabalho independente.
