@@ -13,6 +13,8 @@ type ApiAccess = { token: string; code: string };
 type ExecutionStep = "ASSIGNED" | "ACCEPTED" | "TRAVELING" | "CHECKED_IN" | "SUBMITTED" | "DONE";
 type StepTimes = { travel?: string; arrival?: string; checkout?: string };
 
+type GpsLocation = { latitude: number; longitude: number; accuracy: number };
+
 const MAX_UPLOAD_BYTES = 3.5 * 1024 * 1024;
 
 async function compressEvidence(file: File): Promise<File> {
@@ -79,6 +81,7 @@ export function PartnerExecutionFlow({ access, apiAccess, onLocalComplete }: { a
   const accessCode = apiAccess?.code;
   const [stepTimes, setStepTimes] = useState<StepTimes>(() => ({ travel: access.travel_started_at ?? undefined, arrival: access.checked_in_at ?? undefined, checkout: access.checked_out_at ?? undefined }));
   const [busy, setBusy] = useState(false);
+  const [location, setLocation] = useState<GpsLocation | null>(null);
   const [online, setOnline] = useState(true);
   const [notice, setNotice] = useState(() => {
     const initial = stepFromOrderStatus(access.status, access.accepted);
@@ -142,16 +145,22 @@ export function PartnerExecutionFlow({ access, apiAccess, onLocalComplete }: { a
     return () => { active = false; };
   }, [accessToken, accessCode, access.attachments]);
 
+  const captureLocation = async (): Promise<GpsLocation | null> => {
+    if (!navigator.geolocation) return null;
+    return new Promise((resolve) => navigator.geolocation.getCurrentPosition(({ coords }) => resolve({ latitude: coords.latitude, longitude: coords.longitude, accuracy: coords.accuracy }), () => resolve(null), { enableHighAccuracy: true, timeout: 10000, maximumAge: 30000 }));
+  };
   const submitEvent = async (event: "ACCEPT" | "TRAVEL_STARTED" | "CHECK_IN" | "SUBMIT" | "CHECK_OUT") => {
     if (!apiAccess) return true;
     if (busy) return false;
     if (!online) { setNotice("Sem conexão. Restabeleça a internet para registrar este evento."); return false; }
     setBusy(true);
     try {
+      const capturedLocation = event === "TRAVEL_STARTED" || event === "CHECK_IN" || event === "CHECK_OUT" ? await captureLocation() : location;
+      if (capturedLocation) setLocation(capturedLocation);
       const evidenceMetadata = evidence.map((item) => ({ name: item.name, storagePath: item.storagePath, mime: item.mime, size: item.size }));
       const response = await fetch("/api/field-service/partner/event", {
         method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...apiAccess, event, report: event === "SUBMIT" ? report.trim() : undefined, evidence: event === "SUBMIT" ? evidenceMetadata : undefined, signatureName: name.trim() || undefined, signatureDataUrl: signature || undefined }),
+        body: JSON.stringify({ ...apiAccess, event, location: capturedLocation, report: event === "SUBMIT" ? report.trim() : undefined, evidence: event === "SUBMIT" ? evidenceMetadata : undefined, signatureName: name.trim() || undefined, signatureDataUrl: signature || undefined }),
       }).catch(() => null);
       if (!response) {
         if (event === "SUBMIT") {
