@@ -8,7 +8,7 @@ describe("deslocamento do técnico parceiro", () => {
     expect(component).toContain("Aceitar visita");
     expect(component).toContain('"TRAVEL_STARTED"');
     expect(component).toContain("Iniciar deslocamento");
-    expect(component).toContain("Cheguei ao local · fazer check-in");
+    expect(component).toContain("Cheguei ao local");
     expect(component).toContain("Fazer checkout e enviar OS");
     expect(component).toContain("Etapa 1 de 5 · aceitar visita");
     expect(component).toContain("pelo menos 10 caracteres");
@@ -21,6 +21,16 @@ describe("deslocamento do técnico parceiro", () => {
     expect(component).toContain('evidence.length < 3');
     expect(component).toContain('/oneit-logo-field.png');
     expect(component).toContain('/servicia-logo.png');
+  });
+
+  it("usa uma transação única para chegada e início do atendimento", () => {
+    const route = readFileSync("src/app/api/field-service/partner/event/route.ts", "utf8");
+    const migration = readFileSync("supabase/migrations/20261126220000_unify_partner_arrival_service_start.sql", "utf8");
+    expect(route).toContain('"arrive_and_start_partner_service_order"');
+    expect(migration).toContain("'CHECK_IN'");
+    expect(migration).toContain("'SERVICE_STARTED'");
+    expect(migration).toContain("combined_action");
+    expect(migration).toContain("status = 'IN_SERVICE'");
   });
 
   it("impõe a sequência no banco", () => {
