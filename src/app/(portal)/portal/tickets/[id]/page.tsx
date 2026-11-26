@@ -28,7 +28,7 @@ export default async function TicketCaseFilePage({ params, searchParams }: PageP
     supabase.from("assets").select("id,asset_code,identifier,manufacturer,model").eq("organization_id", ticket.organization_id).neq("status", "RETIRED").order("asset_code").limit(500),
     supabase.from("ticket_assets").select("id,asset_id,relationship_type,notes,created_at").eq("ticket_id", ticket.id).order("created_at", { ascending: false }),
     supabase.from("collaborators").select("id,full_name").eq("organization_id", ticket.organization_id).eq("status", "ACTIVE").order("full_name"),
-    supabase.from("organization_units").select("id,name").eq("organization_id", ticket.organization_id).eq("unit_type", "DEPARTMENT").eq("active", true).order("name"),
+    supabase.from("organization_units").select("id,customer_id,name").eq("organization_id", ticket.organization_id).eq("unit_type", "DEPARTMENT").eq("active", true).order("name"),
     supabase.from("service_offerings").select("id,subcategory_id,code,name").eq("active", true).order("name"),
     supabase.from("ticket_communications").select("id,audience,message,target_email,delivery_status,created_at").eq("ticket_id", ticket.id).order("created_at"),
     supabase.from("entity_relationships").select("id,source_entity_id,target_entity_id,relationship_type,reason,created_at").eq("organization_id", ticket.organization_id).eq("source_entity_type", "TICKET").eq("target_entity_type", "TICKET").or(`source_entity_id.eq.${ticket.id},target_entity_id.eq.${ticket.id}`).in("relationship_type", ["MASS_INCIDENT_PARENT", "CONVERSATION_GROUPED"]),
