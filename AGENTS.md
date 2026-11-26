@@ -53,3 +53,19 @@ Para diagnóstico, correção, melhoria ou validação, executar o ciclo investi
 Utilizar as ferramentas disponíveis para inspecionar arquivos, modificar código, executar comandos, testar integrações, atualizar documentação, manter o backlog e registrar o ponto de continuidade. Se faltar autorização técnica, credencial ou decisão de negócio, solicitar somente o elemento indispensável e continuar tarefas independentes.
 
 Preservar segurança, integridade de dados, regras de negócio e controles de autorização. Não realizar operações destrutivas, expor credenciais ou contornar restrições. Não declarar conclusão sem evidências, nem publicação sem confirmar deployment e versão efetivamente disponibilizada. Quando houver ordem explícita de execução, iniciar diretamente sem perguntar se deve executar.
+
+## Diretriz permanente de remediação, qualidade e execução
+
+Toda solicitação de implementação, correção ou melhoria é uma solicitação de execução efetiva, salvo indicação explícita de que o objetivo é somente análise ou planejamento.
+
+Não considerar concluída uma entrega que tenha apenas código escrito, interface sem integração, botão sem ação, endpoint sem validação, formulário sem persistência, teste não executado, commit não publicado ou push sem deployment quando a implantação tiver sido solicitada.
+
+O ciclo obrigatório é: diagnosticar → implementar → testar → corrigir → validar → versionar → publicar → verificar.
+
+Falhas relevantes devem ser registradas no backlog oficial. Problemas diretamente relacionados à tarefa devem ser corrigidos durante sua execução; problemas fora do escopo devem ser classificados e encaminhados à frente responsável.
+
+Preservar estabilidade, integridade dos dados e segurança. Refatorações exigem justificativa técnica, testes e estratégia de recuperação. Decisões técnicas rotineiras devem ser resolvidas autonomamente; impedimentos externos devem ser registrados objetivamente sem interromper atividades independentes.
+
+Toda conclusão deve possuir evidência verificável: testes, evidências visuais, logs, commits, migrations, consultas, versão, deployment ou smoke tests. Diferenciar sempre implementado, testado, homologado, publicado e bloqueado.
+
+Antes de iniciar qualquer tarefa, consultar este arquivo, o backlog oficial e os registros de execução. Não reiniciar atividades concluídas nem ignorar pendências críticas. Nunca inventar testes, métricas, resultados, acessos, evidências ou publicações. Quando houver implantação solicitada, executar o procedimento oficial somente após os gates aplicáveis e confirmar a versão efetivamente publicada.
