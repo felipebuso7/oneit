@@ -35,7 +35,7 @@ export default async function RoutesPage({ searchParams }: PageProps) {
     routeTicketIds.length ? supabase.from("tickets").select("id,ticket_number,title,operational_status").in("id", routeTicketIds) : Promise.resolve({ data: [] }),
     (routeOrders ?? []).length ? supabase.from("customer_locations").select("id,name,city").in("id", (routeOrders ?? []).map((order) => order.location_id).filter(Boolean)) : Promise.resolve({ data: [] }),
   ]);
-  const activeRouteTicketIds = new Set((routeTickets ?? []).filter((ticket) => !["CANCELLED", "CLOSED"].includes(ticket.operational_status)).map((ticket) => ticket.id));
+  const activeRouteTicketIds = new Set((routeTickets ?? []).filter((ticket) => ticket.operational_status !== "CANCELLED").map((ticket) => ticket.id));
 const orderById = new Map((routeOrders ?? []).filter((order) => activeRouteTicketIds.has(order.ticket_id)).map((order) => [order.id, order]));
   const ticketById = new Map((routeTickets ?? []).filter((ticket) => activeRouteTicketIds.has(ticket.id)).map((ticket) => [ticket.id, ticket]));
   const locationById = new Map((routeLocations ?? []).map((location) => [location.id, location]));

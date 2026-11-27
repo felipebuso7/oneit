@@ -55,7 +55,7 @@ export default async function FieldServicePage({ searchParams }: PageProps) {
   // Uma OS sem chamado operacional ativo é residual (por exemplo, após cancelamento
   // ou limpeza administrativa) e não pode voltar a aparecer no despacho.
   const activeTicketIds = new Set((ticketResult.data ?? [])
-    .filter((ticket) => !["CANCELLED", "CLOSED"].includes(ticket.operational_status))
+    .filter((ticket) => ticket.operational_status !== "CANCELLED")
     .map((ticket) => ticket.id));
   const visibleOrders = (orderResult.data ?? []).filter((order) => activeTicketIds.has(order.ticket_id));
 
