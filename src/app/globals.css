@@ -6,6 +6,7 @@
   --font-geist-sans: Arial, Helvetica, sans-serif;
   --font-geist-mono: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
   --oneit-sidebar-width: 16rem;
+  --oneit-page-gutter: 20px;
   --oneit-petrol-950: #062b35;
   --oneit-petrol-900: #073b47;
   --oneit-petrol-800: #0b4d5b;
@@ -195,18 +196,23 @@ textarea {
    improving rhythm, hierarchy and small-screen action placement. */
 .oneit-page-shell,
 .oneit-page-header + * { min-width: 0; }
+.oneit-page-shell { width: 100%; padding-inline: var(--oneit-page-gutter); }
 .oneit-page-header { transition: box-shadow 180ms ease, border-color 180ms ease; }
 .oneit-page-header:hover { border-color: #c7d8de; box-shadow: 0 6px 20px rgb(15 23 42 / 0.07); }
 .oneit-page-heading-row > a,
 .oneit-page-heading-row > button { min-height: 42px; white-space: nowrap; }
 .oneit-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgb(15 23 42 / 0.12); }
 @media (max-width: 640px) {
+  :root { --oneit-page-gutter: 16px; }
   .oneit-page-heading-row { flex-direction: column; align-items: stretch; }
   .oneit-page-heading-row > :not(.oneit-page-header) { align-self: stretch; }
   .oneit-page-heading-row > a,
   .oneit-page-heading-row > button { width: 100%; }
   .oneit-page-header { padding: 14px 16px; }
   .oneit-page-header__title { font-size: 21px; }
+}
+@media (min-width: 641px) {
+  :root { --oneit-page-gutter: 32px; }
 }
 
 .oneit-filter-bar {
