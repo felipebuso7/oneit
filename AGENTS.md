@@ -83,3 +83,13 @@ Antes de iniciar qualquer tarefa, consultar este arquivo, o backlog oficial e os
 ### Critério permanente de homologação publicada
 
 Uma funcionalidade só pode ser classificada como "corrigida e validada em produção" quando o domínio oficial responder com o commit do release, a versão/build do manifesto e um smoke test funcional correspondente. Código local, push no GitHub ou deployment em preview não substituem essa confirmação. Se o fluxo exigir autenticação, registrar explicitamente a limitação e classificar como implementado, mas não homologado.
+
+## Diretriz permanente — Transformação controlada do produto ONEIT
+
+As próximas missões de engenharia devem ser executadas com autorização técnica para inspecionar e modificar o código, executar testes, utilizar terminal e navegador, realizar commits e push e, quando credenciais e ambientes estiverem disponíveis, aplicar migrations seguras e publicar na infraestrutura autorizada. Essa autorização não permite contornar sandbox, autenticação, RLS ou controles de acesso, nem realizar despesas, exclusões destrutivas, exposição de credenciais ou alterações fora do ONEIT.
+
+O sistema existente deve ser protegido: não reconstruir indiscriminadamente, substituir arquitetura sem causa comprovada, remover funcionalidades ou testes válidos, alterar regras comerciais/financeiras sem respaldo, excluir histórico, desabilitar segurança ou publicar regressões críticas conhecidas.
+
+Para cada intervenção, seguir o protocolo: **ANALISAR → MEDIR → IDENTIFICAR → IMPLEMENTAR → TESTAR → CORRIGIR → RETESTAR → VALIDAR → VERSIONAR → PUBLICAR**. Trabalhar de forma incremental e reversível, manter pontos de recuperação no Git, usar homologação para mudanças relevantes e interromper a promoção quando houver regressão até que sua causa seja corrigida.
+
+O objetivo de produto é manter o ONEIT corporativo, intuitivo, fluido, confiável e comercialmente apresentável. Entregas devem ser implementadas efetivamente; relatórios e recomendações não substituem execução. Impedimentos externos devem ser descritos com causa e recurso mínimo necessário, enquanto atividades independentes continuam normalmente.
