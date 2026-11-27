@@ -26,6 +26,7 @@ export function TicketCreateFlow(props: Props) {
   const [requesterId, setRequesterId] = useState("");
   const [requesterSearch, setRequesterSearch] = useState("");
   const [requesterOpen, setRequesterOpen] = useState(false);
+  const [requesterActiveIndex, setRequesterActiveIndex] = useState(-1);
   const [locationId, setLocationId] = useState("");
   const [locationSearch, setLocationSearch] = useState("");
   const [locationOpen, setLocationOpen] = useState(false);
@@ -54,6 +55,7 @@ export function TicketCreateFlow(props: Props) {
     const polo = locations.find((location) => location.id === item.location_id);
     return `${item.full_name} ${email} ${polo?.name ?? ""}`.toLocaleLowerCase("pt-BR").includes(requesterSearch.toLocaleLowerCase("pt-BR"));
   });
+  useEffect(() => { setRequesterActiveIndex(visibleRequesters.length ? 0 : -1); }, [requesterSearch, customerId]);
   const openNewTicket = () => {
     setStep("catalog");
     setSearch("");
