@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { PortalSidebarLight as PortalSidebar } from "@/components/portal-sidebar-light";
 import { isSupportedProductionDeploymentMode } from "@/lib/runtime/readiness";
+import { readBuildInfo } from "@/lib/runtime/build-info";
 
 const navigation = [
   { title: "Operação", links: [["Visão geral", "/portal"], ["Chamados", "/portal/tickets"], ["Agendamento de OS", "/portal/field-service"], ["Ordens de serviço", "/portal/service-orders"], ["Validação de OS", "/portal/review"], ["Agenda Técnicos", "/portal/scheduling"], ["Rotas planejadas", "/portal/routes"], ["Relatórios", "/portal/reports"], ["RTO Encerrados", "/portal/field-service-reports"]] },
@@ -28,5 +29,5 @@ export default async function PortalLayout({ children }: Readonly<{ children: Re
   const { data } = await supabase.auth.getUser();
   if (!data.user) redirect("/login");
 
-  return <main className="min-h-screen bg-slate-100 text-slate-900"><PortalSidebar navigation={navigation}/><section data-oneit-portal-sidebar-offset className="min-h-screen">{children}</section></main>;
+  return <main className="min-h-screen bg-slate-100 text-slate-900"><PortalSidebar navigation={navigation} buildInfo={readBuildInfo()} /><section data-oneit-portal-sidebar-offset className="min-h-screen">{children}</section></main>;
 }
