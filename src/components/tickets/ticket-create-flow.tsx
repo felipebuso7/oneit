@@ -19,6 +19,15 @@ type Props = {
   departments: { id: string; organization_id: string; customer_id?: string | null; name: string }[];
 };
 
+function formatPhone(value: string) {
+  const digits = value.replace(/\D/g, "").slice(0, 11);
+  if (!digits) return "";
+  if (digits.length <= 2) return `(${digits}`;
+  if (digits.length <= 6) return `(${digits.slice(0, 2)}) ${digits.slice(2)}`;
+  if (digits.length <= 10) return `(${digits.slice(0, 2)}) ${digits.slice(2, 6)}-${digits.slice(6)}`;
+  return `(${digits.slice(0, 2)}) ${digits.slice(2, 7)}-${digits.slice(7)}`;
+}
+
 export function TicketCreateFlow(props: Props) {
   const { organizations, customers, contracts, slaPolicies, locations, categories, subcategories, offerings, collaborators, requesterEmails = [], departments } = props;
   const [step, setStep] = useState<"closed" | "catalog" | "form">("closed");
@@ -40,6 +49,19 @@ export function TicketCreateFlow(props: Props) {
   const [impact, setImpact] = useState<"LOW" | "MEDIUM" | "HIGH">("LOW");
   const [urgency, setUrgency] = useState<"LOW" | "MEDIUM" | "HIGH">("LOW");
   const [slaPolicyId, setSlaPolicyId] = useState("");
+  useEffect(() => {
+    const input = document.querySelector<HTMLInputElement>('input[name="requesterContactPhone"]');
+    if (!input) return;
+    const handleInput = () => {
+      const formatted = formatPhone(input.value);
+      if (formatted !== input.value) {
+        input.value = formatted;
+        input.setSelectionRange(formatted.length, formatted.length);
+      }
+    };
+    input.addEventListener("input", handleInput);
+    return () => input.removeEventListener("input", handleInput);
+  }, [step]);
   const catalog = useMemo(() => offerings.flatMap((offering) => {
     const subcategory = subcategories.find((item) => item.id === offering.subcategory_id);
     const category = categories.find((item) => item.id === subcategory?.category_id);
