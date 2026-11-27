@@ -147,8 +147,17 @@ export function PartnerExecutionFlow({ access, apiAccess, onLocalComplete }: { a
   }, [accessToken, accessCode, access.attachments]);
 
   const captureLocation = async (): Promise<GpsLocation | null> => {
-    if (!navigator.geolocation) { setLocationStatus("unavailable"); return null; }
-    return new Promise((resolve) => navigator.geolocation.getCurrentPosition(({ coords }) => { const captured = { latitude: coords.latitude, longitude: coords.longitude, accuracy: coords.accuracy }; setLocationStatus("captured"); resolve(captured); }, () => { setLocationStatus("unavailable"); resolve(null); }, { enableHighAccuracy: true, timeout: 10000, maximumAge: 30000 }));
+    if (!navigator.geolocation) { setLocationStatus("unavailable"); setNotice("Este navegador não disponibiliza localização. Você poderá continuar pela exceção operacional, que ficará pendente de validação."); return null; }
+    return new Promise((resolve) => navigator.geolocation.getCurrentPosition(({ coords }) => {
+      const captured = { latitude: coords.latitude, longitude: coords.longitude, accuracy: coords.accuracy };
+      if (!Number.isFinite(captured.latitude) || !Number.isFinite(captured.longitude) || captured.accuracy < 0) { setLocationStatus("unavailable"); setNotice("A localização recebida é inválida. Tente novamente."); resolve(null); return; }
+      setLocationStatus("captured"); resolve(captured);
+    }, (error) => {
+      setLocationStatus("unavailable");
+      const message = error.code === error.PERMISSION_DENIED ? "Permissão de localização negada. Habilite-a no navegador para registrar o ponto." : error.code === error.TIMEOUT ? "A localização demorou além do limite. Tente novamente em um local com sinal GPS." : "Não foi possível obter a localização. Verifique o GPS e tente novamente.";
+      setNotice(`${message} Se continuar sem localização, o evento será registrado para revisão administrativa.`);
+      resolve(null);
+    }, { enableHighAccuracy: true, timeout: 10000, maximumAge: 30000 }));
   };
   const submitEvent = async (event: "ACCEPT" | "TRAVEL_STARTED" | "CHECK_IN" | "SUBMIT" | "CHECK_OUT") => {
     if (!apiAccess) return true;
