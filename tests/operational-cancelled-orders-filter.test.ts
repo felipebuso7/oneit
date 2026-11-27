@@ -8,6 +8,7 @@ describe("filtros operacionais de OS canceladas", () => {
     const routes = readFileSync("src/app/(portal)/portal/routes/page.tsx", "utf8");
     expect(serviceOrders).toContain('.neq("status", "CANCELLED")');
     expect(dispatch).toContain('.neq("status", "CANCELLED")');
+    expect(dispatch).toContain('activeTicketIds.has(order.ticket_id)');
     expect(routes).toContain('.neq("status", "CANCELLED")');
   });
 });

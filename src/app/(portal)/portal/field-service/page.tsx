@@ -52,10 +52,16 @@ export default async function FieldServicePage({ searchParams }: PageProps) {
   const unlinkedTechnicians = countUnlinkedActiveTechnicians(fieldTechnicianResult.data ?? []);
   const linkedOperationalIds = new Set(dispatchMappings.filter((item) => item.active && item.operational_technician_id).map((item) => item.operational_technician_id));
   const unavailableTechnicians = (technicianResult.data ?? []).filter((technician) => technician.active && linkedOperationalIds.has(technician.id) && ["UNAVAILABLE", "OFFLINE", "VACATION"].includes(technician.status)).length;
+  // Uma OS sem chamado operacional ativo é residual (por exemplo, após cancelamento
+  // ou limpeza administrativa) e não pode voltar a aparecer no despacho.
+  const activeTicketIds = new Set((ticketResult.data ?? [])
+    .filter((ticket) => !["CANCELLED", "CLOSED"].includes(ticket.operational_status))
+    .map((ticket) => ticket.id));
+  const visibleOrders = (orderResult.data ?? []).filter((order) => activeTicketIds.has(order.ticket_id));
 
   return <section className="mx-auto max-w-7xl p-5 sm:p-8">
     <OneitPageHeader eyebrow="Operação" title="Agendamento de OS" description="Selecione um chamado, defina o técnico e agende a visita em uma só tela." />
-    <DispatchWorkspace tickets={ticketResult.data ?? []} orders={orderResult.data ?? []}
+    <DispatchWorkspace tickets={(ticketResult.data ?? []).filter((ticket) => activeTicketIds.has(ticket.id))} orders={visibleOrders}
       technicians={dispatchTechnicians} locations={locationResult.data ?? []} locationContacts={contactResult.data ?? []}
       pendingReviews={reviewResult.data ?? []} unlinkedTechnicians={unlinkedTechnicians} unavailableTechnicians={unavailableTechnicians} initialTicketId={initialTicketId} />
   </section>;
