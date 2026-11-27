@@ -5,6 +5,21 @@ import { requireUser } from "@/lib/auth/current-user";
 import { serviceLevelPolicySchema } from "@/lib/validation/service-level";
 import { serviceLevelPauseSchema } from "@/lib/validation/service-level-pause";
 export async function saveServiceLevelPolicy(formData: FormData) {
+  const simpleName = String(formData.get("name") ?? "").trim();
+  const simpleDuration = Number(formData.get("durationValue"));
+  const simpleUnit = String(formData.get("durationUnit") ?? "");
+  const simpleId = String(formData.get("policyId") ?? "");
+  if (simpleName && Number.isInteger(simpleDuration) && simpleDuration > 0 && ["MINUTES", "HOURS", "DAYS"].includes(simpleUnit)) {
+    const { supabase, user } = await requireUser();
+    const minutes = simpleDuration * (simpleUnit === "HOURS" ? 60 : simpleUnit === "DAYS" ? 1440 : 1);
+    const { data: role } = await supabase.from("user_roles").select("organization_id").eq("user_id", user.id).in("role", ["ORG_ADMIN", "SUPER_ADMIN"]).limit(1).maybeSingle();
+    const { data: contract } = role?.organization_id ? await supabase.from("contracts").select("id,organization_id").eq("organization_id", role.organization_id).eq("active", true).order("created_at").limit(1).maybeSingle() : { data: null };
+    if (!contract) redirect("/portal/sla?message=Cadastre+um+contrato+ativo+antes+de+criar+um+SLA.");
+    const payload = { organization_id: contract.organization_id, contract_id: contract.id, name: simpleName, duration_value: simpleDuration, duration_unit: simpleUnit, response_minutes: minutes, resolution_minutes: minutes, ola_minutes: minutes, priority: 3, active: formData.get("active") !== "false" };
+    const result = simpleId ? await supabase.from("service_level_policies").update(payload).eq("id", simpleId).select("id").maybeSingle() : await supabase.from("service_level_policies").insert(payload).select("id").single();
+    if (result.error || !result.data) redirect(`/portal/sla?message=${encodeURIComponent("Não foi possível salvar o SLA.")}`);
+    revalidatePath("/portal/sla"); redirect(`/portal/sla?message=${encodeURIComponent(simpleId ? "SLA atualizado." : "SLA cadastrado.")}`);
+  }
   const parsed = serviceLevelPolicySchema.safeParse({ contractId: formData.get("contractId"), serviceOfferingId: formData.get("serviceOfferingId") || undefined, calendarId: formData.get("calendarId") || undefined, priority: formData.get("priority"), responseMinutes: formData.get("responseMinutes"), resolutionMinutes: formData.get("resolutionMinutes"), olaMinutes: formData.get("olaMinutes") });
   if (!parsed.success) redirect("/portal/sla?message=Política+inválida.");
   const { supabase } = await requireUser(); const value = parsed.data;
@@ -26,6 +41,14 @@ export async function saveServiceLevelPolicy(formData: FormData) {
     if (error) redirect("/portal/sla?message=Não+foi+possível+salvar+a+política.");
   }
   revalidatePath("/portal/sla"); redirect("/portal/sla?message=Política+salva.+Somente+novas+OS+recebem+este+snapshot.");
+}
+
+export async function deleteServiceLevelPolicy(formData: FormData) {
+  const id = String(formData.get("policyId") ?? "");
+  const { supabase } = await requireUser();
+  const { error } = await supabase.from("service_level_policies").update({ active: false }).eq("id", id);
+  if (error) redirect(`/portal/sla?message=${encodeURIComponent("Não foi possível desativar o SLA. Histórico preservado.")}`);
+  revalidatePath("/portal/sla"); redirect("/portal/sla?message=SLA+desativado.");
 }
 export async function pauseServiceLevel(formData: FormData) {
   const parsed = serviceLevelPauseSchema.safeParse({ ticketId: formData.get("ticketId"), version: formData.get("version"), reason: formData.get("reason") });
