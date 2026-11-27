@@ -20,7 +20,7 @@ export default async function FieldServicePage({ searchParams }: PageProps) {
   </section>;
 
   const [ticketResult, orderResult, technicianResult, fieldTechnicianResult, locationResult, reviewResult] = await Promise.all([
-    supabase.from("tickets").select("id,organization_id,customer_id,location_id,ticket_number,title,priority,operational_status,opened_at")
+    supabase.from("tickets").select("id,organization_id,customer_id,location_id,ticket_number,title,priority,operational_status,administrative_status,opened_at")
       .in("organization_id", organizationIds).order("opened_at", { ascending: false }).limit(300),
     supabase.from("service_orders").select("id,organization_id,ticket_id,order_number,status,technician_id,scheduled_at")
       .in("organization_id", organizationIds).neq("status", "CANCELLED").order("created_at", { ascending: false }).limit(300),
@@ -55,7 +55,7 @@ export default async function FieldServicePage({ searchParams }: PageProps) {
   // Uma OS sem chamado operacional ativo é residual (por exemplo, após cancelamento
   // ou limpeza administrativa) e não pode voltar a aparecer no despacho.
   const activeTicketIds = new Set((ticketResult.data ?? [])
-    .filter((ticket) => ticket.operational_status !== "CANCELLED")
+    .filter((ticket) => ticket.operational_status !== "CANCELLED" && ticket.administrative_status !== "CLOSED")
     .map((ticket) => ticket.id));
   const visibleOrders = (orderResult.data ?? []).filter((order) => activeTicketIds.has(order.ticket_id));
 
