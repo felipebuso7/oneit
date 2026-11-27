@@ -12,7 +12,7 @@ export default async function ServiceOrdersPage({ searchParams }: PageProps) {
   const organizationIds = [...new Set((roles ?? []).map((role) => role.organization_id))];
   const [{ data: tickets }, { data: orders }, { data: technicians }] = await Promise.all([
     supabase.from("tickets").select("id,ticket_number,title,location_id").in("organization_id", organizationIds).order("created_at", { ascending: false }).limit(100),
-    supabase.from("service_orders").select("id,order_number,status,scheduled_at,technician_id,ticket_id").in("organization_id", organizationIds).order("created_at", { ascending: false }).limit(200),
+    supabase.from("service_orders").select("id,order_number,status,scheduled_at,technician_id,ticket_id").in("organization_id", organizationIds).neq("status", "CANCELLED").order("created_at", { ascending: false }).limit(200),
     supabase.from("technicians").select("id,full_name").in("organization_id", organizationIds).eq("active", true).order("full_name").limit(200),
   ]);
   const techniciansById = new Map((technicians ?? []).map((technician) => [technician.id, technician.full_name]));

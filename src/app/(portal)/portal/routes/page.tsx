@@ -23,12 +23,12 @@ export default async function RoutesPage({ searchParams }: PageProps) {
   const [{ data: technicians }, { data: routes }, { data: orders }, { data: stops }] = await Promise.all([
     supabase.from("technicians").select("id,organization_id,full_name").in("organization_id", organizationIds).eq("active", true).order("full_name").limit(200),
     supabase.from("field_service_routes").select("id,organization_id,technician_id,route_date,status").in("organization_id", organizationIds).eq("route_date", selectedDate).order("technician_id").limit(200),
-    supabase.from("service_orders").select("id,organization_id,order_number,technician_id,scheduled_at,status").in("organization_id", organizationIds).eq("status", "DISPATCHED").order("scheduled_at").limit(500),
+    supabase.from("service_orders").select("id,organization_id,order_number,technician_id,scheduled_at,status").in("organization_id", organizationIds).eq("status", "DISPATCHED").neq("status", "CANCELLED").order("scheduled_at").limit(500),
     supabase.from("field_service_route_stops").select("id,route_id,service_order_id,sequence_number,planned_start_at,planned_end_at").in("organization_id", organizationIds).order("sequence_number").limit(1000),
   ]);
   const technicianById = new Map((technicians ?? []).map((technician) => [technician.id, technician]));
   const routeOrderIds = [...new Set((stops ?? []).filter((stop) => (routes ?? []).some((route) => route.id === stop.route_id)).map((stop) => stop.service_order_id))];
-  const { data: routeOrders } = routeOrderIds.length ? await supabase.from("service_orders").select("id,order_number,ticket_id,technician_id,scheduled_at,location_id").in("id", routeOrderIds) : { data: [] };
+  const { data: routeOrders } = routeOrderIds.length ? await supabase.from("service_orders").select("id,order_number,ticket_id,technician_id,scheduled_at,location_id").in("id", routeOrderIds).neq("status", "CANCELLED") : { data: [] };
   const routeTicketIds = [...new Set((routeOrders ?? []).map((order) => order.ticket_id))];
   const [{ data: routeTickets }, { data: routeLocations }] = await Promise.all([
     routeTicketIds.length ? supabase.from("tickets").select("id,ticket_number,title").in("id", routeTicketIds) : Promise.resolve({ data: [] }),

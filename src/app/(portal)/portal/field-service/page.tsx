@@ -23,7 +23,7 @@ export default async function FieldServicePage({ searchParams }: PageProps) {
     supabase.from("tickets").select("id,organization_id,customer_id,location_id,ticket_number,title,priority,operational_status,opened_at")
       .in("organization_id", organizationIds).order("opened_at", { ascending: false }).limit(300),
     supabase.from("service_orders").select("id,organization_id,ticket_id,order_number,status,technician_id,scheduled_at")
-      .in("organization_id", organizationIds).order("created_at", { ascending: false }).limit(300),
+      .in("organization_id", organizationIds).neq("status", "CANCELLED").order("created_at", { ascending: false }).limit(300),
     supabase.from("technicians").select("id,organization_id,full_name,phone,mobile,status,base_city,active")
       .in("organization_id", organizationIds).eq("active", true).order("full_name").limit(300),
     // Carrega vínculos inativos também: a resolução deve respeitar uma
