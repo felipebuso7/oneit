@@ -10,7 +10,7 @@ const navigation = [
   { title: "Operação", links: [["Visão geral", "/portal"], ["Chamados", "/portal/tickets"], ["Agendamento de OS", "/portal/field-service"], ["Ordens de serviço", "/portal/service-orders"], ["Validação de OS", "/portal/review"], ["Agenda Técnicos", "/portal/scheduling"], ["Rotas planejadas", "/portal/routes"], ["Relatórios", "/portal/reports"], ["RTO Encerrados", "/portal/field-service-reports"]] },
   { title: "Financeiro", links: [["Boletim de medição", "/portal/field-service/finance"]] },
   { title: "Serviços", links: [["Catálogo", "/portal/service-catalog"], ["Cadastro de LPU", "/portal/settings/field-service/lpu"], ["SLA e OLA", "/portal/sla"], ["Grupos de suporte", "/portal/support-groups"], ["Escalonamentos", "/portal/escalations"], ["Prioridades", "/portal/priority-matrix"], ["Calendários", "/portal/calendars"]] },
-  { title: "Administração", links: [["Configurações", "/portal/settings"], ["Organizações", "/portal/organizations"], ["Usuários", "/portal/users"], ["Clientes", "/portal/customers"], ["Localidades", "/portal/locations"], ["Técnicos", "/portal/technicians"], ["Contratos", "/portal/contracts"]] },
+  { title: "Configurações", links: [["Configurações", "/portal/settings"], ["Organizações", "/portal/organizations"], ["Usuários", "/portal/users"], ["Clientes", "/portal/customers"], ["Localidades", "/portal/locations"], ["Técnicos", "/portal/technicians"], ["Contratos", "/portal/contracts"]] },
 ] as const;
 
 export default async function PortalLayout({ children }: Readonly<{ children: ReactNode }>) {
