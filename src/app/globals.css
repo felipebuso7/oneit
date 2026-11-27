@@ -85,13 +85,6 @@ html[data-oneit-portal-sidebar="expanded"] { --oneit-portal-sidebar-width: 16rem
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
 body {
   max-width: 100%;
   overflow-x: hidden;
