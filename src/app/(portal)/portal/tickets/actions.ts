@@ -113,6 +113,9 @@ export async function cancelTicket(formData: FormData) {
     target_reason: reason || null,
   });
   if (error) {
+    if (error.code === "42703") redirect("/portal/tickets?message=Não foi possível concluir o cancelamento porque a estrutura do banco está desatualizada. A atualização foi registrada para correção.");
+    if (error.code === "23503") redirect("/portal/tickets?message=Este chamado possui dependências operacionais protegidas e não pode ser removido nesta etapa.");
+    if (error.code === "42501") redirect("/portal/tickets?message=Seu perfil não tem permissão para remover este chamado.");
     if (error.message.includes("TICKET_VERSION_CONFLICT")) redirect("/portal/tickets?message=O chamado foi alterado por outra pessoa. Recarregue a fila e tente novamente.");
     if (error.message.includes("TICKET_CANCEL_NOT_ALLOWED")) redirect("/portal/tickets?message=Este chamado já iniciou o atendimento e não pode ser removido da fila.");
     if (error.message.includes("TICKET_CLOSED_MASTER_ONLY")) redirect("/portal/tickets?message=Chamados encerrados só podem ser excluídos pelo Administrador Master.");

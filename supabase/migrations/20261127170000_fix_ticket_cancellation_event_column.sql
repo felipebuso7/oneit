@@ -1,0 +1,18 @@
+-- Corrige o trigger de cancelamento: service_order_events usa `details`, não `metadata`.
+-- A versão anterior abortava a transação de cancelamento com SQLSTATE 42703.
+create or replace function public.sync_ticket_operational_closure()
+returns trigger language plpgsql security invoker set search_path=public as $$
+begin
+  if (new.operational_status = 'CANCELLED' or new.administrative_status = 'CLOSED')
+     and (old.operational_status is distinct from new.operational_status or old.administrative_status is distinct from new.administrative_status) then
+    update public.service_orders set status='CANCELLED', updated_at=clock_timestamp(), updated_by=auth.uid()
+      where ticket_id=new.id and status not in ('COMPLETED','VALIDATED','CANCELLED');
+    insert into public.service_order_events(service_order_id,organization_id,event_type,actor_id,details)
+    select so.id,so.organization_id,'CANCELLED',auth.uid(),jsonb_build_object('reason','TICKET_CLOSED','source','ticket_status_sync')
+      from public.service_orders so where so.ticket_id=new.id and so.status='CANCELLED'
+      and not exists(select 1 from public.service_order_events e where e.service_order_id=so.id and e.event_type='CANCELLED' and e.details->>'source'='ticket_status_sync');
+  end if;
+  return new;
+end; $$;
+drop trigger if exists tickets_sync_service_orders on public.tickets;
+create trigger tickets_sync_service_orders after update of operational_status, administrative_status on public.tickets for each row execute function public.sync_ticket_operational_closure();
