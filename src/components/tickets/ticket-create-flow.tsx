@@ -39,6 +39,7 @@ export function TicketCreateFlow(props: Props) {
   const [servicenowOpenedAt, setServicenowOpenedAt] = useState("");
   const [impact, setImpact] = useState<"LOW" | "MEDIUM" | "HIGH">("LOW");
   const [urgency, setUrgency] = useState<"LOW" | "MEDIUM" | "HIGH">("LOW");
+  const [slaPolicyId, setSlaPolicyId] = useState("");
   const catalog = useMemo(() => offerings.flatMap((offering) => {
     const subcategory = subcategories.find((item) => item.id === offering.subcategory_id);
     const category = categories.find((item) => item.id === subcategory?.category_id);
@@ -56,6 +57,7 @@ export function TicketCreateFlow(props: Props) {
   const selectedContractId = contractId || customerContracts[0]?.id || "";
   const selectedPriority = impact === "HIGH" && urgency === "HIGH" ? 1 : impact !== "LOW" && urgency !== "LOW" ? 2 : impact === "LOW" && urgency === "LOW" ? 5 : 3;
   const eligibleSlaPolicies = slaPolicies.filter((item) => item.contract_id === selectedContractId && item.priority === selectedPriority);
+  const selectedSla = eligibleSlaPolicies.find((item) => item.id === slaPolicyId);
   const customerCollaborators = collaborators.filter((item) => item.organization_id === organizationId && item.customer_id === customerId);
   const visibleRequesters = customerCollaborators.filter((item) => {
     const email = requesterEmails.find((entry) => entry.collaborator_id === item.id)?.email ?? "";
@@ -63,6 +65,22 @@ export function TicketCreateFlow(props: Props) {
     return `${item.full_name} ${email} ${polo?.name ?? ""}`.toLocaleLowerCase("pt-BR").includes(requesterSearch.toLocaleLowerCase("pt-BR"));
   });
   useEffect(() => { setRequesterActiveIndex(visibleRequesters.length ? 0 : -1); }, [requesterSearch, customerId]);
+  useEffect(() => {
+    const select = document.querySelector('select[name="contractId"]') as HTMLSelectElement | null;
+    if (!select) return;
+    const sync = () => setContractId(select.value);
+    sync();
+    select.addEventListener("change", sync);
+    return () => select.removeEventListener("change", sync);
+  }, [customerId, customerContracts.length]);
+  useEffect(() => {
+    const select = document.querySelector('select[name="slaPolicyId"]') as HTMLSelectElement | null;
+    if (!select) return;
+    const sync = () => setSlaPolicyId(select.value);
+    sync();
+    select.addEventListener("change", sync);
+    return () => select.removeEventListener("change", sync);
+  }, [selectedContractId, selectedPriority, eligibleSlaPolicies.length]);
   const openNewTicket = () => {
     setStep("catalog");
     setSearch("");
