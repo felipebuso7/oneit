@@ -113,7 +113,7 @@ export function DispatchWorkspace({ tickets, orders, technicians, locations, loc
           const accessResponse = await fetch("/api/field-service/partner/access", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ serviceOrderId: result.dispatch.service_order_id, validForMinutes: 480 }) });
           const accessPayload = await accessResponse.json().catch(() => ({})) as { access?: { token?: string; code?: string } };
           if (accessResponse.ok && accessPayload.access?.token && accessPayload.access.code) {
-            accessUrl = `${window.location.origin}/field-service/partner/access#token=${encodeURIComponent(accessPayload.access.token)}`;
+            accessUrl = `${window.location.origin}/field-service/partner/access#token=${encodeURIComponent(accessPayload.access.token)}&code=${encodeURIComponent(accessPayload.access.code)}`;
             accessCode = accessPayload.access.code;
           }
         } catch { /* O despacho já foi persistido; a geração do acesso pode ser refeita pelo gestor. */ }

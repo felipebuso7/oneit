@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, Suspense, useState } from "react";
+import { FormEvent, Suspense, useEffect, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 
 export function PartnerCodeGate() {
@@ -10,10 +10,13 @@ export function PartnerCodeGate() {
 function PartnerCodeGateForm() {
   const params = useSearchParams();
   const router = useRouter();
-  const token = params.get("token") ?? (typeof window !== "undefined" ? new URLSearchParams(window.location.hash.slice(1)).get("token") : null) ?? "";
-  const [code, setCode] = useState("");
-  const [notice, setNotice] = useState("Informe o código temporário enviado pelo gestor.");
+  const hashParams = typeof window !== "undefined" ? new URLSearchParams(window.location.hash.slice(1)) : null;
+  const token = params.get("token") ?? hashParams?.get("token") ?? "";
+  const initialCode = params.get("code") ?? hashParams?.get("code") ?? "";
+  const [code, setCode] = useState(initialCode.replace(/\D/g, "").slice(0, 6));
+  const [notice, setNotice] = useState(initialCode ? "Validando acesso seguro…" : "Informe o código temporário enviado pelo gestor.");
   const [loading, setLoading] = useState(false);
+  useEffect(() => { if (token && /^\d{6}$/.test(initialCode)) void submit(new Event("submit") as unknown as FormEvent<HTMLFormElement>); }, [token, initialCode]);
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
