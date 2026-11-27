@@ -79,3 +79,7 @@ Preservar estabilidade, integridade dos dados e segurança. Refatorações exige
 Toda conclusão deve possuir evidência verificável: testes, evidências visuais, logs, commits, migrations, consultas, versão, deployment ou smoke tests. Diferenciar sempre implementado, testado, homologado, publicado e bloqueado.
 
 Antes de iniciar qualquer tarefa, consultar este arquivo, o backlog oficial e os registros de execução. Não reiniciar atividades concluídas nem ignorar pendências críticas. Nunca inventar testes, métricas, resultados, acessos, evidências ou publicações. Quando houver implantação solicitada, executar o procedimento oficial somente após os gates aplicáveis e confirmar a versão efetivamente publicada.
+
+### Critério permanente de homologação publicada
+
+Uma funcionalidade só pode ser classificada como "corrigida e validada em produção" quando o domínio oficial responder com o commit do release, a versão/build do manifesto e um smoke test funcional correspondente. Código local, push no GitHub ou deployment em preview não substituem essa confirmação. Se o fluxo exigir autenticação, registrar explicitamente a limitação e classificar como implementado, mas não homologado.
