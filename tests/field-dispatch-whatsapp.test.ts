@@ -24,10 +24,13 @@ describe("despacho com comunicação ao técnico", () => {
     expect(confirmationSource).not.toContain("/demo/field-service/partner/access");
     expect(confirmationSource).toContain('url.hash = `token=${encodeURIComponent(payload.access.token)}`');
     expect(confirmationSource).not.toContain('url.searchParams.set("code", payload.access.code)');
-    expect(confirmationSource).toContain("Informe o código ao técnico separadamente");
+    expect(confirmationSource).toContain("Um novo link invalida o anterior");
     expect(confirmationSource).toContain("recordFieldCommunication");
     expect(confirmationSource).toContain("Mensagem preparada para envio");
     expect(confirmationSource).toContain("whatsappRecipient(phone)");
+    expect(confirmationSource).toContain("Reenviar pelo WhatsApp");
+    expect(confirmationSource).toContain("Abrir WhatsApp manualmente");
+    expect(confirmationSource).toContain("setTechnician");
     expect(confirmationSource).toContain("Informe um celular válido com DDD");
     expect(confirmationSource).toContain("encodeURIComponent(message)");
   });
