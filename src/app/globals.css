@@ -54,9 +54,11 @@ html[data-oneit-sidebar="collapsed"] {
 html[data-oneit-portal-sidebar="collapsed"] { --oneit-portal-sidebar-width: 4.5rem; }
 html[data-oneit-portal-sidebar="expanded"] { --oneit-portal-sidebar-width: 16rem; }
 [data-oneit-portal-sidebar-offset] { margin-left: var(--oneit-portal-sidebar-width, 16rem) !important; transition: margin-left 200ms ease; }
+.oneit-portal-content > main { padding-block: var(--oneit-space-8) !important; }
 
 @media (max-width: 767px) {
   :root { --oneit-portal-sidebar-width: 4.5rem; }
+  .oneit-portal-content > main { padding-block: var(--oneit-space-6) !important; }
   [data-oneit-portal-sidebar-offset] { margin-left: 4.5rem !important; }
   .oneit-portal-sidebar-light { width: 4.5rem !important; padding-left: 0.5rem; padding-right: 0.5rem; }
   .oneit-sidebar-logo { height: 4.5rem; }

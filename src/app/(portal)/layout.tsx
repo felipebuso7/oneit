@@ -29,5 +29,5 @@ export default async function PortalLayout({ children }: Readonly<{ children: Re
   const { data } = await supabase.auth.getUser();
   if (!data.user) redirect("/login");
 
-  return <main className="min-h-screen bg-slate-100 text-slate-900"><PortalSidebar navigation={navigation} buildInfo={readBuildInfo()} /><section data-oneit-portal-sidebar-offset className="min-h-screen">{children}</section></main>;
+  return <main className="min-h-screen bg-slate-100 text-slate-900"><PortalSidebar navigation={navigation} buildInfo={readBuildInfo()} /><section data-oneit-portal-sidebar-offset className="oneit-portal-content min-h-screen">{children}</section></main>;
 }
