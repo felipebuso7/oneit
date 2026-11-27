@@ -159,7 +159,7 @@ textarea {
   gap: 16px;
   border: 1px solid var(--oneit-line);
   border-radius: var(--oneit-radius-lg);
-  background: linear-gradient(135deg, #ffffff 0%, #f7fbfc 100%);
+  background: var(--oneit-surface);
   padding: 16px 20px;
   box-shadow: var(--oneit-shadow-sm);
 }
@@ -203,7 +203,14 @@ textarea {
 .oneit-page-header:hover { border-color: #c7d8de; box-shadow: 0 6px 20px rgb(15 23 42 / 0.07); }
 .oneit-page-heading-row > a,
 .oneit-page-heading-row > button { min-height: 42px; white-space: nowrap; }
+.oneit-btn { transition: background-color 140ms ease, border-color 140ms ease, box-shadow 140ms ease, transform 140ms ease; }
 .oneit-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgb(15 23 42 / 0.12); }
+.oneit-btn:active { transform: translateY(0); box-shadow: var(--oneit-shadow-sm); }
+.oneit-btn:disabled { cursor: not-allowed; opacity: .6; transform: none; box-shadow: none; }
+@media (prefers-reduced-motion: reduce) {
+  .oneit-btn, .oneit-page-header { transition: none; }
+  .oneit-btn:hover { transform: none; }
+}
 @media (max-width: 640px) {
   :root { --oneit-page-gutter: 16px; }
   .oneit-page-heading-row { flex-direction: column; align-items: stretch; }
