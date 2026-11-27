@@ -28,6 +28,8 @@ const summaryKey = "oneit.demo.field-last-dispatch.v1";
 export default function DispatchConfirmedPage() {
   const [summary, setSummary] = useState<DispatchSummary | null>(null);
   const [phone, setPhone] = useState("");
+  const [technician, setTechnician] = useState("");
+  const [whatsAppUrl, setWhatsAppUrl] = useState("");
   const [notice, setNotice] = useState("Revise o agendamento e compartilhe o link de atendimento com o técnico.");
   const [secureLink, setSecureLink] = useState("");
   const [secureCode, setSecureCode] = useState("");
@@ -39,6 +41,7 @@ export default function DispatchConfirmedPage() {
       if (saved?.ticket) {
         setSummary(saved);
         setPhone(saved.technicianPhone ?? "");
+        setTechnician(saved.technician ?? "");
       } else {
         setNotice("Nenhuma visita foi atribuída nesta sessão. Retorne à fila para iniciar um despacho.");
       }
@@ -74,13 +77,15 @@ export default function DispatchConfirmedPage() {
     recordFieldCommunication({
       ticket: summary.ticket,
       channel: "WhatsApp",
-      recipient: summary.technician,
+      recipient: technician.trim() || summary.technician,
       phone: recipient,
       status: "Mensagem preparada para envio",
       body: "Resumo do despacho preparado. Link de acesso temporário omitido do histórico local.",
     });
-    window.open(`https://wa.me/${recipient}?text=${encodeURIComponent(message)}`, "_blank", "noopener,noreferrer");
-    setNotice("Conversa preparada. Se o WhatsApp não abrir, verifique o bloqueio de janelas. O envio e a entrega devem ser confirmados no WhatsApp. Informe o código ao técnico separadamente.");
+    const url = `https://wa.me/${recipient}?text=${encodeURIComponent(message)}`;
+    setWhatsAppUrl(url);
+    const opened = window.open(url, "_blank", "noopener,noreferrer");
+    setNotice(opened ? "Reenvio preparado no WhatsApp. Confirme o envio na conversa aberta." : "O navegador bloqueou a abertura automática. Use o link abaixo para abrir o WhatsApp.");
   }
 
   async function createSecureAccess() {
@@ -142,12 +147,16 @@ export default function DispatchConfirmedPage() {
               <aside className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
                 <p className="text-xs font-semibold uppercase tracking-[.14em] text-[#0a5261]">Enviar ao técnico</p>
                 <p className="mt-2 text-sm text-slate-600">A mensagem contém OS, serviço, local, janela, contato e o link para o atendimento mobile.</p>
-                <label className="mt-5 block text-sm font-semibold">Celular do técnico
+                <label className="mt-5 block text-sm font-semibold">Técnico
+                  <input value={technician} onChange={(event) => setTechnician(event.target.value)} placeholder="Nome do técnico" className="mt-1 w-full rounded-lg border border-slate-300 p-2.5 font-normal" />
+                </label>
+                <label className="mt-4 block text-sm font-semibold">Celular do técnico
                   <input value={phone} onChange={(event) => setPhone(event.target.value)} placeholder="(11) 99999-9999" className="mt-1 w-full rounded-lg border border-slate-300 p-2.5 font-normal" />
                 </label>
                 {summary.technicianKind === "Parceiro" ? <p className="mt-2 text-xs text-amber-800">Técnico parceiro: confirme ou informe o número antes do envio.</p> : null}
                 {summary.serviceOrderId ? <div className="mt-4 rounded-lg border border-cyan-200 bg-cyan-50 p-3 text-xs text-cyan-950"><p className="font-semibold">Acesso externo seguro</p><p className="mt-1">Gere um link temporário para esta OS. Um novo link invalida o anterior.</p><button type="button" onClick={() => void createSecureAccess()} disabled={creatingAccess} className="mt-3 rounded-md border border-cyan-700 bg-white px-3 py-2 text-xs font-semibold text-cyan-950 disabled:opacity-60">{creatingAccess ? "Gerando acesso…" : secureLink ? "Gerar novo acesso" : "Gerar acesso seguro"}</button>{secureCode ? <p className="mt-2">Código temporário: <b>{secureCode}</b></p> : null}</div> : <p className="mt-4 rounded-lg bg-amber-50 p-3 text-xs text-amber-900">Modo demonstrativo: o link técnico funciona somente neste navegador. Para envio a outro celular, a OS precisa estar persistida no servidor.</p>}
-                <button type="button" onClick={openWhatsApp} className="mt-5 w-full rounded-lg bg-[#0a5261] px-4 py-3 text-sm font-semibold text-white">Enviar resumo pelo WhatsApp</button>
+                <button type="button" onClick={openWhatsApp} className="mt-5 w-full rounded-lg bg-[#0a5261] px-4 py-3 text-sm font-semibold text-white">{whatsAppUrl ? "Reenviar pelo WhatsApp" : "Enviar resumo pelo WhatsApp"}</button>
+                {whatsAppUrl ? <a href={whatsAppUrl} target="_blank" rel="noreferrer" className="mt-3 block text-center text-sm font-semibold text-[#123f99]">Abrir WhatsApp manualmente →</a> : null}
                 <Link href="/demo/field-service/technician" className="mt-3 block text-center text-sm font-semibold text-[#123f99]">Abrir visão do técnico neste dispositivo →</Link>
               </aside>
             </div>
