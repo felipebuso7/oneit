@@ -9,6 +9,7 @@ type Props = {
   organizations: { id: string; display_name: string }[];
   customers: { id: string; organization_id: string; name: string }[];
   contracts: { id: string; organization_id: string; customer_id: string; code: string; name: string }[];
+  slaPolicies: { id: string; organization_id: string; contract_id: string; priority: number; response_minutes: number; resolution_minutes: number; ola_minutes: number }[];
   locations: { id: string; organization_id: string; customer_id: string; name: string; street?: string | null; street_number?: string | null; complement?: string | null; district?: string | null; city: string; state_code?: string | null; postal_code?: string | null }[];
   categories: { id: string; organization_id: string; name: string }[];
   subcategories: { id: string; category_id: string; name: string }[];
@@ -19,10 +20,11 @@ type Props = {
 };
 
 export function TicketCreateFlow(props: Props) {
-  const { organizations, customers, contracts, locations, categories, subcategories, offerings, collaborators, requesterEmails = [], departments } = props;
+  const { organizations, customers, contracts, slaPolicies, locations, categories, subcategories, offerings, collaborators, requesterEmails = [], departments } = props;
   const [step, setStep] = useState<"closed" | "catalog" | "form">("closed");
   const [organizationId, setOrganizationId] = useState(organizations.length === 1 ? organizations[0].id : "");
   const [customerId, setCustomerId] = useState("");
+  const [contractId, setContractId] = useState("");
   const [requesterId, setRequesterId] = useState("");
   const [requesterSearch, setRequesterSearch] = useState("");
   const [requesterOpen, setRequesterOpen] = useState(false);
@@ -35,6 +37,8 @@ export function TicketCreateFlow(props: Props) {
   const [offeringId, setOfferingId] = useState("");
   const [servicenowNumber, setServicenowNumber] = useState("");
   const [servicenowOpenedAt, setServicenowOpenedAt] = useState("");
+  const [impact, setImpact] = useState<"LOW" | "MEDIUM" | "HIGH">("LOW");
+  const [urgency, setUrgency] = useState<"LOW" | "MEDIUM" | "HIGH">("LOW");
   const catalog = useMemo(() => offerings.flatMap((offering) => {
     const subcategory = subcategories.find((item) => item.id === offering.subcategory_id);
     const category = categories.find((item) => item.id === subcategory?.category_id);
@@ -49,6 +53,9 @@ export function TicketCreateFlow(props: Props) {
   const selectedLocation = customerLocations.find((item) => item.id === locationId);
   const locationAddress = selectedLocation ? [selectedLocation.street, selectedLocation.street_number, selectedLocation.complement, selectedLocation.district, selectedLocation.city, selectedLocation.state_code, selectedLocation.postal_code].filter(Boolean).join(", ") : "";
   const customerContracts = contracts.filter((item) => item.organization_id === organizationId && item.customer_id === customerId);
+  const selectedContractId = contractId || customerContracts[0]?.id || "";
+  const selectedPriority = impact === "HIGH" && urgency === "HIGH" ? 1 : impact !== "LOW" && urgency !== "LOW" ? 2 : impact === "LOW" && urgency === "LOW" ? 5 : 3;
+  const eligibleSlaPolicies = slaPolicies.filter((item) => item.contract_id === selectedContractId && item.priority === selectedPriority);
   const customerCollaborators = collaborators.filter((item) => item.organization_id === organizationId && item.customer_id === customerId);
   const visibleRequesters = customerCollaborators.filter((item) => {
     const email = requesterEmails.find((entry) => entry.collaborator_id === item.id)?.email ?? "";
@@ -103,7 +110,7 @@ export function TicketCreateFlow(props: Props) {
             {customerId && !customerCollaborators.length && <p role="status" className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-950">Nenhum solicitante ativo vinculado a esta empresa. Cadastros antigos sem empresa não são exibidos para evitar acesso cruzado. <Link href="/portal/collaborators" className="font-semibold underline">Regularizar solicitantes</Link>.</p>}
             <label className="block text-sm font-medium">Assunto *<input name="title" required minLength={5} maxLength={240} defaultValue={selected?.offering.name} className={field} /><small className="mt-1 block font-normal text-slate-500">Mínimo de 5 caracteres.</small></label><label className="block text-sm font-medium">Descrição *<textarea name="description" required minLength={10} maxLength={10000} rows={6} placeholder="Descreva o problema e as informações úteis ao atendimento." className={field} /><small className="mt-1 block font-normal text-slate-500">Mínimo de 10 caracteres para orientar o atendimento.</small></label><label className="block text-sm font-medium">Telefone de contato com o cliente<input name="requesterContactPhone" inputMode="tel" placeholder="(11) 99999-8888" className={field} /><small className="mt-1 block font-normal text-slate-500">Telefone usado pelo técnico durante o atendimento.</small></label>
             <label className="block text-sm font-medium">Fotos para orientar o atendimento<input name="attachments" type="file" accept="image/jpeg,image/png,image/webp" multiple className={`${field} file:mr-3 file:rounded-md file:border-0 file:bg-sky-100 file:px-3 file:py-1.5 file:text-sm file:font-semibold`} /><small className="mt-1 block font-normal text-slate-500">Opcional · até 5 fotos de 4 MB. Elas serão exibidas na OS do técnico.</small></label>
-            <div className="grid gap-4 sm:grid-cols-2"><label className="text-sm font-medium">Impacto<select name="impact" defaultValue="LOW" className={field}><option value="LOW">Baixo</option><option value="MEDIUM">Médio</option><option value="HIGH">Alto</option></select></label><label className="text-sm font-medium">Urgência<select name="urgency" defaultValue="LOW" className={field}><option value="LOW">Baixa</option><option value="MEDIUM">Média</option><option value="HIGH">Alta</option></select></label></div>
+            <div className="grid gap-4 sm:grid-cols-3"><label className="text-sm font-medium">Impacto<select name="impact" value={impact} onChange={(e) => setImpact(e.target.value as typeof impact)} className={field}><option value="LOW">Baixo</option><option value="MEDIUM">Médio</option><option value="HIGH">Alto</option></select></label><label className="text-sm font-medium">Urgência<select name="urgency" value={urgency} onChange={(e) => setUrgency(e.target.value as typeof urgency)} className={field}><option value="LOW">Baixa</option><option value="MEDIUM">Média</option><option value="HIGH">Alta</option></select></label><label className="text-sm font-medium">SLA aplicável<select name="slaPolicyId" required={Boolean(selectedContractId && eligibleSlaPolicies.length)} className={field} disabled={!selectedContractId}><option value="">{selectedContractId ? (eligibleSlaPolicies.length ? "Selecione o SLA" : "Nenhum SLA configurado") : "Selecione o contrato"}</option>{eligibleSlaPolicies.map((sla) => <option key={sla.id} value={sla.id}>P{sla.priority} · resposta {sla.response_minutes} min · resolução {sla.resolution_minutes} min</option>)}</select><small className="mt-1 block font-normal text-slate-500">Prioridade calculada: P{selectedPriority}</small></label></div>
           </div><footer className="flex items-center justify-between gap-3 border-t border-slate-200 px-5 py-4 sm:px-7"><button type="button" onClick={() => setStep("catalog")} className="text-sm font-semibold text-slate-700">← Voltar ao catálogo</button><div className="flex items-center gap-3"><span className="text-xs text-slate-500" aria-live="polite">{!organizationId ? "Selecione a organização" : !customerId ? "Selecione o cliente" : !locationId ? "Selecione a localidade" : ""}</span><SubmitButton disabled={!organizationId || !offeringId || !customerId || !locationId} /></div></footer>
         </form>}
       </section>

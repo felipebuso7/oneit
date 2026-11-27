@@ -20,6 +20,7 @@ export const createTicketSchema = z.object({
   requesterContactPhone: z.string().trim().max(40).optional(),
   impact: ticketImpactSchema,
   urgency: ticketImpactSchema,
+  slaPolicyId: z.uuid().optional(),
 });
 
 export const transitionTicketSchema = z.object({

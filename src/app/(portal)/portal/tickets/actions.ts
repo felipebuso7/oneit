@@ -13,6 +13,7 @@ function ticketCreationMessage(message: string | undefined): string {
   if (message?.includes("TICKET_REQUESTER_INVALID")) return "Solicitante inválido, inativo ou não vinculado ao cliente selecionado.";
   if (message?.includes("TICKET_DEPARTMENT_INVALID")) return "Departamento inválido, inativo ou não vinculado ao cliente selecionado.";
   if (message?.includes("TICKET_SERVICE_OFFERING_INVALID")) return "O serviço selecionado está inativo ou não pertence à organização do chamado.";
+  if (message?.includes("TICKET_SLA_POLICY_INVALID")) return "O SLA selecionado não é elegível para o contrato, prioridade ou organização informados.";
   if (message?.includes("TICKET_CATEGORY_INVALID")) return "A categoria do serviço está inativa ou não pertence à organização do chamado.";
   if (message?.includes("TICKET_SUBCATEGORY_INVALID")) return "A subcategoria do serviço está inativa ou não pertence à categoria selecionada.";
   if (message?.includes("Ticket customer must belong")) return "O cliente selecionado não pertence à organização escolhida.";
@@ -39,7 +40,7 @@ export async function createTicket(formData: FormData) {
   const parsed = createTicketSchema.safeParse({
     organizationId: formData.get("organizationId"), servicenowNumber: formData.get("servicenowNumber") || undefined, servicenowOpenedAt: formData.get("servicenowOpenedAt") || undefined, customerId: formData.get("customerId"),
     contractId: formData.get("contractId") || undefined, serviceOfferingId: formData.get("serviceOfferingId") || undefined, requesterCollaboratorId: formData.get("requesterCollaboratorId") || undefined, departmentUnitId: formData.get("departmentUnitId") || undefined, ticketType: formData.get("ticketType"), locationId: formData.get("locationId"),
-    title: formData.get("title"), description: formData.get("description"), requesterContactPhone: formData.get("requesterContactPhone") || undefined, impact: formData.get("impact"), urgency: formData.get("urgency"),
+    title: formData.get("title"), description: formData.get("description"), requesterContactPhone: formData.get("requesterContactPhone") || undefined, impact: formData.get("impact"), urgency: formData.get("urgency"), slaPolicyId: formData.get("slaPolicyId") || undefined,
   });
   if (!parsed.success) redirect(`/portal/tickets?message=${encodeURIComponent(ticketValidationMessage(parsed.error.issues))}`);
 
@@ -52,7 +53,7 @@ export async function createTicket(formData: FormData) {
     organization_id: parsed.data.organizationId, servicenow_number: parsed.data.servicenowNumber || null, servicenow_opened_at: parsed.data.servicenowOpenedAt || null, customer_id: parsed.data.customerId,
     contract_id: parsed.data.contractId, service_offering_id: parsed.data.serviceOfferingId, requester_collaborator_id: parsed.data.requesterCollaboratorId, department_unit_id: parsed.data.departmentUnitId, location_id: parsed.data.locationId,
     title: parsed.data.title, description: parsed.data.description, requester_contact_phone: parsed.data.requesterContactPhone || null, impact: parsed.data.impact,
-    urgency: parsed.data.urgency, ticket_type: parsed.data.ticketType,
+    urgency: parsed.data.urgency, sla_policy_id: parsed.data.slaPolicyId ?? null, ticket_type: parsed.data.ticketType,
   };
   const { data: createdTicket, error } = await supabase.from("tickets").insert(ticketPayload).select("id,ticket_number").single();
   if (error || !createdTicket) redirect(`/portal/tickets?message=${encodeURIComponent(ticketCreationMessage(error?.message))}`);
