@@ -40,6 +40,12 @@
   --oneit-shadow-md: 0 4px 14px rgb(15 23 42 / 0.08);
 }
 
+/* Guided workflow mobile: keep field actions comfortable and discoverable. */
+main:has(section[aria-label="Jornada do atendimento"]) button { min-height: 48px; }
+main:has(section[aria-label="Jornada do atendimento"]) textarea,
+main:has(section[aria-label="Jornada do atendimento"]) input,
+main:has(section[aria-label="Jornada do atendimento"]) select { min-height: 44px; }
+
 html[data-oneit-sidebar="collapsed"] {
   --oneit-sidebar-width: 4.5rem;
 }
