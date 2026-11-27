@@ -13,6 +13,7 @@ const periodLabel = (date: string | null) => {
 };
 const periodRange: Record<string, string> = { Manhã: "08:00–12:00", Tarde: "13:00–18:00", Noite: "19:00–22:00" };
 const technicianAccents = ["border-l-sky-600", "border-l-violet-600", "border-l-emerald-600", "border-l-amber-500", "border-l-rose-500"];
+const routeEligibleOrderStatuses = ["DISPATCHED", "TRAVELING", "CHECKED_IN", "IN_SERVICE"];
 
 export default async function RoutesPage({ searchParams }: PageProps) {
   const [{ supabase, user }, query] = await Promise.all([requireUser(), searchParams]);
@@ -23,7 +24,7 @@ export default async function RoutesPage({ searchParams }: PageProps) {
   const [{ data: technicians }, { data: routes }, { data: orders }, { data: stops }] = await Promise.all([
     supabase.from("technicians").select("id,organization_id,full_name").in("organization_id", organizationIds).eq("active", true).order("full_name").limit(200),
     supabase.from("field_service_routes").select("id,organization_id,technician_id,route_date,status").in("organization_id", organizationIds).eq("route_date", selectedDate).order("technician_id").limit(200),
-    supabase.from("service_orders").select("id,organization_id,order_number,technician_id,scheduled_at,status").in("organization_id", organizationIds).eq("status", "DISPATCHED").neq("status", "CANCELLED").order("scheduled_at").limit(500),
+    supabase.from("service_orders").select("id,organization_id,order_number,technician_id,scheduled_at,status").in("organization_id", organizationIds).in("status", routeEligibleOrderStatuses).order("scheduled_at").limit(500),
     supabase.from("field_service_route_stops").select("id,route_id,service_order_id,sequence_number,planned_start_at,planned_end_at").in("organization_id", organizationIds).order("sequence_number").limit(1000),
   ]);
   const technicianById = new Map((technicians ?? []).map((technician) => [technician.id, technician]));
@@ -35,7 +36,7 @@ export default async function RoutesPage({ searchParams }: PageProps) {
     (routeOrders ?? []).length ? supabase.from("customer_locations").select("id,name,city").in("id", (routeOrders ?? []).map((order) => order.location_id).filter(Boolean)) : Promise.resolve({ data: [] }),
   ]);
   const activeRouteTicketIds = new Set((routeTickets ?? []).filter((ticket) => !["CANCELLED", "CLOSED"].includes(ticket.operational_status)).map((ticket) => ticket.id));
-  const orderById = new Map((routeOrders ?? []).filter((order) => activeRouteTicketIds.has(order.ticket_id)).map((order) => [order.id, order]));
+const orderById = new Map((routeOrders ?? []).filter((order) => activeRouteTicketIds.has(order.ticket_id)).map((order) => [order.id, order]));
   const ticketById = new Map((routeTickets ?? []).filter((ticket) => activeRouteTicketIds.has(ticket.id)).map((ticket) => [ticket.id, ticket]));
   const locationById = new Map((routeLocations ?? []).map((location) => [location.id, location]));
   return <main className="mx-auto max-w-6xl space-y-6 p-6 sm:p-8">
